@@ -15,11 +15,11 @@ Aus diesem Repo kopieren:
 
 | Repo-Datei | Ziel im Vault |
 |---|---|
-| `template/AGENTS.md` | **Vault-Root** `AGENTS.md` |
-| `template/wiki-schema.md` | `[WIKI-ORDNER]/wiki-schema.md` |
-| `template/index.md` | `[WIKI-ORDNER]/index.md` |
-| `template/log.md` | `[WIKI-ORDNER]/log.md` |
-| `template/examples/*` | optional als Muster nach `[WIKI-ORDNER]/<Thema>/` |
+| `template/de/AGENTS.md` | **Vault-Root** `AGENTS.md` |
+| `template/de/wiki-schema.md` | `[WIKI-ORDNER]/wiki-schema.md` |
+| `template/de/index.md` | `[WIKI-ORDNER]/index.md` |
+| `template/de/log.md` | `[WIKI-ORDNER]/log.md` |
+| `template/de/examples/*` | optional als Muster nach `[WIKI-ORDNER]/<Thema>/` |
 
 ## 4. Platzhalter ausfüllen
 In `AGENTS.md`:

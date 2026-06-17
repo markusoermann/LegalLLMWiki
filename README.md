@@ -1,67 +1,70 @@
+**🇬🇧 English** · [🇩🇪 Deutsch](README.de.md)
+
 # LegalWikiLLM
 
-**Ein KI-gepflegtes, juristisch optimiertes Fach-Wiki für Obsidian — mit Zotero-Anbindung und Multi-Agent-Unterstützung.**
+**An AI-maintained, law-optimized subject wiki for Obsidian — with Zotero integration and multi-agent support.**
 
-Ein KI-Agent baut in deinem Obsidian-Vault ein strukturiertes Wiki auf und hält es aktuell: Quellen liegen in **Zotero**, der Agent zieht sie per **MCP** heran und schreibt kuratierte Wiki-Seiten. Optimiert für Recht — mit Normknoten, Leitentscheidungen, Rechtshierarchie und ECLI/ELI-Identifikatoren.
+An AI agent builds a structured wiki inside your Obsidian vault and keeps it up to date: sources live in **Zotero**, the agent pulls them in via **MCP** and writes curated wiki pages. Optimized for law — with norm nodes, landmark decisions, a legal hierarchy and ECLI/ELI identifiers.
 
-Das Projekt beruht auf dem **LLM-Wiki-Muster von Andrej Karpathy** (2026) und ist an den **Open Knowledge Format (OKF)**-Standard von Google angepasst — siehe [Grundlagen & Standards](#grundlagen--standards).
+The project is based on **Andrej Karpathy's LLM wiki pattern** (2026) and is aligned with Google's **Open Knowledge Format (OKF)** standard — see [Foundations & Standards](#foundations--standards).
 
-## Für wen?
+## Who is it for?
 
-Jurist:innen, Forschende und alle, die ein befragbares Fach-Wiki mit sauberer Quellenanbindung wollen — **unabhängig vom KI-Agenten**.
+Lawyers, researchers and anyone who wants a queryable subject wiki with clean source integration — **independent of the AI agent**.
 
 ## Features
 
-- 📚 **Zotero ↔ Obsidian** über MCP (Ingest von Metadaten, Abstract, PDF-Volltext, Annotationen)
-- ⚖️ **Juristisch optimiert:** Normknoten, Leitentscheidungen, 6-stufige Rechtshierarchie, `[!recht]`-Callouts, `ecli`/`resource` (ELI/ECLI)
-- 🤖 **Multi-Agent:** funktioniert mit **Claude Code, OpenAI Codex, OpenCode und Gemini CLI** (kanonische `AGENTS.md`)
-- 🔗 **Graph ohne Triplestore:** Backlinks der Norm-/Urteilsknoten als Abfragepfad
-- 🧩 **4 Skills:** `wiki-query`, `zotero-skill`, `quellencheck`, `defuddle`
-- 📐 **An den OKF-Standard angepasstes Schema** ([Google Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md))
+- 📚 **Zotero ↔ Obsidian** via MCP (ingest of metadata, abstract, PDF full text, annotations)
+- ⚖️ **Law-optimized:** norm nodes, landmark decisions, 6-level legal hierarchy, `[!recht]` callouts, `ecli`/`resource` (ELI/ECLI)
+- 🤖 **Multi-agent:** works with **Claude Code, OpenAI Codex, OpenCode and Gemini CLI** (canonical `AGENTS.md`)
+- 🔗 **Graph without a triplestore:** backlinks of the norm/decision nodes as the query path
+- 🧩 **4 skills:** `wiki-query`, `zotero-skill`, `quellencheck`, `defuddle`
+- 📐 **Schema aligned with the OKF standard** ([Google Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md))
 
 ## Quickstart
 
-1. **Obsidian-Vault** anlegen, eigene Ordnerstruktur + Wiki-Ort wählen → [`docs/02-obsidian.md`](docs/02-obsidian.md)
-2. **Framework-Dateien** aus `template/` einsetzen (`AGENTS.md`, `wiki-schema.md`, `index.md`, `log.md`)
-3. **Zotero + MCP** verbinden → [`docs/03-zotero-mcp.md`](docs/03-zotero-mcp.md)
-4. **Deinen Agenten** einrichten (Kontextdatei + MCP-Config + Skills) → [`docs/04-agenten-einrichtung.md`](docs/04-agenten-einrichtung.md)
-5. **Loslegen:** `ingest @citekey`, `query wiki: …`, `lint wiki` → [`docs/05-workflows.md`](docs/05-workflows.md)
+1. **Create an Obsidian vault**, choose your own folder structure + wiki location → [`docs/en/02-obsidian.md`](docs/en/02-obsidian.md)
+2. **Drop in the framework files** from `template/` (`AGENTS.md`, `wiki-schema.md`, `index.md`, `log.md`)
+3. **Connect Zotero + MCP** → [`docs/en/03-zotero-mcp.md`](docs/en/03-zotero-mcp.md)
+4. **Set up your agent** (context file + MCP config + skills) → [`docs/en/04-agent-setup.md`](docs/en/04-agent-setup.md)
+5. **Get going:** `ingest @citekey`, `query wiki: …`, `lint wiki` → [`docs/en/05-workflows.md`](docs/en/05-workflows.md)
 
-Juristische Besonderheiten: [`docs/06-recht-features.md`](docs/06-recht-features.md) · Konzept/Architektur: [`docs/01-konzept.md`](docs/01-konzept.md)
+Legal specifics: [`docs/en/06-legal-features.md`](docs/en/06-legal-features.md) · Concept/architecture: [`docs/en/01-concept.md`](docs/en/01-concept.md)
 
-## Repo-Aufbau
+## Repository layout
 
 ```
-docs/        Setup-Guide (01–06)
+docs/        Setup guide (01–06), per language: docs/en/ + docs/de/
 template/    AGENTS.md, wiki-schema.md, index/log, examples/, agent-config/
-skills/      4 Skills + Einbindungs-Guide (skills/README.md)
-mcp/         Beispiel-MCP-Konfiguration
+             localized text in template/en/ + template/de/; language-neutral agent-config/, mcp/
+skills/      4 skills + integration guide (skills/README.md)
+mcp/         Example MCP configuration
 ```
 
-## Hinweise
+## Notes
 
-- **Keine personenbezogenen Daten:** Das Repo enthält nur das generalisierte Framework + gemeinfreie Beispielinhalte. Eigene Inhalte/Zotero-Bibliothek bleiben lokal.
-- **Abhängigkeiten:** Zotero 7, [`zotero-mcp`](https://github.com/cookjohn/zotero-mcp) (`npm i -g zotero-mcp`), Node.js (für `npx`-Filesystem-Server); für `defuddle`: `npm i -g defuddle`.
+- **No personal data:** the repo contains only the generalized framework + public-domain example content. Your own content/Zotero library stays local.
+- **Dependencies:** Zotero 7, [`zotero-mcp`](https://github.com/cookjohn/zotero-mcp) (`npm i -g zotero-mcp`), Node.js (for the `npx` filesystem server); for `defuddle`: `npm i -g defuddle`.
 
-## Grundlagen & Standards
+## Foundations & Standards
 
-- **LLM-Wiki-Muster** — Das zugrunde liegende Konzept (ein KI-gepflegtes, „kompoundierendes" Markdown-Wissens-Wiki als Schicht zwischen Nutzer und Rohquellen) stammt von **Andrej Karpathy** ([@karpathy](https://x.com/karpathy)), vorgestellt im April 2026. LegalWikiLLM ist eine für juristische Inhalte spezialisierte, agent-agnostische Umsetzung dieses Musters.
-- **Open Knowledge Format (OKF)** — Das Schema ist an Googles offenen Wissens-Format-Standard angepasst: jede Nicht-Reserved-Seite trägt ein `type`-Feld, `resource` ist das OKF-Asset-URI-Feld (ELI/ECLI/DOI). Spezifikation: [GoogleCloudPlatform/knowledge-catalog · okf/SPEC.md](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md). Details + bewusste Abweichungen im Schema (`template/wiki-schema.md`, Abschnitt „OKF-Kompatibilität").
+- **LLM wiki pattern** — The underlying concept (an AI-maintained, "compounding" Markdown knowledge wiki as a layer between the user and the raw sources) comes from **Andrej Karpathy** ([@karpathy](https://x.com/karpathy)), introduced in April 2026. LegalWikiLLM is an agent-agnostic implementation of this pattern specialized for legal content.
+- **Open Knowledge Format (OKF)** — The schema is aligned with Google's open knowledge format standard: every non-reserved page carries a `type` field, `resource` is the OKF asset URI field (ELI/ECLI/DOI). Specification: [GoogleCloudPlatform/knowledge-catalog · okf/SPEC.md](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md). Details + deliberate deviations in the schema (`template/wiki-schema.md`, section "OKF compatibility").
 
-### Juristische Standards & Identifikatoren
+### Legal standards & identifiers
 
-Für stabile, dereferenzierbare Quellenangaben (`ecli`- und `resource`-Felder) nutzt das Schema etablierte Rechts-Identifikatoren:
+For stable, dereferenceable source citations (`ecli` and `resource` fields), the schema uses established legal identifiers:
 
-- **ECLI** — European Case Law Identifier; einheitliche Zitierung von Gerichtsentscheidungen (`ECLI:Land:Gericht:Jahr:Nummer`). Koordinator auf EU-Ebene: EuGH. Referenz: [e-Justice-Portal](https://e-justice.europa.eu/topics/legislation-and-case-law/european-case-law-identifier-ecli_en) · [EUR-Lex](https://eur-lex.europa.eu/EN/legal-content/summary/european-case-law-identifier.html)
-- **ELI** — European Legislation Identifier; standardisierte URIs/Metadaten für Rechtsvorschriften. Referenz: [EUR-Lex ELI-Register](https://eur-lex.europa.eu/eli-register/index.html) · [ELI-Hilfe](https://eur-lex.europa.eu/content/help/eurlex-content/eli.html)
-- **CELEX** — Dokumentennummern-System von EUR-Lex; in `resource`-URLs für EU-Rechtsprechung verwendet. Referenz: [EUR-Lex](https://eur-lex.europa.eu/)
+- **ECLI** — European Case Law Identifier; uniform citation of court decisions (`ECLI:Country:Court:Year:Number`). Coordinator at EU level: CJEU. Reference: [e-Justice Portal](https://e-justice.europa.eu/topics/legislation-and-case-law/european-case-law-identifier-ecli_en) · [EUR-Lex](https://eur-lex.europa.eu/EN/legal-content/summary/european-case-law-identifier.html)
+- **ELI** — European Legislation Identifier; standardized URIs/metadata for legislation. Reference: [EUR-Lex ELI register](https://eur-lex.europa.eu/eli-register/index.html) · [ELI help](https://eur-lex.europa.eu/content/help/eurlex-content/eli.html)
+- **CELEX** — EUR-Lex's document numbering system; used in `resource` URLs for EU case law. Reference: [EUR-Lex](https://eur-lex.europa.eu/)
 
-Genutzte amtliche Datenquellen für `resource`-URIs:
+Official data sources used for `resource` URIs:
 
-- **EUR-Lex / data.europa.eu** — EU-Recht & -Rechtsprechung (ELI: `http://data.europa.eu/eli/…`, CELEX)
-- **gesetze-im-internet.de** — deutsches Bundesrecht, paragraphengenau (z.B. `…/uwg_2004/__5a.html`)
-- **recht.bund.de** — deutsches ELI (Bundesgesetzblatt)
+- **EUR-Lex / data.europa.eu** — EU law & case law (ELI: `http://data.europa.eu/eli/…`, CELEX)
+- **gesetze-im-internet.de** — German federal law, down to the individual section (e.g. `…/uwg_2004/__5a.html`)
+- **recht.bund.de** — German ELI (Federal Law Gazette)
 
-## Lizenz
+## License
 
 [MIT](LICENSE) © 2026 Markus Oermann

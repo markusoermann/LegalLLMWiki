@@ -26,7 +26,7 @@ Zotero (Rohdaten)  --MCP-->  Agent  -->  Obsidian-Vault ([WIKI-ORDNER]/ = Wiki)
 
 ## Verhältnis zu OKF
 
-Das Schema ist an Googles **[Open Knowledge Format (OKF)](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)** angepasst: jede Nicht-Reserved-Seite trägt ein `type`-Feld; `resource` ist das OKF-Empfehlungsfeld für die Asset-URI. Details + bewusste Abweichungen im Schema (`template/wiki-schema.md`, Abschnitt „OKF-Kompatibilität").
+Das Schema ist an Googles **[Open Knowledge Format (OKF)](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)** angepasst: jede Nicht-Reserved-Seite trägt ein `type`-Feld; `resource` ist das OKF-Empfehlungsfeld für die Asset-URI. Details + bewusste Abweichungen im Schema (`template/de/wiki-schema.md`, Abschnitt „OKF-Kompatibilität").
 
 ## Nächste Schritte
 
