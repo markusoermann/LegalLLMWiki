@@ -4,7 +4,7 @@
 
 A setup in which an AI agent builds and maintains a curated subject-matter wiki inside your **Obsidian vault** and keeps it queryable — optimized for **legal content**. Sources live in **Zotero**; the agent pulls them in via MCP, writes structured wiki pages, and keeps them up to date.
 
-It follows the **LLM wiki pattern** by [Andrej Karpathy](https://x.com/karpathy) (2026): the wiki is not maintained manually by a human, but curated by an LLM according to fixed rules (`AGENTS.md` + `wiki-schema.md`). Zotero is the immutable raw-data store; the wiki is the curated knowledge layer.
+It follows the **LLM wiki pattern** by [Andrej Karpathy](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) (2026): the wiki is not maintained manually by a human, but curated by an LLM according to fixed rules (`AGENTS.md` + `wiki-schema.md`). Zotero is the immutable raw-data store; the wiki is the curated knowledge layer.
 
 ## Why "legally optimized"?
 

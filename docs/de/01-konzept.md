@@ -4,7 +4,7 @@
 
 Ein Setup, mit dem ein KI-Agent in deinem **Obsidian-Vault** ein gepflegtes Fach-Wiki aufbaut und befragbar hält — optimiert für **juristische Inhalte**. Quellen liegen in **Zotero**; der Agent zieht sie per MCP heran, schreibt strukturierte Wiki-Seiten und hält sie aktuell.
 
-Es folgt dem **LLM-Wiki-Muster** von [Andrej Karpathy](https://x.com/karpathy) (2026): nicht der Mensch pflegt das Wiki manuell, sondern ein LLM kuratiert es nach festen Regeln (`AGENTS.md` + `wiki-schema.md`). Zotero ist der unveränderliche Rohdaten-Speicher; das Wiki die kuratierte Wissensschicht.
+Es folgt dem **LLM-Wiki-Muster** von [Andrej Karpathy](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) (2026): nicht der Mensch pflegt das Wiki manuell, sondern ein LLM kuratiert es nach festen Regeln (`AGENTS.md` + `wiki-schema.md`). Zotero ist der unveränderliche Rohdaten-Speicher; das Wiki die kuratierte Wissensschicht.
 
 ## Warum „juristisch optimiert"?
 

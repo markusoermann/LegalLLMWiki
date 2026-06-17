@@ -48,7 +48,7 @@ mcp/         Example MCP configuration
 
 ## Foundations & Standards
 
-- **LLM wiki pattern** — The underlying concept (an AI-maintained, "compounding" Markdown knowledge wiki as a layer between the user and the raw sources) comes from **Andrej Karpathy** ([@karpathy](https://x.com/karpathy)), introduced in April 2026. LegalWikiLLM is an agent-agnostic implementation of this pattern specialized for legal content.
+- **LLM wiki pattern** — The underlying concept (an AI-maintained, "compounding" Markdown knowledge wiki as a layer between the user and the raw sources) comes from **Andrej Karpathy** ([gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)), introduced in April 2026. LegalWikiLLM is an agent-agnostic implementation of this pattern specialized for legal content.
 - **Open Knowledge Format (OKF)** — The schema is aligned with Google's open knowledge format standard: every non-reserved page carries a `type` field, `resource` is the OKF asset URI field (ELI/ECLI/DOI). Specification: [GoogleCloudPlatform/knowledge-catalog · okf/SPEC.md](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md). Details + deliberate deviations in the schema (`template/wiki-schema.md`, section "OKF compatibility").
 
 ### Legal standards & identifiers
