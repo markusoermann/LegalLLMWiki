@@ -21,7 +21,7 @@ Jurist:innen, Forschende und alle, die ein befragbares Fach-Wiki mit sauberer Qu
 
 ## Quickstart
 
-1. **Obsidian-Vault** + PARA-Struktur anlegen → [`docs/02-obsidian.md`](docs/02-obsidian.md)
+1. **Obsidian-Vault** anlegen, eigene Ordnerstruktur + Wiki-Ort wählen → [`docs/02-obsidian.md`](docs/02-obsidian.md)
 2. **Framework-Dateien** aus `template/` einsetzen (`AGENTS.md`, `wiki-schema.md`, `index.md`, `log.md`)
 3. **Zotero + MCP** verbinden → [`docs/03-zotero-mcp.md`](docs/03-zotero-mcp.md)
 4. **Deinen Agenten** einrichten (Kontextdatei + MCP-Config + Skills) → [`docs/04-agenten-einrichtung.md`](docs/04-agenten-einrichtung.md)

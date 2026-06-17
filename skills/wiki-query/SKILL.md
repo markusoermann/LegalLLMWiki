@@ -4,14 +4,14 @@ description: |
   Use when user wants to query their knowledge base: "query wiki: [Frage]",
   "was weiß ich über X", "finde alles zu X im Wiki", "zeig mir was im Wiki steht zu X",
   "suche im Wiki nach X", "was sagt mein Wiki zu X", "search my wiki for X".
-  Searches all of 04 Ressourcen/ (the LLMWiki; any non-wiki folders are excluded) using
+  Searches all of [WIKI-ORDNER]/ (the LLMWiki; any non-wiki folders are excluded) using
   index + grep, synthesizes an answer with [[wikilinks]], and optionally saves
   the result as a new synthesis wiki page.
 ---
 
 # Wiki Query Skill
 
-Beantwortet Fragen aus dem LLMWiki durch strukturierte Suche in `04 Ressourcen/` mit optionaler Speicherung als Synthese-Seite.
+Beantwortet Fragen aus dem LLMWiki durch strukturierte Suche in `[WIKI-ORDNER]/` mit optionaler Speicherung als Synthese-Seite.
 
 ## Trigger
 
@@ -25,7 +25,7 @@ Beantwortet Fragen aus dem LLMWiki durch strukturierte Suche in `04 Ressourcen/`
 
 ### Schritt 1 — Index lesen
 
-`04 Ressourcen/index.md` lesen. Thematisch relevante Wiki-Seiten identifizieren und vormerken.
+`[WIKI-ORDNER]/index.md` lesen. Thematisch relevante Wiki-Seiten identifizieren und vormerken.
 
 ### Schritt 2 — Grep-Suche
 
@@ -34,7 +34,7 @@ Schlüsselbegriffe aus der Frage extrahieren. Immer **deutsche + englische Varia
 ```bash
 # Mehrere Suchbegriffe kombinieren
 grep -rl "Verantwortung\|accountability\|responsibility" \
-  "/path/to/your/vault/04 Ressourcen/" \
+  "/path/to/your/vault/[WIKI-ORDNER]/" \
   --include="*.md"
 ```
 
@@ -80,9 +80,9 @@ Nach der Antwort fragen:
    updated: YYYY-MM-DD
    ---
    ```
-4. Speichern: `04 Ressourcen/[Thema]/Synthese - [Titel].md`
-5. `04 Ressourcen/index.md` aktualisieren
-6. `04 Ressourcen/log.md` Eintrag anhängen:
+4. Speichern: `[WIKI-ORDNER]/[Thema]/Synthese - [Titel].md`
+5. `[WIKI-ORDNER]/index.md` aktualisieren
+6. `[WIKI-ORDNER]/log.md` Eintrag anhängen:
    ```
    - **Query** „[Frage]" → erstellt [[Synthese - Titel]]
    ```
@@ -100,6 +100,6 @@ Nach der Antwort fragen:
 
 ## Grenzen
 
-- Sucht nur in `04 Ressourcen/` — keine Projekte, Daily Notes, Inbox
+- Sucht nur in `[WIKI-ORDNER]/` — keine Projekte, Daily Notes, Inbox
 - Synthetisiert nur was im Wiki steht; Lücken → `ingest`-Hinweis
 - Synthese-Seiten folgen dem wiki-schema-Tiefenstandard (mindestens 3 Kernaspekte, Cross-Links)

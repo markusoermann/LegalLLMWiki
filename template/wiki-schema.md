@@ -237,11 +237,11 @@ Das Feld wird **nicht** bei jeder inhaltlichen Ergänzung gesetzt — nur nach e
 
 ## Thematische Ordner (Wiki-Bereich)
 
-Vom Nutzer selbst festzulegen — je ein Ordner pro Fachgebiet unter `04 Ressourcen/`. Beispiel-Notation (durch eigene Themen ersetzen):
+Vom Nutzer selbst festzulegen — je ein Ordner pro Fachgebiet unter `[WIKI-ORDNER]/`. Beispiel-Notation (durch eigene Themen ersetzen):
 
-- `04 Ressourcen/[Thema 1]/`
-- `04 Ressourcen/[Thema 2]/`
-- `04 Ressourcen/[Thema 3]/` …
+- `[WIKI-ORDNER]/[Thema 1]/`
+- `[WIKI-ORDNER]/[Thema 2]/`
+- `[WIKI-ORDNER]/[Thema 3]/` …
 
 Eigene Nicht-Wiki-Ordner (z.B. `Persönlich/`, `Werkzeuge/`) bleiben außen vor.
 
@@ -267,7 +267,7 @@ Für den Ingest wird ausschließlich der Zotero MCP-Server genutzt (Port 23120).
 ## Ingest-Checkliste
 
 Vor dem Schreiben:
-- [ ] `04 Ressourcen/index.md` gelesen?
+- [ ] `[WIKI-ORDNER]/index.md` gelesen?
 - [ ] Betroffene Themenordner identifiziert?
 - [ ] Prüfen: gibt es bereits eine Seite für dieses Konzept/diese Entität?
 - [ ] **Volltext-Check:** Anhänge über Zotero MCP `get_item_by_key` abrufen (liefert `attachments`-Feld mit `contentType`): `application/pdf` → PDF per `get_pdf_content`, `text/html` → HTML-Snapshot via Read-Tool (`~/Zotero/storage/[ATTKEY]/`)
@@ -294,8 +294,8 @@ Beim Schreiben:
 - [ ] `updated`-Datum aktualisiert?
 
 Nach dem Schreiben:
-- [ ] `04 Ressourcen/index.md` aktualisiert?
-- [ ] `04 Ressourcen/log.md` Eintrag angehängt? (inkl. `[kein PDF]` falls zutreffend)
+- [ ] `[WIKI-ORDNER]/index.md` aktualisiert?
+- [ ] `[WIKI-ORDNER]/log.md` Eintrag angehängt? (inkl. `[kein PDF]` falls zutreffend)
 - [ ] Neuer Ordner angelegt? → Dann auch CLAUDE.md und wiki-schema.md Themenordner-Liste aktualisieren
 
 ## Lint-Spezifikation
@@ -388,7 +388,7 @@ Unterbrochene Sessions markieren mit:
 
 ## Nicht-Wiki-Seitentypen
 
-Neben den Wiki-Seiten (`type: wiki-page`) tragen alle übrigen `.md`-Dateien in `04 Ressourcen/` ebenfalls ein `type`-Feld (OKF-Anforderung, s.u.). Kontrolliertes Vokabular:
+Neben den Wiki-Seiten (`type: wiki-page`) tragen alle übrigen `.md`-Dateien in `[WIKI-ORDNER]/` ebenfalls ein `type`-Feld (OKF-Anforderung, s.u.). Kontrolliertes Vokabular:
 
 - `hub` — Themen-Hub-Seite (Dateiname == Ordnername, z.B. `KI/KI.md`)
 - `quelle` — Zotero-/Literatur-Quellenüberblick (`tags: [literatur]`)
@@ -400,7 +400,7 @@ Diese Typen sind **keine** Wiki-Seiten i.S.d. Tiefenstandards und werden von Lin
 
 Das Wiki ist bewusst weitgehend OKF-kompatibel gehalten (Knowledge-Austausch mit Dritten/Agenten).
 
-- **Pflichtregel erfüllt:** Jede Nicht-Reserved-`.md` in `04 Ressourcen/` trägt ein nicht-leeres `type`-Feld. Alle übrigen Felder (`wiki-category`, `normen`, `urteile`, `rang`, `ecli`, `thema`, `quellen`) sind OKF-konforme Extensions — Consumer müssen unbekannte Keys tolerieren.
+- **Pflichtregel erfüllt:** Jede Nicht-Reserved-`.md` in `[WIKI-ORDNER]/` trägt ein nicht-leeres `type`-Feld. Alle übrigen Felder (`wiki-category`, `normen`, `urteile`, `rang`, `ecli`, `thema`, `quellen`) sind OKF-konforme Extensions — Consumer müssen unbekannte Keys tolerieren.
 - **`resource:`** ist das OKF-Empfehlungsfeld für die Asset-URI (s. Frontmatter-Schema oben; ELI/ECLI/DOI).
 - **Reserved Files:** `index.md` + `log.md` vorhanden. Hinweis: OKF sieht für `index.md` *kein* Frontmatter vor — unser `type: wiki-index` ist eine geduldete Abweichung. Optional kann im Root-`index.md` `okf_version: 0.1` deklariert werden.
 - **Bewusste Divergenz — Links:** Wir nutzen Obsidian-`[[Wikilinks]]` statt OKF-Standard-Markdown-Links (`[Text](/pfad.md)`). OKF toleriert das (Links werden als „broken" geduldet, Relationssemantik liegt ohnehin im Fließtext). Für einen echten OKF-Export wäre eine Build-Pipeline (Wikilinks → Markdown-Links) der richtige Weg — nicht die Umstellung des Vaults.

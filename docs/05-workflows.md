@@ -1,13 +1,13 @@
 # 05 · Workflows & Trigger
 
-Alle Trigger sind in `AGENTS.md` definiert; der Agent erkennt sie im Chat. Vor jedem Ingest liest der Agent `04 Ressourcen/wiki-schema.md`.
+Alle Trigger sind in `AGENTS.md` definiert; der Agent erkennt sie im Chat. Vor jedem Ingest liest der Agent `[WIKI-ORDNER]/wiki-schema.md`.
 
 | Trigger | Was passiert |
 |---|---|
 | `ingest @citekey` | Holt genau diese Zotero-Quelle (Metadaten, Abstract, Annotationen, PDF-Volltext) und schreibt/aktualisiert Wiki-Seiten. |
 | `Wiki aktualisieren` | Bulk-Ingest: liest letztes Datum aus `log.md`, holt alle neueren Zotero-Einträge. |
 | `Aktualisiere Wiki: [Thema]` | Sucht Zotero nach Thema/Tag, verarbeitet alle Treffer. |
-| `query wiki: [Frage]` | Durchsucht `04 Ressourcen/` (Index + Grep), synthetisiert eine Antwort mit `[[Wikilinks]]`, bietet optional eine Synthese-Seite an. |
+| `query wiki: [Frage]` | Durchsucht `[WIKI-ORDNER]/` (Index + Grep), synthetisiert eine Antwort mit `[[Wikilinks]]`, bietet optional eine Synthese-Seite an. |
 | `lint wiki` | Integritäts-Audit (Broken Links, Orphans, fehlende Knoten, Frontmatter-Drift) mit Schweregraden. |
 
 ## Typischer Ablauf

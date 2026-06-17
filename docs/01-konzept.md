@@ -18,7 +18,7 @@ Es folgt dem **LLM-Wiki-Muster** von [Andrej Karpathy](https://x.com/karpathy) (
 Konzeptseiten verlinken per `[[Wikilink]]` auf Normknoten/Leitentscheidungen — die **Backlinks** dieser Knoten ersetzen die SPARQL-Abfrage eines klassischen Wissensgraphen. Kein Triplestore, rein Obsidian-nativ.
 
 ```
-Zotero (Rohdaten)  --MCP-->  Agent  -->  Obsidian-Vault (04 Ressourcen/ = Wiki)
+Zotero (Rohdaten)  --MCP-->  Agent  -->  Obsidian-Vault ([WIKI-ORDNER]/ = Wiki)
                                           ├─ Konzeptseiten ──┐
                                           ├─ Normknoten  <───┤ Backlinks = Abfragepfad
                                           └─ Leitentscheidungen <─┘
