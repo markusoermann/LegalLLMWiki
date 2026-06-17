@@ -1,0 +1,11 @@
+# In ~/.codex/config.toml einfügen (oder projektweit in .codex/config.toml).
+# Voraussetzung: Zotero-MCP global installiert  ->  npm install -g zotero-mcp
+# Filesystem-Server: PFAD anpassen.
+
+[mcp_servers.zotero]
+command = "zotero-mcp-server"
+args = []
+
+[mcp_servers.filesystem]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-filesystem", "/PFAD/ZU/DEINEM/VAULT"]

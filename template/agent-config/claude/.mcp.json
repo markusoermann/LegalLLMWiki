@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "zotero": {
+      "type": "stdio",
+      "command": "zotero-mcp-server",
+      "args": []
+    },
+    "filesystem": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/PFAD/ZU/DEINEM/VAULT"]
+    }
+  }
+}
