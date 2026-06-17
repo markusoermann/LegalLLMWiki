@@ -237,14 +237,11 @@ Das Feld wird **nicht** bei jeder inhaltlichen Ergänzung gesetzt — nur nach e
 
 ## Thematische Ordner (Wiki-Bereich)
 
-Anpassbarer juristischer Default — ersetze/ergänze durch deine eigenen Fachgebiete:
+Vom Nutzer selbst festzulegen — je ein Ordner pro Fachgebiet unter `04 Ressourcen/`. Beispiel-Notation (durch eigene Themen ersetzen):
 
-- `04 Ressourcen/Jura/` (z.B. inkl. `Jura/Kommunikationsrecht/` für medienrechtliche Seiten)
-- `04 Ressourcen/KI/`
-- `04 Ressourcen/Governance/`
-- `04 Ressourcen/Digitalisierung/`
-- `04 Ressourcen/Praktische Philosophie/` (inkl. `Ethik/`)
-- `04 Ressourcen/Politikwissenschaft/`
+- `04 Ressourcen/[Thema 1]/`
+- `04 Ressourcen/[Thema 2]/`
+- `04 Ressourcen/[Thema 3]/` …
 
 Eigene Nicht-Wiki-Ordner (z.B. `Persönlich/`, `Werkzeuge/`) bleiben außen vor.
 

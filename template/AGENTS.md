@@ -52,8 +52,8 @@ Biete an: (1) Daily-Note-Eintrag mit Tageszusammenfassung, (2) neue Erkenntnisse
 Der Bereich `04 Ressourcen/` enthält ein LLM-gepflegtes Wiki nach dem Karpathy-LLMWiki-Muster. Zotero dient als unveränderlicher Rohdaten-Speicher. Der Agent schreibt und pflegt alle Wiki-Seiten autonom. Technische Details in `04 Ressourcen/wiki-schema.md` — diese Datei bei jedem Ingest lesen.
 
 ### Wiki-Themenordner
-Anpassbarer juristischer Default — eigene Themen ergänzen/ersetzen:
-`KI` · `Digitalisierung` · `Governance` · `Medienrecht` · `Jura` · `Praktische Philosophie` (inkl. `Ethik`) · `Politikwissenschaft`
+Lege deine eigenen Themenordner unter `04 Ressourcen/` an — je ein Ordner pro Fachgebiet — und trage sie hier ein:
+`[Thema 1]` · `[Thema 2]` · `[Thema 3]` · …
 
 Eigene Nicht-Wiki-Ordner (z.B. `Persönlich/`, `Werkzeuge/`) sind **nicht** Teil des Wikis.
 
