@@ -49,6 +49,7 @@ mcp/         Beispiel-MCP-Konfiguration
 ## Grundlagen & Standards
 
 - **LLM-Wiki-Muster** — Das zugrunde liegende Konzept (ein KI-gepflegtes, „kompoundierendes" Markdown-Wissens-Wiki als Schicht zwischen Nutzer und Rohquellen) stammt von **Andrej Karpathy** ([Gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)), vorgestellt im April 2026. LegalWikiLLM ist eine für juristische Inhalte spezialisierte, agent-agnostische Umsetzung dieses Musters.
+- **Second-Brain-Implementierung** — Die konkrete Wiki-Architektur (Taxonomie Konzepte/Entitäten/Synthese, `index.md`/`log.md`, die Ingest-/Query-/Lint-Skills, Obsidian- und Multi-Agent-Integration) baut auf Nicholas Spisaks Projekt [second-brain](https://github.com/NicholasSpisak/second-brain) auf, angepasst und erweitert für juristische Inhalte.
 - **Open Knowledge Format (OKF)** — Das Schema ist an Googles offenen Wissens-Format-Standard angepasst: jede Nicht-Reserved-Seite trägt ein `type`-Feld, `resource` ist das OKF-Asset-URI-Feld (ELI/ECLI/DOI). Spezifikation: [GoogleCloudPlatform/knowledge-catalog · okf/SPEC.md](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md). Details + bewusste Abweichungen im Schema (`template/wiki-schema.md`, Abschnitt „OKF-Kompatibilität").
 
 ### Juristische Standards & Identifikatoren
