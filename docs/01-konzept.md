@@ -4,7 +4,7 @@
 
 Ein Setup, mit dem ein KI-Agent in deinem **Obsidian-Vault** ein gepflegtes Fach-Wiki aufbaut und befragbar hält — optimiert für **juristische Inhalte**. Quellen liegen in **Zotero**; der Agent zieht sie per MCP heran, schreibt strukturierte Wiki-Seiten und hält sie aktuell.
 
-Es folgt dem **LLMWiki-Muster** (nach Andrej Karpathy): nicht der Mensch pflegt das Wiki manuell, sondern ein LLM kuratiert es nach festen Regeln (`AGENTS.md` + `wiki-schema.md`). Zotero ist der unveränderliche Rohdaten-Speicher; das Wiki die kuratierte Wissensschicht.
+Es folgt dem **LLM-Wiki-Muster** von [Andrej Karpathy](https://x.com/karpathy) (2026): nicht der Mensch pflegt das Wiki manuell, sondern ein LLM kuratiert es nach festen Regeln (`AGENTS.md` + `wiki-schema.md`). Zotero ist der unveränderliche Rohdaten-Speicher; das Wiki die kuratierte Wissensschicht.
 
 ## Warum „juristisch optimiert"?
 
@@ -26,7 +26,7 @@ Zotero (Rohdaten)  --MCP-->  Agent  -->  Obsidian-Vault (04 Ressourcen/ = Wiki)
 
 ## Verhältnis zu OKF
 
-Das Schema ist weitgehend kompatibel mit Googles **Open Knowledge Format (OKF)**: jede Nicht-Reserved-Seite trägt ein `type`-Feld; `resource` ist das OKF-Empfehlungsfeld für die Asset-URI. Details im Schema (`template/wiki-schema.md`, Abschnitt „OKF-Kompatibilität").
+Das Schema ist an Googles **[Open Knowledge Format (OKF)](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)** angepasst: jede Nicht-Reserved-Seite trägt ein `type`-Feld; `resource` ist das OKF-Empfehlungsfeld für die Asset-URI. Details + bewusste Abweichungen im Schema (`template/wiki-schema.md`, Abschnitt „OKF-Kompatibilität").
 
 ## Nächste Schritte
 
