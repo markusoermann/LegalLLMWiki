@@ -56,6 +56,8 @@ mcp/         Example MCP configuration
 
 For stable, dereferenceable source citations (`ecli` and `resource` fields), the schema uses established legal identifiers:
 
+> **Note:** ECLI, ELI and CELEX are **EU standards**, and the schema is geared toward EU and German law. For other jurisdictions, the identifiers and data sources can be adapted accordingly.
+
 - **ECLI** — European Case Law Identifier; uniform citation of court decisions (`ECLI:Country:Court:Year:Number`). Coordinator at EU level: CJEU. Reference: [e-Justice Portal](https://e-justice.europa.eu/topics/legislation-and-case-law/european-case-law-identifier-ecli_en) · [EUR-Lex](https://eur-lex.europa.eu/EN/legal-content/summary/european-case-law-identifier.html)
 - **ELI** — European Legislation Identifier; standardized URIs/metadata for legislation. Reference: [EUR-Lex ELI register](https://eur-lex.europa.eu/eli-register/index.html) · [ELI help](https://eur-lex.europa.eu/content/help/eurlex-content/eli.html)
 - **CELEX** — EUR-Lex's document numbering system; used in `resource` URLs for EU case law. Reference: [EUR-Lex](https://eur-lex.europa.eu/)
