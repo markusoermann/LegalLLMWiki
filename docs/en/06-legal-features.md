@@ -36,6 +36,9 @@ Legally grounded statements are annotated (placed *below* the statement):
 ```
 
 ## ECLI / ELI as `resource`
+
+> **Note:** ECLI, ELI and CELEX are **EU standards**; the identifiers and data sources used here are geared toward EU and German law. Adapt accordingly for other jurisdictions.
+
 - **Norms → ELI:** EU `http://data.europa.eu/eli/…`, German federal law `https://recht.bund.de/eli/…` or `gesetze-im-internet.de` (section-precise).
 - **Decisions → ECLI resolver:** EU via EUR-Lex (CELEX/ECLI), German courts via the respective official source.
 - **Golden rule: never invent an ECLI/URI** — only verified identifiers; otherwise just the citation reference.

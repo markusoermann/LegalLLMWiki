@@ -36,6 +36,9 @@ Rechtlich fundierte Aussagen werden annotiert (steht *unter* der Aussage):
 ```
 
 ## ECLI / ELI als `resource`
+
+> **Hinweis:** ECLI, ELI und CELEX sind **EU-Standards**; die hier verwendeten Identifikatoren und Datenquellen sind auf EU- und deutsches Recht abgestimmt. Für andere Jurisdiktionen entsprechend anpassen.
+
 - **Normen → ELI:** EU `http://data.europa.eu/eli/…`, Bundesrecht `https://recht.bund.de/eli/…` bzw. `gesetze-im-internet.de` (paragraphengenau).
 - **Urteile → ECLI-Resolver:** EU über EUR-Lex (CELEX/ECLI), deutsche Gerichte über die jeweilige amtliche Quelle.
 - **Goldene Regel: ECLI/URIs niemals erfinden** — nur verifizierte Identifikatoren; sonst nur Fundstelle.
