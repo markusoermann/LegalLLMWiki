@@ -28,6 +28,8 @@ The rank follows the **norm**, not the court:
 | 5 | Federal statute / interstate treaty |
 | 6 | State statute / ordinance |
 
+> **Note:** This six-level hierarchy reflects EU and German law. It must be adapted for other jurisdictions — define your own norm categories and ranks.
+
 ## `[!recht]` Callouts
 Legally grounded statements are annotated (placed *below* the statement):
 ```

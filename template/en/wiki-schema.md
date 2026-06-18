@@ -157,6 +157,8 @@ Examples:
 
 The rank follows the norm, not the court. A BVerfG judgment on Art. 5 GG is rank 4; a CJEU judgment on the DSGVO is rank 2.
 
+> **Note:** This hierarchy is EU/German-specific. For other jurisdictions, the norm categories and ranks must be adapted accordingly.
+
 ### When to Annotate
 
 - ✅ For statements that can be traced directly to a concrete norm or decision

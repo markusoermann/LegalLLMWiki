@@ -157,6 +157,8 @@ Beispiele:
 
 Der Rang folgt der Norm, nicht dem Gericht. Ein BVerfG-Urteil zu Art. 5 GG ist Rang 4; ein EuGH-Urteil zur DSGVO ist Rang 2.
 
+> **Hinweis:** Diese Hierarchie ist EU-/deutschlandspezifisch. Für andere Jurisdiktionen müssen die Normkategorien und Ränge entsprechend angepasst werden.
+
 ### Wann annotieren
 
 - ✅ Bei Aussagen, die sich direkt auf eine konkrete Norm oder Entscheidung zurückführen lassen

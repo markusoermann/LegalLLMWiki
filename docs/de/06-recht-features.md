@@ -28,6 +28,8 @@ Rang folgt der **Norm**, nicht dem Gericht:
 | 5 | Bundesgesetz / Staatsvertrag |
 | 6 | Landesgesetz / Rechtsverordnung |
 
+> **Hinweis:** Diese 6-stufige Hierarchie bildet das EU- und deutsche Recht ab. Für andere Jurisdiktionen muss sie angepasst werden — eigene Normkategorien und Ränge definieren.
+
 ## `[!recht]`-Callouts
 Rechtlich fundierte Aussagen werden annotiert (steht *unter* der Aussage):
 ```
