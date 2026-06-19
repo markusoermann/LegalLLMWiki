@@ -13,6 +13,8 @@ description: |
 
 Answers questions from the LLMWiki through structured search in `[WIKI-FOLDER]/`, with optional saving as a synthesis page.
 
+> **Single point of truth:** This wiki is the authoritative knowledge reference of the vault. Other (content-generating) skills — teaching materials, assessment, research — consult it through this workflow **before** producing content, and cite it with [[wikilinks]]. Keep answers consistent and citable.
+
 ## Trigger
 
 - `query wiki: [question]` — direct entry point

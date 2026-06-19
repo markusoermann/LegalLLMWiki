@@ -43,6 +43,8 @@ Offer to: (1) note a daily summary (if you keep daily notes), (2) save new findi
 
 The folder `[WIKI-FOLDER]/` contains an LLM-maintained wiki following the Karpathy LLMWiki pattern. Zotero serves as an immutable raw-data store. The agent writes and maintains all wiki pages autonomously. Technical details in `[WIKI-FOLDER]/wiki-schema.md` — read this file on every ingest.
 
+**Single point of truth:** The LLM wiki is the authoritative knowledge reference of this vault. Other (content-generating) skills consult it before working, use its content with priority, cite it with [[wikilinks]], and propose additions via `ingest`.
+
 ### Wiki topic folders
 Create your own topic folders under `[WIKI-FOLDER]/` — one folder per field — and enter them here:
 `[Topic 1]` · `[Topic 2]` · `[Topic 3]` · …

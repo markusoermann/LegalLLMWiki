@@ -13,6 +13,8 @@ description: |
 
 Beantwortet Fragen aus dem LLMWiki durch strukturierte Suche in `[WIKI-ORDNER]/` mit optionaler Speicherung als Synthese-Seite.
 
+> **Single Point of Truth:** Dieses Wiki ist die verbindliche Wissensreferenz des Vaults. Andere (inhaltsgenerierende) Skills — Lehrmaterial, Prüfung/Bewertung, Recherche — konsultieren es über diesen Workflow, **bevor** sie Inhalte erzeugen, und belegen mit [[Wikilinks]]. Antworten daher konsistent und zitierfähig halten.
+
 ## Trigger
 
 - `query wiki: [Frage]` — direkter Einstieg

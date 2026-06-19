@@ -2,6 +2,8 @@
 
 Vier Capabilities für das LegalWikiLLM. Ein „Skill" ist im Kern eine `SKILL.md`-Anleitung (+ optionale Skripte) — die Substanz ist agent-agnostisch, nur die Einbindung unterscheidet sich pro Agent.
 
+> **Das LLMWiki als Single Point of Truth:** `wiki-query` ist die Schnittstelle zur verbindlichen Wissensschicht des Vaults. Inhaltsgenerierende Skills (Lehrmaterial, Prüfung/Bewertung, Recherche) sollten das Wiki **zuerst** abfragen, seine Inhalte vorrangig nutzen, mit [[Wikilinks]] belegen und Ergänzungen via `ingest` vorschlagen — so bleibt das Wiki die einzige Wahrheitsquelle.
+
 | Skill | Zweck | Abhängigkeiten |
 |---|---|---|
 | `wiki-query` | Wiki durchsuchen + Antwort mit [[Wikilinks]] synthetisieren | — (Index + grep) |

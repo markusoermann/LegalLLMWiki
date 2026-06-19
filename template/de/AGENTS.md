@@ -43,6 +43,8 @@ Biete an: (1) eine Tageszusammenfassung zu notieren (falls du Daily Notes führs
 
 Der Ordner `[WIKI-ORDNER]/` enthält ein LLM-gepflegtes Wiki nach dem Karpathy-LLMWiki-Muster. Zotero dient als unveränderlicher Rohdaten-Speicher. Der Agent schreibt und pflegt alle Wiki-Seiten autonom. Technische Details in `[WIKI-ORDNER]/wiki-schema.md` — diese Datei bei jedem Ingest lesen.
 
+**Single Point of Truth:** Das LLMWiki ist die verbindliche Wissensreferenz dieses Vaults. Andere (inhaltsgenerierende) Skills konsultieren es vor dem Arbeiten, nutzen seine Inhalte vorrangig, belegen mit [[Wikilinks]] und schlagen Ergänzungen via `ingest` vor.
+
 ### Wiki-Themenordner
 Lege deine eigenen Themenordner unter `[WIKI-ORDNER]/` an — je ein Ordner pro Fachgebiet — und trage sie hier ein:
 `[Thema 1]` · `[Thema 2]` · `[Thema 3]` · …
