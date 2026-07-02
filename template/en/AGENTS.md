@@ -63,7 +63,7 @@ Your own non-wiki folders are **not** part of the wiki.
 
 ### Ingest workflow (always the same, regardless of the trigger)
 1. Read `[WIKI-FOLDER]/wiki-schema.md`
-2. Zotero MCP server: metadata + abstract via `get_item_by_key`; full text via `get_pdf_content`; annotations via `get_item_annotations`. For `ingest @citekey`: first `search` with q=citekey → item key, then `get_item_by_key`.
+2. Zotero MCP server (native endpoint `http://127.0.0.1:23120/mcp`): metadata + abstract via `get_item_details` (or `get_item_abstract`); full text via `get_content` (`mode: "complete"` = entire document, no `page` parameter); annotations via `get_annotations`. For `ingest @citekey`: first `search_library` with q=citekey → `itemKey`, then `get_item_details`.
 3. Read `[WIKI-FOLDER]/index.md` — check existing wiki pages
 4. Identify affected concepts/entities, determine topic folders
 5. Write/update wiki pages (max. ~15 per ingest), set [[Wikilinks]]

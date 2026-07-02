@@ -1,10 +1,9 @@
 # In ~/.codex/config.toml einfügen (oder projektweit in .codex/config.toml).
-# Voraussetzung: Zotero-MCP global installiert  ->  npm install -g zotero-mcp
+# Voraussetzung: Zotero-MCP-Plugin in Zotero installiert -> nativer HTTP-Endpoint auf 127.0.0.1:23120 (siehe 03-zotero-mcp.md).
 # Filesystem-Server: PFAD anpassen.
 
 [mcp_servers.zotero]
-command = "zotero-mcp-server"
-args = []
+url = "http://127.0.0.1:23120/mcp"
 
 [mcp_servers.filesystem]
 command = "npx"

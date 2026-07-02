@@ -23,7 +23,7 @@ Alle Trigger sind in `AGENTS.md` definiert; der Agent erkennt sie im Chat. Vor j
 ```
 
 ## Ingest-Ablauf (intern, immer gleich)
-1. `wiki-schema.md` lesen → 2. Zotero-Tools (`search` → `get_item_by_key` → `get_pdf_content` → `get_item_annotations`) → 3. `index.md` prüfen → 4. Themenordner bestimmen → 5. Seiten schreiben (max. ~15/Ingest) → 6. `index.md` aktualisieren → 7. `log.md`-Eintrag.
+1. `wiki-schema.md` lesen → 2. Zotero-Tools (`search_library` → `get_item_details` → `get_content` → `get_annotations`) → 3. `index.md` prüfen → 4. Themenordner bestimmen → 5. Seiten schreiben (max. ~15/Ingest) → 6. `index.md` aktualisieren → 7. `log.md`-Eintrag.
 
 ## Pflege
 - `lint wiki` regelmäßig (z.B. nach 10 Ingests) ausführen.
