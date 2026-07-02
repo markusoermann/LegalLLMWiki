@@ -16,7 +16,9 @@ description: |
 
 # Zotero Skill
 
-Access a running Zotero 7 installation via the **Zotero MCP Server** (preferred) or the local HTTP API (fallback). Write operations always use the Zotero Web API.
+Access a running Zotero 7 installation via the **Zotero MCP Server** (preferred) or the local HTTP API (fallback).
+
+> **MCP architecture (since Zotero plugin `zotero-mcp-plugin` v1.5.0):** The plugin now exposes a **native MCP server over Streamable HTTP** at `http://127.0.0.1:23120/mcp`. Claude Code connects to it directly (config `{"type":"http","url":"http://127.0.0.1:23120/mcp"}` in `~/.claude.json`) — the old separate npm bridge (`zotero-mcp` stdio) is obsolete. The tool names changed accordingly (see the migration table below). Collections are now writable via MCP; only new-item creation still needs the Connector API.
 
 ## Critical: API Key Security
 
@@ -31,121 +33,143 @@ Access a running Zotero 7 installation via the **Zotero MCP Server** (preferred)
 
 | Operation | Primary | Fallback |
 |---|---|---|
-| Search, read items | **MCP** `search` | Local API `localhost:23119` |
-| Full metadata + abstract | **MCP** `get_item_by_key` | Local API |
-| PDF text extraction | **MCP** `get_pdf_content` | Read-Tool on `~/Zotero/storage/` |
-| Annotations & notes | **MCP** `get_item_annotations` / `get_item_notes` | Local API `children`-endpoint |
-| Collections | **MCP** `get_collections` / `get_collection_items` | Local API |
-| Find by DOI/ISBN | **MCP** `find_item_by_identifier` | BBT JSON-RPC |
+| Search, read items | **MCP** `search_library` | Local API `localhost:23119` |
+| Full metadata + abstract | **MCP** `get_item_details` / `get_item_abstract` | Local API |
+| PDF / full text | **MCP** `get_content` | Read-Tool on `~/Zotero/storage/` |
+| Full-text search across docs | **MCP** `search_fulltext` / `fulltext_database` | — |
+| Annotations & notes | **MCP** `get_annotations` / `search_annotations` | Local API `children`-endpoint |
+| Collections (read) | **MCP** `get_collections` / `get_collection_items` / `get_subcollections` | Local API |
+| Find by DOI/ISBN | **MCP** `search_library` (q=DOI) | BBT JSON-RPC |
+| **Collection writes** | **MCP** `create_collection` / `update_collection` / `delete_collection` / `add_items_to_collection` / `remove_items_from_collection` | Web API `api.zotero.org` PATCH |
 | **Create items** | — | Connector API `localhost:23119` |
-| **Add to collection** | — | Web API `api.zotero.org` PATCH |
-| **Update metadata** | — | Web API `api.zotero.org` PATCH |
+| **Update item metadata** | — | Web API `api.zotero.org` PATCH |
 | **Delete items** | — | Web API `api.zotero.org` DELETE |
 
-**MCP not available?** Check: is port 23120 up? (`curl -s http://127.0.0.1:23120/ping` → `pong`). If not, fall back to Local HTTP API section below.
+**MCP not available?** Check: is port 23120 up? (`curl -s http://127.0.0.1:23120/ping` → `pong`). If `ping` works but data calls fail, the transport config is likely stale — see *Error Handling*. If nothing responds, fall back to the Local HTTP API section below.
+
+### Tool-name migration (old npm bridge → native plugin v1.5.0)
+
+| Old (obsolete) | New (native MCP) | Notes |
+|---|---|---|
+| `search` | `search_library` | params: `q`, `title`, `titleOperator`, `yearRange`, `fulltext`, `itemType`, `sort`, `mode`, `limit`, `offset` |
+| `get_item_by_key` | `get_item_details` | `itemKey*`, `mode`; abstract-only: `get_item_abstract` |
+| `get_pdf_content` | `get_content` | `itemKey` or `attachmentKey`, `format` (json/text), `mode`; **no `page` param** — use `mode` to size output |
+| `get_item_annotations` | `get_annotations` | `itemKey` **or** `annotationId` **or** `annotationIds[]`; filters `colors`, `tags`, `types` |
+| `get_item_notes` | `get_content` (`include` notes) / `get_item_details` | no dedicated notes tool |
+| `get_annotation_by_id` | `get_annotations` (`annotationId`) | — |
+| `get_annotations_batch` | `get_annotations` (`annotationIds[]`) | — |
+| `find_item_by_identifier` | `search_library` (`q`=DOI/ISBN) | no dedicated identifier tool |
+| `get_collections` / `search_collections` / `get_collection_details` / `get_collection_items` | *same names* | plus new `get_subcollections` |
+| *(none)* | `get_libraries` / `search_libraries` | multi-library support (`libraryID` param on most tools) |
 
 ---
 
 ## Zotero MCP Server (Preferred)
 
-All read operations use MCP tools directly — no HTTP calls, no local file path resolution needed.
+All read operations use MCP tools directly — no HTTP calls, no local file path resolution needed. Tools are callable as `mcp__zotero__<tool>`. Most read tools accept an optional `libraryID` (defaults to the user library) and a `mode` (`minimal` | `preview` | `standard` | `complete`) that controls how much content/how many results are returned.
 
 ### Setup Check
 
 ```bash
-curl -s http://127.0.0.1:23120/ping
-# Expected: pong
+curl -s http://127.0.0.1:23120/ping           # → pong (connectivity)
+# Full check (the native MCP endpoint the client actually uses):
+curl -s -X POST http://127.0.0.1:23120/mcp \
+  -H "Content-Type: application/json" -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' | head -c 200
+# → JSON with a "tools" array. If /ping works but this 404s, see Error Handling.
 ```
 
 If no response → Zotero or the MCP plugin is not running. Fall back to Local HTTP API.
 
 ---
 
-### Search
+### Search — `search_library`
 
-`search` — Find items by keyword, title, key, tags, year, date range.
+Find items by keyword, title, year, item type, or full text.
 
 Key parameters:
-- `q` — General keyword (searches all fields incl. abstract)
-- `title` — Title-only search
-- `key` — Direct lookup by Zotero item key
-- `tags` — Comma-separated tag filter; `tagMode`: `any` / `all` / `none`
+- `q` — General search query (all fields incl. abstract)
+- `title` + `titleOperator` (`contains` | `exact` | `startsWith` | `endsWith` | `regex`)
 - `yearRange` — `"2020-2023"`
-- `sort` — `relevance` | `date` | `title` | `year`
+- `fulltext` + `fulltextMode` (`attachment` | `note` | `both`) — search inside PDFs/notes
+- `itemType` — e.g. `journalArticle`, `book`; use `itemType="attachment"` **with** `includeAttachments="true"` to find standalone PDFs imported without metadata
+- `sort` — `relevance` | `date` | `title` | `year`; `relevanceScoring` (bool)
+- `mode` / `limit` / `offset` — result sizing & pagination
 
-**Find item by citekey** (BBT citekeys are stored in the Extra field):
-Use `q` with the citekey string → returns `key` for follow-up with `get_item_by_key`.
-
----
-
-### get_item_by_key
-
-`get_item_by_key(key)` — Full metadata including `title`, `creators`, `date`, `abstract`, `DOI`, `URL`, `tags`, `notes`, `attachments` (with `contentType` per attachment).
-
-This is the primary tool for the Wiki ingest workflow after finding an item via `search`.
+**Find item by citekey / DOI / ISBN:** put the string in `q` → returns items incl. `itemKey`. There is **no** dedicated `find_item_by_identifier` tool anymore.
 
 ---
 
-### find_item_by_identifier
+### Metadata & abstract — `get_item_details`, `get_item_abstract`
 
-`find_item_by_identifier(doi?, isbn?)` — Find item by DOI or ISBN. Returns `key`, `title`, `itemType`, `date`, `creators`. Use returned `key` with `get_item_by_key` for full details.
+- `get_item_details(itemKey*, mode)` — full bibliographic metadata: `title`, `creators`, `date`, identifiers (DOI/ISBN/URL), `tags`, notes, and `attachments`. Primary tool for the Wiki ingest workflow after finding an item via `search_library`.
+- `get_item_abstract(itemKey*, format)` — abstract/summary only (`format`: `json` | `text`).
+
+---
+
+### Full text / PDF content — `get_content`
+
+`get_content(itemKey | attachmentKey, mode?, include?, format?)` — extract full text from PDFs, attachments, notes, and abstracts.
+
+- `itemKey` — resolves the item's attachments automatically; **or** `attachmentKey` for a specific attachment
+- `mode` — `minimal` (~500 chars) / `preview` (~1.5K) / `standard` (adaptive) / `complete` (full text). **Use `complete` for full-document ingest** — there is **no `page` parameter** anymore.
+- `include` — content types to include (only with `itemKey`); `format` — `json` | `text`
+
+No local file path needed — replaces Read-Tool on `~/Zotero/storage/[ATTKEY]/`.
+
+**Full-text search across the whole library:** `search_fulltext(q*, itemKeys?, mode?, contextLength?, maxResults?)` returns matching passages with context. `fulltext_database(action*)` (`list`/`search`/`get`/`stats`) queries the cached full-text DB (faster, read-only).
+
+---
+
+### Annotations & Notes — `get_annotations`, `search_annotations`
+
+- `get_annotations(...)` — REQUIRES one of `itemKey`, `annotationId`, or `annotationIds[]`. Filters: `colors` (hex `#ffd400` or names yellow/red/green/blue/purple/orange), `tags`, `types` (`note`/`highlight`/`annotation`/`ink`/`text`/`image`); `mode`, `limit`, `offset`. Replaces the old `get_item_annotations`, `get_annotation_by_id`, and `get_annotations_batch`.
+- `search_annotations(...)` — search across the library; needs at least one of `q`, `colors`, or `tags`. Also: `itemKeys[]`, `types[]`, `minRelevance`, `mode`, `limit`, `offset`.
+- **Notes:** no dedicated tool — retrieve via `get_content` (with `include` notes) or `get_item_details`.
 
 ---
 
 ### Collections
 
+Read:
+
 | Tool | Purpose |
 |---|---|
-| `get_collections()` | Hierarchical list of all collections |
-| `search_collections(q)` | Search collections by name |
-| `get_collection_details(collectionKey)` | Single collection info |
-| `get_collection_items(collectionKey)` | All items in a collection |
+| `get_collections(mode?, recursive?, parentCollection?)` | List collections (optionally recursive tree) |
+| `search_collections(q?)` | Search collections by name |
+| `get_collection_details(collectionKey*)` | Single collection info |
+| `get_collection_items(collectionKey*, limit?, offset?)` | Items in a collection |
+| `get_subcollections(collectionKey*, recursive?)` | Child collections (nested tree if `recursive`) |
 
----
+Write (native MCP — no Web API credentials needed):
 
-### PDF Content
-
-`get_pdf_content(itemKey, page?, format?)` — Extract text from PDF attachments.
-
-- `itemKey` — Zotero item key (not attachment key; the tool resolves the PDF attachment automatically)
-- `page` — Optional specific page number (1-based); omit for full document
-- `format` — `"text"` (default) or `"json"`
-
-No local file path needed — replaces Read-Tool on `~/Zotero/storage/[ATTKEY]/`.
-
----
-
-### Annotations & Notes
-
-| Tool | Purpose | Key params |
-|---|---|---|
-| `get_item_annotations(itemKey)` | PDF highlights & annotations for one item | `type`, `color`, `limit`, `offset` |
-| `get_item_notes(itemKey)` | Zotero notes for one item | `limit`, `offset` |
-| `search_annotations(q?)` | Search annotations across entire library | `q`, `type`, `itemKey`, `detailed` |
-| `get_annotation_by_id(annotationId)` | Single annotation, full content | — |
-| `get_annotations_batch(ids[])` | Multiple annotations at once | array of IDs |
-
-For `search_annotations`: use `detailed: true` for full content, default is preview (truncated).
+| Tool | Purpose |
+|---|---|
+| `create_collection(name*, parentCollection?)` | New collection (top-level if no parent) |
+| `update_collection(collectionKey*, name?, parentCollection?)` | Rename / move (empty `parentCollection` = top level) |
+| `delete_collection(collectionKey*, deleteItems?)` | Delete collection; `deleteItems=true` also trashes items (destructive) |
+| `add_items_to_collection(collectionKey*, itemKeys*[])` | Add items |
+| `remove_items_from_collection(collectionKey*, itemKeys*[])` | Remove items (not deleted from library) |
 
 ---
 
 ### Common MCP Patterns
 
 **Full ingest of a citekey:**
-1. `search(q: "mustermann2023")` → get `key`
-2. `get_item_by_key(key)` → metadata + abstract + attachment list
-3. If `contentType: application/pdf`: `get_pdf_content(itemKey)` → full text
-4. `get_item_annotations(itemKey)` → highlights
+1. `search_library(q: "mustermann2023")` → get `itemKey`
+2. `get_item_details(itemKey)` → metadata + abstract + attachment list
+3. `get_content(itemKey, mode: "complete")` → full text (check attachment presence first)
+4. `get_annotations(itemKey)` → highlights
 
 **Find by DOI:**
-1. `find_item_by_identifier(doi: "10.1234/...")` → get `key`
-2. `get_item_by_key(key)` → full details
+1. `search_library(q: "10.1234/...")` → get `itemKey`
+2. `get_item_details(itemKey)` → full details
 
 **Bulk ingest (all items since date):**
 1. `get_collections()` → identify relevant collection keys
 2. `get_collection_items(collectionKey)` per collection → item list
-3. Filter by `dateAdded` / `dateModified`
-4. Per item: `get_item_by_key` + `get_pdf_content`
+3. Filter by `dateAdded` / `dateModified` (use Local API `sort=dateAdded` if the MCP result lacks these fields)
+4. Per item: `get_item_details` + `get_content`
 
 ---
 
@@ -239,7 +263,7 @@ curl -s -H "Zotero-Allowed-Request: true" \
 
 ## Write Operations (Web API)
 
-Write operations always require `ZOTERO_API_KEY` and `ZOTERO_USER_ID`. No MCP alternative — the MCP server is read-only.
+Use these for **item creation, metadata edits, and deletes**, which the MCP server does not offer. (**Collection** writes — create/update/delete, add/remove items — are available directly via MCP; see the Collections section.) Item-level writes here require `ZOTERO_API_KEY` and `ZOTERO_USER_ID`.
 
 If credentials not set, ask user to:
 1. Go to https://www.zotero.org/settings/keys
@@ -361,17 +385,22 @@ for item in result.get('result', []):
 ## Quick Reference
 
 ```
-# MCP (preferred — no auth, no HTTP)
-search(q, title, key, tags, yearRange, sort)
-get_item_by_key(key)                    → metadata + abstract + attachments
-find_item_by_identifier(doi?, isbn?)    → key
-get_collections()                       → hierarchical list
-get_collection_items(collectionKey)     → items
-get_pdf_content(itemKey, page?)         → full text
-get_item_annotations(itemKey)           → highlights
-get_item_notes(itemKey)                 → notes
-search_annotations(q?, itemKey?)        → across library
-get_annotations_batch(ids[])            → multiple at once
+# MCP (preferred — native plugin v1.5.0, transport http @ 127.0.0.1:23120/mcp)
+search_library(q, title, yearRange, fulltext, itemType, sort, mode, limit)
+get_item_details(itemKey, mode)              → metadata + abstract + attachments
+get_item_abstract(itemKey, format)           → abstract only
+get_content(itemKey|attachmentKey, mode)     → full text (mode:"complete" for whole doc)
+search_fulltext(q, itemKeys?, mode)          → matching passages across docs
+get_collections(mode?, recursive?)           → collections (tree if recursive)
+search_collections(q) / get_collection_details(collectionKey)
+get_collection_items(collectionKey)          → items
+get_subcollections(collectionKey, recursive?)
+get_annotations(itemKey | annotationId | annotationIds[])  → highlights/notes
+search_annotations(q? | colors? | tags?)     → across library
+get_libraries() / search_libraries(q)        → multi-library
+# MCP writes (collections only; no creds needed):
+create_collection / update_collection / delete_collection
+add_items_to_collection / remove_items_from_collection (collectionKey, itemKeys[])
 
 # Local API fallback (read-only, port 23119)
 GET  /api/users/0/items?q=TEXT&limit=N
@@ -399,17 +428,19 @@ POST   https://api.zotero.org/users/UID/collections
 | Error | Cause | Fix |
 |---|---|---|
 | `curl http://127.0.0.1:23120/ping` → refused | MCP plugin not running | Start Zotero; check plugin active |
+| `/ping` → `pong` **but** MCP data calls → `404 Not Found` | Stale transport config: Claude still pointed at the obsolete npm stdio bridge, which calls removed REST routes | Set `~/.claude.json` → `"zotero": {"type":"http","url":"http://127.0.0.1:23120/mcp"}` and restart Claude Code |
 | Connection refused port 23119 | Zotero not running | Start Zotero |
 | "Request not allowed" | Missing header | Add `Zotero-Allowed-Request: true` |
-| 404 / "No endpoint found" | Wrong URL path | Check `users/0` prefix |
-| Empty result from `search` | No match | Try broader `q`, check spelling |
-| `get_pdf_content` returns empty | No PDF attachment | Check `contentType` in `get_item_by_key` |
+| 404 / "No endpoint found" (Local API) | Wrong URL path | Check `users/0` prefix |
+| Empty result from `search_library` | No match | Try broader `q`, check spelling |
+| `get_content` returns empty | No PDF/text attachment | Check `attachments` in `get_item_details` |
 | 403 | API key issue (Web API) | Check `ZOTERO_API_KEY` |
 | 400 / 501 on local API write | Local API is read-only | Switch to Web API |
 
 ## Known Dead Ends
 
 - **Local API writes**: POST/PATCH/DELETE to `localhost:23119/api/users/0/...` always fail. Don't retry.
-- **MCP write operations**: MCP server is read-only. All writes go through Web API or Connector API.
-- **BBT collection management**: No methods for creating/managing collections via JSON-RPC.
+- **MCP item creation / metadata edits**: the native MCP server has **no** create-item or edit-metadata tool. New items → Connector API; metadata edits/deletes → Web API. (Collections, however, **are** writable via MCP — see the Collections section.)
+- **`get_content` has no `page` parameter**: size output with `mode` (`minimal`/`preview`/`standard`/`complete`), not per-page.
+- **BBT collection management**: No methods for creating/managing collections via JSON-RPC (use the MCP collection-write tools instead).
 - **connector/import for BibTeX**: Unreliable (returns 400). Use `connector/saveItems` instead.
