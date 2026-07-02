@@ -63,7 +63,7 @@ Eigene Nicht-Wiki-Ordner sind **nicht** Teil des Wikis.
 
 ### Ingest-Ablauf (immer gleich, unabhängig vom Trigger)
 1. `[WIKI-ORDNER]/wiki-schema.md` lesen
-2. Zotero MCP-Server: Metadaten + Abstract per `get_item_by_key`; Volltext per `get_pdf_content`; Annotationen per `get_item_annotations`. Bei `ingest @citekey`: zuerst `search` mit q=citekey → Item-Key, dann `get_item_by_key`.
+2. Zotero MCP-Server (nativer Endpoint `http://127.0.0.1:23120/mcp`): Metadaten + Abstract per `get_item_details` (bzw. `get_item_abstract`); Volltext per `get_content` (`mode: "complete"` = ganzes Dokument, kein `page`-Parameter); Annotationen per `get_annotations`. Bei `ingest @citekey`: zuerst `search_library` mit q=citekey → `itemKey`, dann `get_item_details`.
 3. `[WIKI-ORDNER]/index.md` lesen — existierende Wiki-Seiten prüfen
 4. Betroffene Konzepte/Entitäten identifizieren, Themenordner bestimmen
 5. Wiki-Seiten schreiben/aktualisieren (max. ~15 pro Ingest), [[Wikilinks]] setzen

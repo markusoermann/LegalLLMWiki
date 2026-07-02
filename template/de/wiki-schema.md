@@ -249,20 +249,20 @@ Eigene Nicht-Wiki-Ordner (z.B. `Persönlich/`, `Werkzeuge/`) bleiben außen vor.
 
 ## Zotero MCP-Tools (Referenz)
 
-Für den Ingest wird ausschließlich der Zotero MCP-Server genutzt (Port 23120). Die Tools sind direkt als `mcp__zotero__*` aufrufbar.
+Für den Ingest wird ausschließlich der Zotero MCP-Server genutzt (nativer MCP-über-HTTP-Endpoint `http://127.0.0.1:23120/mcp`, Zotero-Plugin `zotero-mcp-plugin` v1.5.0). Die Tools sind direkt als `mcp__zotero__*` aufrufbar. Die meisten Lese-Tools akzeptieren optional `libraryID` (Default: Nutzerbibliothek) und `mode` (`minimal`|`preview`|`standard`|`complete`) zur Ergebnis-/Inhaltssteuerung.
 
 | Tool | Verwendung im Ingest |
 |---|---|
-| `search` | Item zu @citekey oder Thema finden; liefert Item-Key |
-| `find_item_by_identifier` | Item per DOI oder ISBN finden |
-| `get_item_by_key` | Vollständige Metadaten, Abstract, Attachment-Liste, Notizen |
-| `get_pdf_content` | PDF-Volltext extrahieren (Parameter: `itemKey`, optional `page`) |
-| `get_item_annotations` | PDF-Highlights & Annotationen eines Items |
-| `get_item_notes` | Zotero-Notizen eines Items |
-| `search_annotations` | Annotationssuche über die gesamte Bibliothek |
-| `get_collections` | Alle Kollektionen auflisten (für Bulk-Ingest) |
-| `get_collection_items` | Alle Items einer Kollektion |
-| `get_annotations_batch` | Mehrere Annotationen auf einmal abrufen |
+| `search_library` | Item zu @citekey, DOI/ISBN oder Thema finden; liefert `itemKey` (Params: `q`, `title`, `yearRange`, `fulltext`, `itemType`, `sort`, `mode`) |
+| `get_item_details` | Vollständige Metadaten, Attachment-Liste, Tags, Notizen (Params: `itemKey`, `mode`) |
+| `get_item_abstract` | Nur Abstract/Zusammenfassung (Params: `itemKey`, `format`) |
+| `get_content` | Volltext aus PDF/Attachment/Notizen (Params: `itemKey` **oder** `attachmentKey`, `mode`; ganzes Dokument = `mode: "complete"`; **kein `page`-Parameter**) |
+| `search_fulltext` | Volltextsuche über alle Dokumente; liefert Passagen mit Kontext |
+| `get_annotations` | Annotationen/Notizen eines Items (Param: `itemKey` **oder** `annotationId` **oder** `annotationIds[]`; Filter `colors`, `tags`, `types`) |
+| `search_annotations` | Annotationssuche über die gesamte Bibliothek (mind. eines von `q`, `colors`, `tags`) |
+| `get_collections` | Alle Kollektionen auflisten (Params: `mode`, `recursive`, `parentCollection`) |
+| `get_collection_items` | Alle Items einer Kollektion (Param: `collectionKey`) |
+| `get_subcollections` | Unterkollektionen einer Kollektion (Params: `collectionKey`, `recursive`) |
 
 **Fallback auf lokale API (Port 23119):** Nur wenn der MCP-Server nicht antwortet (Zotero-Plugin nicht aktiv). Dann wie bisher per HTTP-Calls via Python/curl.
 
@@ -272,19 +272,19 @@ Vor dem Schreiben:
 - [ ] `[WIKI-ORDNER]/index.md` gelesen?
 - [ ] Betroffene Themenordner identifiziert?
 - [ ] Prüfen: gibt es bereits eine Seite für dieses Konzept/diese Entität?
-- [ ] **Volltext-Check:** Anhänge über Zotero MCP `get_item_by_key` abrufen (liefert `attachments`-Feld mit `contentType`): `application/pdf` → PDF per `get_pdf_content`, `text/html` → HTML-Snapshot via Read-Tool (`~/Zotero/storage/[ATTKEY]/`)
+- [ ] **Volltext-Check:** Anhänge über Zotero MCP `get_item_details` abrufen (liefert `attachments`-Feld mit `contentType`): `application/pdf` → PDF per `get_content`, `text/html` → HTML-Snapshot via Read-Tool (`~/Zotero/storage/[ATTKEY]/`)
 - [ ] **Normersetzungsprüfung (juristische Quellen):** Enthält die Quelle Normen oder Entscheidungen, die bereits dokumentierte Wiki-Inhalte ablösen, abändern oder verdrängen? → Betroffene Wiki-Seiten über `index.md` identifizieren; Update erfolgt im Schritt „Seiten schreiben/aktualisieren" (s. Abschnitt *Rechtliche Aktualität und Normersetzung*)
 
 Quellenlesen (Standard — immer vor dem Schreiben):
-- [ ] Metadaten + Abstract per Zotero MCP `get_item_by_key` gelesen?
-- [ ] **PDF vorhanden?** (`contentType: application/pdf`) → Volltext per `get_pdf_content` (MCP) abrufen:
-  - Artikel/Kapitel: vollständig lesen (ohne `page`-Parameter = gesamtes Dokument)
-  - Bücher: Inhaltsverzeichnis (S. 1–5, `page: 1`) + relevante Kapitel (Seiten per `page`-Parameter, je Aufruf 1 Seite)
-  - Annotations per `get_item_annotations` (MCP) auswerten
+- [ ] Metadaten + Abstract per Zotero MCP `get_item_details` (bzw. `get_item_abstract`) gelesen?
+- [ ] **PDF vorhanden?** (`contentType: application/pdf`) → Volltext per `get_content` (MCP) abrufen:
+  - Artikel/Kapitel: `get_content(itemKey, mode: "complete")` = gesamtes Dokument
+  - Bücher/lange Dokumente: mit `mode: "standard"`/`"preview"` sondieren, dann bei Bedarf `mode: "complete"` (kein seitenweiser `page`-Parameter mehr); alternativ `search_fulltext` für gezielte Passagen
+  - Annotations per `get_annotations` (MCP) auswerten
 - [ ] **Kein PDF, aber HTML-Snapshot vorhanden?** (`contentType: text/html`) → Volltext lesen mit Read-Tool (`~/Zotero/storage/[ATTKEY]/`):
   - HTML-Datei vollständig lesen; HTML-Tags beim Auswerten ignorieren
   - Wie PDF behandeln: vollständig für Artikel, selektiv für längere Dokumente
-  - Annotations per `get_item_annotations` (MCP) auswerten
+  - Annotations per `get_annotations` (MCP) auswerten
 - [ ] Weder PDF noch HTML? → Aus Metadaten, Abstract und eigenem Fachwissen arbeiten; im log.md vermerken: `[kein Volltext]`
 
 Beim Schreiben:

@@ -2,7 +2,7 @@
 
 Two things per agent: **(A)** wire up the **context file** (`AGENTS.md`) and **(B)** register the **MCP servers**. Optionally **(C)** Skills (→ `skills/README.md`).
 
-Ready-made snippets: `template/agent-config/<agent>/`. Replace the vault path placeholder `/PATH/TO/YOUR/VAULT` everywhere. Prerequisite: `npm install -g zotero-mcp` (→ `03-zotero-mcp.md`).
+Ready-made snippets: `template/agent-config/<agent>/`. Replace the vault path placeholder `/PATH/TO/YOUR/VAULT` everywhere. Prerequisite: the **Zotero MCP plugin** installed in Zotero — native HTTP endpoint `http://127.0.0.1:23120/mcp` (→ `03-zotero-mcp.md`).
 
 ## Canonical context file
 `AGENTS.md` is the canon. For agents that use a different filename, set up symlinks — in the vault root:
@@ -23,8 +23,7 @@ bash /Path/to/LegalWikiLLM/template/agent-config/symlinks.sh
 - **(B)** MCP: `~/.codex/config.toml`. Template: `template/agent-config/codex/config.toml`:
 ```toml
 [mcp_servers.zotero]
-command = "zotero-mcp-server"
-args = []
+url = "http://127.0.0.1:23120/mcp"
 
 [mcp_servers.filesystem]
 command = "npx"
@@ -34,7 +33,7 @@ args = ["-y", "@modelcontextprotocol/server-filesystem", "/PATH/TO/YOUR/VAULT"]
 
 ## OpenCode
 - **(A)** Context file: reads `AGENTS.md` **natively**.
-- **(B)** MCP: `opencode.json`. Template: `template/agent-config/opencode/opencode.json` (`type: "local"`, `command` array, `enabled: true`).
+- **(B)** MCP: `opencode.json`. Template: `template/agent-config/opencode/opencode.json` (`type: "remote"`, `url`, `enabled: true`).
 - **(C)** Skills: same as Codex (prompt/command + standalone scripts).
 
 ## Gemini CLI

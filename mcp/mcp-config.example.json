@@ -1,12 +1,16 @@
 {
   "mcpServers": {
     "zotero": {
-      "command": "zotero-mcp-server",
-      "args": []
+      "type": "http",
+      "url": "http://127.0.0.1:23120/mcp"
     },
     "filesystem": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/PFAD/ZU/DEINEM/VAULT"]
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/PFAD/ZU/DEINEM/VAULT"
+      ]
     }
   }
 }
