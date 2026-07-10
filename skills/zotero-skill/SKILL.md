@@ -18,7 +18,7 @@ description: |
 
 Access a running Zotero 7 installation via the **Zotero MCP Server** (preferred) or the local HTTP API (fallback).
 
-> **MCP architecture (since Zotero plugin `zotero-mcp-plugin` v1.5.0):** The plugin now exposes a **native MCP server over Streamable HTTP** at `http://127.0.0.1:23120/mcp`. Claude Code connects to it directly (config `{"type":"http","url":"http://127.0.0.1:23120/mcp"}` in `~/.claude.json`) — the old separate npm bridge (`zotero-mcp` stdio) is obsolete. The tool names changed accordingly (see the migration table below). Collections are now writable via MCP; only new-item creation still needs the Connector API.
+> **MCP architecture (since Zotero plugin `zotero-mcp-plugin` v1.5.0):** The plugin now exposes a **native MCP server over Streamable HTTP** at `http://127.0.0.1:23120/mcp`. Claude Code connects to it directly (config `{"type":"http","url":"http://127.0.0.1:23120/mcp"}` in `~/.claude.json`) — the old separate npm bridge (`zotero-mcp` stdio) is obsolete. The tool names changed accordingly (see the migration table below). Collections are writable via MCP; and since v1.6+ so are items themselves — `write_item` / `write_metadata` / `write_note` / `write_tag` create items, attach full-text PDFs, and edit metadata once *Write Operations* is enabled in the plugin preferences (see **MCP Write Tools**). The Connector API remains a creds-free fallback for creating items into the currently-selected collection.
 
 ## Critical: API Key Security
 
@@ -41,9 +41,12 @@ Access a running Zotero 7 installation via the **Zotero MCP Server** (preferred)
 | Collections (read) | **MCP** `get_collections` / `get_collection_items` / `get_subcollections` | Local API |
 | Find by DOI/ISBN | **MCP** `search_library` (q=DOI) | BBT JSON-RPC |
 | **Collection writes** | **MCP** `create_collection` / `update_collection` / `delete_collection` / `add_items_to_collection` / `remove_items_from_collection` | Web API `api.zotero.org` PATCH |
-| **Create items** | — | Connector API `localhost:23119` |
-| **Update item metadata** | — | Web API `api.zotero.org` PATCH |
+| **Create items** | **MCP** `write_item` (`create`)* / Connector API `saveItems` (creds-free, honours selected collection) | Connector API `localhost:23119` |
+| **Attach full-text PDF** | **MCP** `write_item` (`import`)* | Web API attachment upload |
+| **Update item metadata** | **MCP** `write_metadata`* | Web API `api.zotero.org` PATCH |
 | **Delete items** | — | Web API `api.zotero.org` DELETE |
+
+\* MCP `write_*` tools require *Write Operations* enabled in the plugin preferences — see **MCP Write Tools**.
 
 **MCP not available?** Check: is port 23120 up? (`curl -s http://127.0.0.1:23120/ping` → `pong`). If `ping` works but data calls fail, the transport config is likely stale — see *Error Handling*. If nothing responds, fall back to the Local HTTP API section below.
 
@@ -153,10 +156,36 @@ Write (native MCP — no Web API credentials needed):
 
 ---
 
+## MCP Write Tools (`write_*`) — requires "Write Operations" enabled
+
+Since plugin v1.6+, the native MCP server can **create and modify items and attach files directly** — no Web API credentials needed. These tools are **off by default**: enable them once in *Zotero → Tools → Add-ons → Zotero MCP Plugin → Preferences → "Write Operations"*. If disabled, calls fail with `-32603 ... Write operations are currently disabled` — in that case ask the user to flip the toggle, then retry.
+
+| Tool | Purpose |
+|---|---|
+| `write_item(action, ...)` | `create` (itemType, fields, creators, tags, attachmentKeys) · **`import`** (filePath, parentItemKey, title → attach a local file as full text) · `reparent` (attachmentKeys, parentKey) |
+| `write_metadata(itemKey, fields?, creators?)` | Edit fields/creators on an existing regular item (not notes/attachments) — e.g. fill an empty `abstractNote` |
+| `write_note(...)` | Add/edit item notes |
+| `write_tag(...)` | Add/edit tags |
+
+**Registry caveat:** the `write_*` tools may not be surfaced by the client's ToolSearch registry even when the plugin exposes them. If `ToolSearch select:mcp__zotero__write_item` returns nothing, confirm the tool exists (`tools/list`, see Setup Check) and call it by **direct JSON-RPC** to the endpoint:
+
+```bash
+curl -s -X POST http://127.0.0.1:23120/mcp \
+  -H "Content-Type: application/json" -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{
+       "name":"write_item",
+       "arguments":{"action":"import","filePath":"/abs/path.pdf","parentItemKey":"ABCD1234","title":"Volltext"}}}'
+# Response is SSE-framed: parse the `data:` line as JSON, read result.content[].text → {"success": true, "data": {"attachmentKey": ...}}
+```
+
+`write_item action="create"` can create items too, but the Connector API (`saveItems`) stays useful: it needs no write-enable toggle and drops items into the currently-selected collection.
+
+---
+
 ### Common MCP Patterns
 
 **Full ingest of a citekey:**
-1. `search_library(q: "mustermann2023")` → get `itemKey`
+1. `search_library(q: "oermann2023")` → get `itemKey`
 2. `get_item_details(itemKey)` → metadata + abstract + attachment list
 3. `get_content(itemKey, mode: "complete")` → full text (check attachment presence first)
 4. `get_annotations(itemKey)` → highlights
@@ -352,6 +381,50 @@ with urllib.request.urlopen(req, timeout=10) as r:
 
 ---
 
+## Full-Text Enrichment — immer bei neuen Quellen versuchen
+
+Whenever you add items to Zotero — a single source **or** a bulk import — **always try to attach the full-text PDF right after creating each item.** Treat "create record" and "attach full text" as *one* workflow, not two optional steps. Rationale: a bare bibliographic record sends the user back to the browser every time they want to read the paper, whereas a record *with* the PDF is instantly readable via `get_content` and searchable via `search_fulltext`. The cost of trying is low; the payoff compounds across the whole library. Do this by default — you don't need to ask first (the user can always remove a PDF). Only skip it if the user explicitly says "metadata only".
+
+**Per-item workflow:**
+
+1. **Get the `itemKey`.** After creating via Connector `saveItems` (empty 201 body — no key returned) look the item up with `search_library(q: title/DOI)`. `write_item action="create"` returns the key directly.
+2. **Find an openly downloadable PDF.** Start from the item's DOI/arXiv-ID. For any DOI, query **Unpaywall** to discover a legal OA copy:
+   ```bash
+   curl -sL "https://api.unpaywall.org/v2/<DOI>?email=<user-email>" \
+     | python3 -c "import sys,json;d=json.load(sys.stdin);l=d.get('best_oa_location') or {};print(d.get('is_oa'),l.get('url_for_pdf') or l.get('url'))"
+   ```
+3. **Download to a temp file and VERIFY it is a real PDF** before attaching — bot-protection walls happily return an HTML "Access Denied" page under a `.pdf` filename:
+   ```bash
+   UA="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36"
+   curl -sL -A "$UA" -o /tmp/zot_dl.pdf "<PDF_URL>"
+   file -b --mime-type /tmp/zot_dl.pdf   # must be application/pdf …
+   head -c 5 /tmp/zot_dl.pdf             # … and start with %PDF-
+   ```
+4. **Attach** with `write_item action="import"` (`filePath` = absolute path, `parentItemKey` = the item's key, optional `title`). Needs *Write Operations* enabled — see MCP Write Tools.
+5. **Clean up** temp files and **report** which items got a full text and which didn't, each with a one-line reason.
+
+**Source map — what actually downloads via `curl` (verified):**
+
+| Source | Full text via `curl`? | How |
+|---|---|---|
+| arXiv | ✅ reliable | `https://arxiv.org/pdf/<id>` |
+| PubMed Central (PMC) | ✅ | `https://www.ncbi.nlm.nih.gov/pmc/articles/PMC<id>/pdf/` |
+| Nature (OA articles) | ✅ | `https://www.nature.com/articles/<doi-suffix>.pdf` |
+| Frontiers | ✅ | `https://www.frontiersin.org/articles/<DOI>/pdf` |
+| PLOS & other true-OA journals | ✅ usually | publisher PDF link / Unpaywall |
+| **MDPI** (Societies, Sensors, …) | ⚠️ often blocked | Incapsula bot-wall → "Access Denied" HTML, even though the article *is* OA |
+| **Zenodo** | ⚠️ often blocked | 403 to `curl`; downloads fine in a real browser |
+| Elsevier · IEEE · SAGE · Springer · Wiley (paywalled) | ❌ no legal direct download | leave the record without a PDF |
+
+**When automated download fails** (bot-wall or paywall): do **not** fabricate a file or hammer the server. Record the item as "no full text (reason)" and offer the realistic alternatives:
+- **Zotero's own "Find Available PDF"** (right-click the item) — it uses a genuine browser session and frequently succeeds where `curl` hits a bot-wall (MDPI, Zenodo);
+- the user's **institutional / library access** for paywalled articles;
+- the user drops the PDF into a folder and you attach it via `write_item action="import"`.
+
+**Bulk imports:** run steps 2–4 per item, but attach OA-friendly sources (arXiv/PMC/Nature/Frontiers) first — they nearly always succeed — and batch the "no full text" cases into a single summary at the end so the report stays readable.
+
+---
+
 ## Better BibTeX JSON-RPC (Port 23119)
 
 Useful for citekey-based export when MCP `search` doesn't resolve a citekey. Endpoint: `localhost:23119/better-bibtex/json-rpc`.
@@ -398,9 +471,14 @@ get_subcollections(collectionKey, recursive?)
 get_annotations(itemKey | annotationId | annotationIds[])  → highlights/notes
 search_annotations(q? | colors? | tags?)     → across library
 get_libraries() / search_libraries(q)        → multi-library
-# MCP writes (collections only; no creds needed):
+# MCP writes — collections (no creds needed):
 create_collection / update_collection / delete_collection
 add_items_to_collection / remove_items_from_collection (collectionKey, itemKeys[])
+# MCP writes — items (needs "Write Operations" enabled in plugin prefs):
+write_item(action:create|import|reparent)   # import = attach local PDF: filePath + parentItemKey
+write_metadata(itemKey, fields?, creators?) # e.g. fill empty abstractNote
+write_note(...) / write_tag(...)
+# Full-text enrichment on every new item: create → find OA PDF (Unpaywall) → verify %PDF- → write_item import
 
 # Local API fallback (read-only, port 23119)
 GET  /api/users/0/items?q=TEXT&limit=N
@@ -440,7 +518,8 @@ POST   https://api.zotero.org/users/UID/collections
 ## Known Dead Ends
 
 - **Local API writes**: POST/PATCH/DELETE to `localhost:23119/api/users/0/...` always fail. Don't retry.
-- **MCP item creation / metadata edits**: the native MCP server has **no** create-item or edit-metadata tool. New items → Connector API; metadata edits/deletes → Web API. (Collections, however, **are** writable via MCP — see the Collections section.)
+- **MCP writes disabled by default**: `write_item` / `write_metadata` / `write_note` / `write_tag` exist (v1.6+) but return `-32603 ... Write operations are currently disabled` until the user enables *Write Operations* in the plugin preferences. Item **deletes** still have no MCP tool → Web API `DELETE`. (Older skill note said MCP has *no* create/edit tools — that is outdated.)
+- **Attaching a bot-walled/paywalled PDF**: MDPI, Zenodo (bot-wall) and Elsevier/IEEE/SAGE/Springer (paywall) won't yield a valid PDF to `curl`. Don't loop on it — fall back to Zotero's "Find Available PDF" or ask the user (see Full-Text Enrichment).
 - **`get_content` has no `page` parameter**: size output with `mode` (`minimal`/`preview`/`standard`/`complete`), not per-page.
 - **BBT collection management**: No methods for creating/managing collections via JSON-RPC (use the MCP collection-write tools instead).
 - **connector/import for BibTeX**: Unreliable (returns 400). Use `connector/saveItems` instead.
