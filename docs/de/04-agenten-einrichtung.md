@@ -7,7 +7,7 @@ Fertige Snippets: `template/agent-config/<agent>/`. Vault-Pfad-Platzhalter `/PFA
 ## Kanonische Kontextdatei
 `AGENTS.md` ist der Kanon. Für Agenten mit anderem Dateinamen Symlinks setzen — im Vault-Root:
 ```bash
-bash /Pfad/zu/LegalWikiLLM/template/agent-config/symlinks.sh
+bash /Pfad/zu/LegalLLMWiki/template/agent-config/symlinks.sh
 # erzeugt CLAUDE.md → AGENTS.md und GEMINI.md → AGENTS.md
 ```
 

@@ -1,6 +1,6 @@
 # 06 · Juristische Features
 
-Was LegalWikiLLM von einem generischen LLMWiki unterscheidet. Technische Details in `template/de/wiki-schema.md`.
+Was LegalLLMWiki von einem generischen LLMWiki unterscheidet. Technische Details in `template/de/wiki-schema.md`.
 
 ## Normknoten & Leitentscheidungen
 Leitnormen (Artikel/Paragraphen) und Grundsatzentscheidungen bekommen **eigene Anker-Seiten** (`wiki-category: entitaet`). Konzeptseiten verlinken darauf — die **Backlinks** dieser Knoten sind der Abfragepfad (ersetzen SPARQL). Beispiele: `template/de/examples/DSGVO Art. 6.md`, `template/de/examples/EuGH C-300-21 (Österreichische Post).md`.

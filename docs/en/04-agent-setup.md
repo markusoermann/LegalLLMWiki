@@ -7,7 +7,7 @@ Ready-made snippets: `template/agent-config/<agent>/`. Replace the vault path pl
 ## Canonical context file
 `AGENTS.md` is the canon. For agents that use a different filename, set up symlinks — in the vault root:
 ```bash
-bash /Path/to/LegalWikiLLM/template/agent-config/symlinks.sh
+bash /Path/to/LegalLLMWiki/template/agent-config/symlinks.sh
 # creates CLAUDE.md → AGENTS.md and GEMINI.md → AGENTS.md
 ```
 
