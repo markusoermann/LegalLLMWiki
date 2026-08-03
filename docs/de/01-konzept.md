@@ -1,6 +1,6 @@
 # 01 · Konzept
 
-## Was ist LegalWikiLLM?
+## Was ist LegalLLMWiki?
 
 Ein Setup, mit dem ein KI-Agent in deinem **Obsidian-Vault** ein gepflegtes Fach-Wiki aufbaut und befragbar hält — optimiert für **juristische Inhalte**. Quellen liegen in **Zotero**; der Agent zieht sie per MCP heran, schreibt strukturierte Wiki-Seiten und hält sie aktuell.
 

@@ -2,7 +2,7 @@
 
 # Skills
 
-Four capabilities for the LegalWikiLLM. At its core, a "skill" is a `SKILL.md` instruction file (+ optional scripts) — the substance is agent-agnostic, only the integration differs per agent.
+Four capabilities for the LegalLLMWiki. At its core, a "skill" is a `SKILL.md` instruction file (+ optional scripts) — the substance is agent-agnostic, only the integration differs per agent.
 
 > **The LLMWiki as single point of truth:** `wiki-query` is the interface to the vault's authoritative knowledge layer. Content-generating skills (lectures, assessments, research) should query the wiki **first**, use its content with priority, cite it via [[wikilinks]], and propose additions via `ingest` — so the wiki stays the single source of truth.
 

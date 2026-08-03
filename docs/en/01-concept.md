@@ -1,6 +1,6 @@
 # 01 · Concept
 
-## What is LegalWikiLLM?
+## What is LegalLLMWiki?
 
 A setup in which an AI agent builds and maintains a curated subject-matter wiki inside your **Obsidian vault** and keeps it queryable — optimized for **legal content**. Sources live in **Zotero**; the agent pulls them in via MCP, writes structured wiki pages, and keeps them up to date.
 

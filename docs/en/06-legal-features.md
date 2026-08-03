@@ -1,6 +1,6 @@
 # 06 · Legal Features
 
-What sets LegalWikiLLM apart from a generic LLMWiki. Technical details in `template/en/wiki-schema.md`.
+What sets LegalLLMWiki apart from a generic LLMWiki. Technical details in `template/en/wiki-schema.md`.
 
 ## Norm Nodes & Landmark Decisions
 Leading norms (articles/sections) and landmark decisions get **dedicated anchor pages** (`wiki-category: entitaet`). Concept pages link to them — the **backlinks** of these nodes are the query path (replacing SPARQL). Examples: `template/en/examples/DSGVO Art. 6.md`, `template/en/examples/EuGH C-300-21 (Österreichische Post).md`.
