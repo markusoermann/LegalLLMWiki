@@ -28,6 +28,10 @@ Zotero (raw data)  --MCP-->  Agent  -->  Obsidian vault ([WIKI-FOLDER]/ = wiki)
 
 The schema is aligned with Google's **[Open Knowledge Format (OKF)](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)**: every non-reserved page carries a `type` field; `resource` is the OKF recommended field for the asset URI. Details + deliberate deviations in the schema (`template/en/wiki-schema.md`, section "OKF compatibility").
 
+## Relationship to LKIF-Core
+
+The legal add-on fields (`normtyp`, `in_kraft`/`wirksam_ab`, `bindungswirkung`) and the modification relations (`setzt aus`, `erklärt für nichtig`, `wirkt nach`, `wirkt zurück`) are modeled on the **[LKIF-Core legal ontology](https://github.com/RinkeHoekstra/lkif-core)** (modules `norm` and `time-modification`). Only the controlled vocabulary was adopted, **not** the formal OWL/SPARQL layer — consistent with the Obsidian-native approach (backlinks instead of a triplestore).
+
 ## Next steps
 
 → `02-obsidian.md` (create the vault) · `03-zotero-mcp.md` (connect Zotero) · `04-agent-setup.md` (set up your agent).

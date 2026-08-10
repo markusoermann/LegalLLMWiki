@@ -1,6 +1,6 @@
 ---
 type: wiki-schema
-updated: 2026-06-17
+updated: 2026-08-10
 ---
 
 # Wiki Schema
@@ -38,7 +38,11 @@ rechtsgebiet:      # legal-area classification
   - Datenschutzrecht
   - KI-Recht
 rang:              # only on norm-node / leading-decision pages: 1–6 (see legal hierarchy)
+normtyp:           # norm nodes only: deontic character — Gebot | Verbot | Erlaubnis | Kompetenznorm | Definitionsnorm (see below)
+in_kraft:          # norm nodes only: date of entry into force (formal start of validity), YYYY-MM-DD
+wirksam_ab:        # norm nodes only: date of applicability/efficacy (start of legal effects), YYYY-MM-DD
 ecli:              # only on leading-decision pages: ECLI identifier
+bindungswirkung:   # leading decisions only: Gesetzeskraft | faktisch (see below)
 resource:          # optional: stable URI of the underlying legal asset (ELI/ECLI/DOI)
 ```
 
@@ -49,6 +53,19 @@ resource:          # optional: stable URI of the underlying legal asset (ELI/ECL
 - **Leading-decision pages:** ECLI resolver — CJEU/EU via EUR-Lex (`https://eur-lex.europa.eu/legal-content/DE/TXT/?uri=ecli:<ECLI>`), German courts via `https://www.rechtsprechung-im-internet.de` or the ECLI resolver.
 - **Source/concept pages:** DOI (`https://doi.org/…`) or Zotero select link.
 - Set URIs only when verified (no invention, by analogy to the ECLI rule).
+
+**`normtyp:` (deontic character of the norm).** Classifies *what* a norm normatively does — derived from the deontic/Hohfeldian core of the LKIF-Core ontology (`norm` module). Controlled vocabulary (values kept in German for consistency with the other schema fields):
+- **Gebot** — the norm commands an action (LKIF `Obligation`/`Obliged`), e.g. a documentation duty.
+- **Verbot** — the norm prohibits a behaviour (LKIF `Prohibition`/`Disallowed`), e.g. EU AI Act Art. 5.
+- **Erlaubnis** — the norm permits/justifies a behaviour (LKIF `Permission`/`Allowed`), e.g. DSGVO Art. 6 Abs. 1.
+- **Kompetenznorm** — empowering/competence norm (LKIF `Hohfeldian_Power`/`Enabling_Power`), e.g. § 31 BVerfGG.
+- **Definitionsnorm** — legal definition (LKIF `Definitional_Expression`), e.g. DSGVO Art. 4.
+
+Norm-node pages only. A norm may carry several types (list). Grep-able for `query wiki`.
+
+**`in_kraft:` / `wirksam_ab:` (entry into force vs. applicability).** The LKIF `time-modification` module separates `In_Force_Interval` (formal start of validity) from `Efficacy_Interval` (actual start of legal effects). The two often diverge: the DSGVO was *in force* from 24.05.2016 but only *applicable* from 25.05.2018. `in_kraft:` = entry into force, `wirksam_ab:` = applicability/efficacy. Set only when the dates diverge or are legally relevant; when they coincide, `in_kraft:` suffices (see section "Validity: Entry into Force vs. Efficacy").
+
+**`bindungswirkung:` (binding force of leading decisions).** LKIF distinguishes `Mandatory_Precedent` from `Persuasive_Precedent`. For the German context: **Gesetzeskraft** = formal binding force (BVerfG decisions under § 31 Abs. 1 BVerfGG, partly with statutory force under § 31 Abs. 2 BVerfGG); **faktisch** = no formal binding force but de facto guiding effect (other high-court decisions, CJEU interpretation in the national context). Leading-decision pages only. The value is independent of `rang:` — which follows the norm, not the binding force of the judgment.
 
 ## Page Types
 
@@ -65,7 +82,7 @@ resource:          # optional: stable URI of the underlying legal asset (ELI/ECL
 ### Norm-Node Page
 - A special form of the entity page for a single key norm (article/section)
 - Naming scheme: `[Law] [Norm].md` (e.g. `DSGVO Art. 6.md`, `MStV § 93.md`)
-- `wiki-category: entitaet`, plus `rang:` (1–6) set
+- `wiki-category: entitaet`, plus `rang:` (1–6) set; optionally `normtyp:`, `in_kraft:`/`wirksam_ab:`
 - Structure: Definition · Paragraphs/elements of the offence (with wikilinks to concept pages) · Leading decisions · Relationship to other norms
 - Purpose: anchor node — concept pages link here; backlinks replace the SPARQL query of the KG approach
 - Distinction from the law entity: `DSGVO.md` describes the regulation as a whole; `DSGVO Art. 6.md` is the granular norm node and links to the law page
@@ -73,7 +90,7 @@ resource:          # optional: stable URI of the underlying legal asset (ELI/ECL
 ### Leading-Decision Page
 - A special form of the entity page for a landmark decision
 - Naming scheme: `[short label].md` (e.g. `BVerfGE 65,1 (Volkszählungsurteil).md`)
-- `wiki-category: entitaet`, plus `rang:`, `ecli:` (where verified and available), `rechtsstand:`
+- `wiki-category: entitaet`, plus `rang:`, `ecli:` (where verified and available), `rechtsstand:`; optionally `bindungswirkung:`
 - Structure: Holding · Supporting reasons · Reference to norms (wikilinks) · Successor/predecessor decisions
 - Purpose: anchor node for case law; links norm nodes with concept pages
 
@@ -178,6 +195,10 @@ Controlled vocabulary:
 - **konkretisiert** — case law refines an older decision/norm
 - **definiert** — norm defines a term
 - **wendet an** — decision applies a norm
+- **setzt aus** — temporary suspension of efficacy (LKIF `Suspension`)
+- **erklärt für nichtig** — judicial annulment, ex tunc (LKIF `Annulment`; ≠ legislative repeal "hebt auf")
+- **wirkt nach** — superseded norm remains applicable to old cases (ultra-activity, LKIF `Ultractivity`)
+- **wirkt zurück** — norm retroactively covers already-concluded facts (LKIF `Retroactivity`)
 - **zitiert** — general reference
 
 Example:
@@ -198,6 +219,26 @@ The wiki always reflects the **current legal status** — it is not a historical
 | **Partial supersession** | EU regulation with application priority (lex posterior/superior) | DSA Art. 15, 16 supersede NetzDG § 2, § 3 Abs. 2 | Mark superseded part in callout; document the remaining scope of application |
 | **Amendment** | Amended version of an existing norm | AVMD-RL 2018/1808 amends AVMD-RL 2010/13/EU | New version is authoritative; carry version/date in callout (`i.d.F. [Jahr]`) |
 | **Change in case law** | Newer judgment clarifies, refines, or revises an older decision | BVerfGE 158, 389 refines BVerfGE 149, 222 | Cite the newer judgment primarily; annotate the older judgment with a context note pointing to the successor decision |
+
+### Validity: Entry into Force vs. Efficacy
+
+The LKIF `time-modification` module separates two timelines that pages on time-sensitive norms should keep clean:
+
+- **Entry into force** (`In_Force`, field `in_kraft:`) — from when the norm formally belongs to the legal order.
+- **Efficacy/applicability** (`Efficacy`, field `wirksam_ab:`) — from when it actually produces legal effects.
+
+If the two diverge, carry both dates in the `[!recht]` callout (example below). For superseded norms it matters that entry into force can end while efficacy persists for old cases → **ultra-activity** (see below).
+
+### Further Modification Types
+
+Beyond the four supersession types, the LKIF `time-modification` module recognizes temporal modifications that are not a replacement but change the validity status. Express them with the relation vocabulary and flag them in the callout:
+
+| Type | LKIF class | Trigger | Consequence |
+|---|---|---|---|
+| **Suspension** | `Suspension` | Efficacy temporarily suspended (court order, moratorium) | Relation `setzt aus`; callout `⏸️ ausgesetzt [period/reason]`; page stays valid, status flagged |
+| **Annulment** | `Annulment` | Court declares a norm void (ex tunc) — ≠ legislative repeal | Relation `erklärt für nichtig`; callout with court/ECLI; distinguish from "aufgehoben" (by the legislator) |
+| **Ultra-activity** | `Ultractivity` | Superseded norm remains applicable to old cases (transitional law) | Relation `wirkt nach`; callout: superseded from [date], **but** applicable to facts before [date] |
+| **Retroactivity** | `Retroactivity` | Norm retroactively covers already-concluded facts | Relation `wirkt zurück`; callout `wirkt zurück auf [date]`; note constitutional ban on retroactivity where relevant |
 
 ### Ingest Obligation: Norm-Supersession Check
 
@@ -229,6 +270,27 @@ Refined or revised court decision:
 ```
 > [!recht] ⚖️ Rang 4 (Verfassungsrecht) · BVerfGE 149, 222 (Rundfunkbeitrag, 2018)
 > Durch BVerfGE 158, 389 (Sachsen-Anhalt, 2021) in der Frage der Mitverantwortungspflicht der Länder konkretisiert.
+```
+
+In force but not yet applicable (validity ≠ efficacy):
+
+```
+> [!recht] ⚖️ Rang 2 (EU-Verordnung) · EU AI Act Art. 5
+> In Kraft seit 01.08.2024; Verbote anwendbar ab 02.02.2025.
+```
+
+Norm declared void (≠ legislative repeal):
+
+```
+> [!recht] ⚖️ Rang 5 (Bundesgesetz) · [Norm] i.d.F. [Jahr]
+> ⚠️ Vom BVerfG für nichtig erklärt (ex tunc) durch [ECLI/Fundstelle].
+```
+
+Superseded norm with ultra-activity for old cases:
+
+```
+> [!recht] ⚖️ Rang 5 (Bundesgesetz) · [Norm] i.d.F. [Jahr]
+> Verdrängt durch [X] ab [Datum]; wirkt nach auf vor [Datum] abgeschlossene Sachverhalte.
 ```
 
 ### rechtsstand Frontmatter Field
@@ -402,7 +464,7 @@ These types are **not** wiki pages within the meaning of the depth standard and 
 
 The wiki is deliberately kept largely OKF-compatible (knowledge exchange with third parties/agents).
 
-- **Mandatory rule satisfied:** Every non-reserved `.md` in `[WIKI-FOLDER]/` carries a non-empty `type` field. All other fields (`wiki-category`, `normen`, `urteile`, `rang`, `ecli`, `thema`, `quellen`) are OKF-conformant extensions — consumers must tolerate unknown keys.
+- **Mandatory rule satisfied:** Every non-reserved `.md` in `[WIKI-FOLDER]/` carries a non-empty `type` field. All other fields (`wiki-category`, `normen`, `urteile`, `rang`, `normtyp`, `in_kraft`, `wirksam_ab`, `bindungswirkung`, `ecli`, `thema`, `quellen`) are OKF-conformant extensions — consumers must tolerate unknown keys.
 - **`resource:`** is the OKF recommended field for the asset URI (see Frontmatter Schema above; ELI/ECLI/DOI).
 - **Reserved Files:** `index.md` + `log.md` present. Note: OKF provides *no* frontmatter for `index.md` — our `type: wiki-index` is a tolerated deviation. Optionally, `okf_version: 0.1` can be declared in the root `index.md`.
 - **Deliberate divergence — links:** We use Obsidian `[[Wikilinks]]` instead of OKF-standard Markdown links (`[Text](/pfad.md)`). OKF tolerates this (links are tolerated as "broken", relation semantics reside in the running text anyway). For a true OKF export, a build pipeline (wikilinks → Markdown links) would be the right approach — not converting the vault.
