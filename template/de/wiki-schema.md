@@ -38,7 +38,7 @@ rechtsgebiet:      # Rechtsgebiet-Klassifikation
   - Datenschutzrecht
   - KI-Recht
 rang:              # nur bei Normknoten-/Leitentscheidungs-Seiten: 1–6 (s. Rechtshierarchie)
-normtyp:           # nur Normknoten: deontischer Charakter — Gebot | Verbot | Erlaubnis | Kompetenznorm | Definitionsnorm (s.u.)
+normtyp:           # nur Normknoten: Normfunktion (Hohfeld-granular) — s.u. (10 Werte, kombinierbar)
 in_kraft:          # nur Normknoten: Datum des Inkrafttretens (formaler Geltungsbeginn), YYYY-MM-DD
 wirksam_ab:        # nur Normknoten: Datum der Anwendbarkeit/Wirksamkeit (Beginn der Rechtsfolgen), YYYY-MM-DD
 ecli:              # nur bei Leitentscheidungs-Seiten: ECLI-Identifikator
@@ -54,14 +54,25 @@ resource:          # optional: stabile URI des zugrunde liegenden Rechts-Assets 
 - **Quellen-/Konzeptseiten:** DOI (`https://doi.org/…`) oder Zotero-Select-Link.
 - URIs nur setzen, wenn verifiziert (kein Erfinden, analog ECLI-Regel).
 
-**`normtyp:` (deontischer Normcharakter).** Klassifiziert, *was* eine Norm normativ bewirkt — abgeleitet aus dem Deontik-/Hohfeld-Kern der LKIF-Core-Ontologie (`norm`-Modul). Kontrolliertes Vokabular:
-- **Gebot** — die Norm gebietet ein Tun (LKIF `Obligation`/`Obliged`), z.B. Dokumentationspflicht.
-- **Verbot** — die Norm untersagt ein Verhalten (LKIF `Prohibition`/`Disallowed`), z.B. EU AI Act Art. 5.
-- **Erlaubnis** — die Norm erlaubt/rechtfertigt ein Verhalten (LKIF `Permission`/`Allowed`), z.B. DSGVO Art. 6 Abs. 1.
-- **Kompetenznorm** — Ermächtigungs-/Zuständigkeitsnorm (LKIF `Hohfeldian_Power`/`Enabling_Power`), z.B. § 31 BVerfGG.
-- **Definitionsnorm** — Legaldefinition (LKIF `Definitional_Expression`), z.B. DSGVO Art. 4.
+**`normtyp:` (Normfunktion, Hohfeld-granular).** Klassifiziert, *welche Rechtsposition* eine Norm etabliert — vollständig an der LKIF-Core-Ontologie ausgerichtet (`norm`-Modul: Deontik + Hohfeld + Expression). Kontrolliertes Vokabular:
 
-Nur auf Normknoten-Seiten. Eine Norm kann mehrere Typen tragen (Liste). Grep-bar für `query wiki`.
+*Deontische Modalität:*
+- **Gebot** — gebietet ein Tun (LKIF `Obligation`/`Obliged`), z.B. DSGVO Art. 5.
+- **Verbot** — untersagt ein Verhalten (LKIF `Prohibition`/`Disallowed`), z.B. EU AI Act Art. 5.
+- **Erlaubnis** — erlaubt/rechtfertigt ein Verhalten (LKIF `Permission`/`Allowed`), z.B. DSGVO Art. 6.
+
+*Hohfeld'sche Rechtspositionen:*
+- **Anspruchsnorm** — subjektives Recht mit korrelativer Pflicht (Claim; LKIF `Right`/`Obligative_Right`/`Liability_Right`), z.B. DSGVO Art. 15, 17, 82.
+- **Freiheitsrecht** — Freiheits-/Abwehrposition (Privilege/Liberty; LKIF `Liberty_Right`/`Permissive_Right`), z.B. GG Art. 5, GRCh Art. 11.
+- **Kompetenznorm** — hoheitliche Ermächtigung/Zuständigkeit (Power; LKIF `Hohfeldian_Power`/`Enabling_`/`Declarative_`/`Action_Power`), z.B. GG Art. 70, DSGVO Art. 83.
+- **Gestaltungsrecht** — einseitige privatrechtliche Rechtsgestaltung (potestativ; LKIF `Potestative_Right`), z.B. Kündigung, Widerruf, Anfechtung.
+- **Immunität** — Schutz vor fremder Rechtsmacht / Bereichsausnahme (LKIF `Immunity`/`Exclusionary_Right`), z.B. Indemnität (Art. 46 GG), Medienprivileg.
+
+*Funktionsnormen:*
+- **Definitionsnorm** — Legaldefinition (LKIF `Definitional_Expression`), z.B. DSGVO Art. 4.
+- **Qualifikationsnorm** — rechtliche Einordnung/Statuszuweisung (LKIF `Qualificatory_Expression`), z.B. Hochrisiko-Einstufung EU AI Act Art. 6.
+
+Nur auf Normknoten-Seiten. **Kombinierbar als Liste** (z.B. `[Verbot, Erlaubnis]`; Grundrecht `[Freiheitsrecht, Gebot]` = Abwehr + Schutzpflicht). Sanktions-/Bußgeldnormen werden als `Kompetenznorm` geführt (Ermächtigung zur Sanktion). Grep-bar für `query wiki`.
 
 **`in_kraft:` / `wirksam_ab:` (Inkrafttreten vs. Anwendbarkeit).** Das LKIF-`time-modification`-Modul trennt `In_Force_Interval` (formaler Geltungsbeginn) von `Efficacy_Interval` (tatsächlicher Beginn der Rechtsfolgen). Beide fallen oft auseinander: die DSGVO war ab 24.05.2016 *in Kraft*, aber erst ab 25.05.2018 *anwendbar*. `in_kraft:` = Inkrafttreten, `wirksam_ab:` = Anwendbarkeit/Wirksamkeit. Nur setzen, wenn die Daten divergieren oder rechtlich relevant sind; bei Gleichlauf genügt `in_kraft:` (s. Abschnitt „Geltung: Inkrafttreten vs. Wirksamkeit").
 

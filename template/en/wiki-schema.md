@@ -38,7 +38,7 @@ rechtsgebiet:      # legal-area classification
   - Datenschutzrecht
   - KI-Recht
 rang:              # only on norm-node / leading-decision pages: 1–6 (see legal hierarchy)
-normtyp:           # norm nodes only: deontic character — Gebot | Verbot | Erlaubnis | Kompetenznorm | Definitionsnorm (see below)
+normtyp:           # norm nodes only: norm function (Hohfeld-granular) — see below (10 values, combinable)
 in_kraft:          # norm nodes only: date of entry into force (formal start of validity), YYYY-MM-DD
 wirksam_ab:        # norm nodes only: date of applicability/efficacy (start of legal effects), YYYY-MM-DD
 ecli:              # only on leading-decision pages: ECLI identifier
@@ -54,14 +54,25 @@ resource:          # optional: stable URI of the underlying legal asset (ELI/ECL
 - **Source/concept pages:** DOI (`https://doi.org/…`) or Zotero select link.
 - Set URIs only when verified (no invention, by analogy to the ECLI rule).
 
-**`normtyp:` (deontic character of the norm).** Classifies *what* a norm normatively does — derived from the deontic/Hohfeldian core of the LKIF-Core ontology (`norm` module). Controlled vocabulary (values kept in German for consistency with the other schema fields):
-- **Gebot** — the norm commands an action (LKIF `Obligation`/`Obliged`), e.g. a documentation duty.
-- **Verbot** — the norm prohibits a behaviour (LKIF `Prohibition`/`Disallowed`), e.g. EU AI Act Art. 5.
-- **Erlaubnis** — the norm permits/justifies a behaviour (LKIF `Permission`/`Allowed`), e.g. DSGVO Art. 6 Abs. 1.
-- **Kompetenznorm** — empowering/competence norm (LKIF `Hohfeldian_Power`/`Enabling_Power`), e.g. § 31 BVerfGG.
-- **Definitionsnorm** — legal definition (LKIF `Definitional_Expression`), e.g. DSGVO Art. 4.
+**`normtyp:` (norm function, Hohfeld-granular).** Classifies *which legal position* a norm establishes — fully aligned with the LKIF-Core ontology (`norm` module: deontics + Hohfeld + expression). Controlled vocabulary (values kept in German for consistency with the other schema fields):
 
-Norm-node pages only. A norm may carry several types (list). Grep-able for `query wiki`.
+*Deontic modality:*
+- **Gebot** — commands an action (LKIF `Obligation`/`Obliged`), e.g. DSGVO Art. 5.
+- **Verbot** — prohibits a behaviour (LKIF `Prohibition`/`Disallowed`), e.g. EU AI Act Art. 5.
+- **Erlaubnis** — permits/justifies a behaviour (LKIF `Permission`/`Allowed`), e.g. DSGVO Art. 6.
+
+*Hohfeldian legal positions:*
+- **Anspruchsnorm** — subjective right with a correlative duty (claim; LKIF `Right`/`Obligative_Right`/`Liability_Right`), e.g. DSGVO Art. 15, 17, 82.
+- **Freiheitsrecht** — liberty/defensive position (privilege/liberty; LKIF `Liberty_Right`/`Permissive_Right`), e.g. GG Art. 5, GRCh Art. 11.
+- **Kompetenznorm** — public-law empowerment/competence (power; LKIF `Hohfeldian_Power`/`Enabling_`/`Declarative_`/`Action_Power`), e.g. GG Art. 70, DSGVO Art. 83.
+- **Gestaltungsrecht** — unilateral private-law power to alter legal relations (potestative; LKIF `Potestative_Right`), e.g. termination, revocation, avoidance.
+- **Immunität** — protection against another's legal power / sectoral exemption (LKIF `Immunity`/`Exclusionary_Right`), e.g. parliamentary indemnity (Art. 46 GG), media privilege.
+
+*Function norms:*
+- **Definitionsnorm** — legal definition (LKIF `Definitional_Expression`), e.g. DSGVO Art. 4.
+- **Qualifikationsnorm** — legal classification/status assignment (LKIF `Qualificatory_Expression`), e.g. high-risk classification EU AI Act Art. 6.
+
+Norm-node pages only. **Combinable as a list** (e.g. `[Verbot, Erlaubnis]`; a fundamental right `[Freiheitsrecht, Gebot]` = defensive right + protective duty). Sanction/fine norms are recorded as `Kompetenznorm` (empowerment to sanction). Grep-able for `query wiki`.
 
 **`in_kraft:` / `wirksam_ab:` (entry into force vs. applicability).** The LKIF `time-modification` module separates `In_Force_Interval` (formal start of validity) from `Efficacy_Interval` (actual start of legal effects). The two often diverge: the DSGVO was *in force* from 24.05.2016 but only *applicable* from 25.05.2018. `in_kraft:` = entry into force, `wirksam_ab:` = applicability/efficacy. Set only when the dates diverge or are legally relevant; when they coincide, `in_kraft:` suffices (see section "Validity: Entry into Force vs. Efficacy").
 
