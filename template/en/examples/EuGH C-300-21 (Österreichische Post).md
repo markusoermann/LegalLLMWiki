@@ -10,7 +10,8 @@ urteile:
 rechtsgebiet: [Datenschutzrecht]
 rang: 2
 ecli: "ECLI:EU:C:2023:370"
-rechtsstand: 2026-06-17
+bindungswirkung: faktisch
+rechtsstand: 2026-08-10
 resource: "https://eur-lex.europa.eu/legal-content/DE/TXT/?uri=CELEX:62021CJ0300"
 ---
 
@@ -23,6 +24,7 @@ resource: "https://eur-lex.europa.eu/legal-content/DE/TXT/?uri=CELEX:62021CJ0300
 The claim for damages under Art. 82 GDPR requires **three cumulative conditions** (infringement, damage, causation); a mere infringement is not sufficient, and at the same time there is **no de-minimis threshold** for non-material damage.
 
 > [!recht] ⚖️ Rang 2 (EU-Verordnung) · CJEU, judgment of 04.05.2023, Case C-300/21 → DSGVO Art. 82 Abs. 1
+> Binding force: faktisch (de facto guiding effect of the CJEU interpretation in the national context; no formal statutory force within the meaning of § 31 Abs. 2 BVerfGG).
 
 ## Reasoning
 

@@ -1,6 +1,6 @@
 ---
 type: wiki-schema
-updated: 2026-06-17
+updated: 2026-08-10
 ---
 
 # Wiki Schema
@@ -38,7 +38,11 @@ rechtsgebiet:      # Rechtsgebiet-Klassifikation
   - Datenschutzrecht
   - KI-Recht
 rang:              # nur bei Normknoten-/Leitentscheidungs-Seiten: 1–6 (s. Rechtshierarchie)
+normtyp:           # nur Normknoten: deontischer Charakter — Gebot | Verbot | Erlaubnis | Kompetenznorm | Definitionsnorm (s.u.)
+in_kraft:          # nur Normknoten: Datum des Inkrafttretens (formaler Geltungsbeginn), YYYY-MM-DD
+wirksam_ab:        # nur Normknoten: Datum der Anwendbarkeit/Wirksamkeit (Beginn der Rechtsfolgen), YYYY-MM-DD
 ecli:              # nur bei Leitentscheidungs-Seiten: ECLI-Identifikator
+bindungswirkung:   # nur Leitentscheidungen: Gesetzeskraft | faktisch (s.u.)
 resource:          # optional: stabile URI des zugrunde liegenden Rechts-Assets (ELI/ECLI/DOI)
 ```
 
@@ -49,6 +53,19 @@ resource:          # optional: stabile URI des zugrunde liegenden Rechts-Assets 
 - **Leitentscheidungs-Seiten:** ECLI-Resolver — EuGH/EU über EUR-Lex (`https://eur-lex.europa.eu/legal-content/DE/TXT/?uri=ecli:<ECLI>`), deutsche Gerichte über `https://www.rechtsprechung-im-internet.de` bzw. den ECLI-Resolver.
 - **Quellen-/Konzeptseiten:** DOI (`https://doi.org/…`) oder Zotero-Select-Link.
 - URIs nur setzen, wenn verifiziert (kein Erfinden, analog ECLI-Regel).
+
+**`normtyp:` (deontischer Normcharakter).** Klassifiziert, *was* eine Norm normativ bewirkt — abgeleitet aus dem Deontik-/Hohfeld-Kern der LKIF-Core-Ontologie (`norm`-Modul). Kontrolliertes Vokabular:
+- **Gebot** — die Norm gebietet ein Tun (LKIF `Obligation`/`Obliged`), z.B. Dokumentationspflicht.
+- **Verbot** — die Norm untersagt ein Verhalten (LKIF `Prohibition`/`Disallowed`), z.B. EU AI Act Art. 5.
+- **Erlaubnis** — die Norm erlaubt/rechtfertigt ein Verhalten (LKIF `Permission`/`Allowed`), z.B. DSGVO Art. 6 Abs. 1.
+- **Kompetenznorm** — Ermächtigungs-/Zuständigkeitsnorm (LKIF `Hohfeldian_Power`/`Enabling_Power`), z.B. § 31 BVerfGG.
+- **Definitionsnorm** — Legaldefinition (LKIF `Definitional_Expression`), z.B. DSGVO Art. 4.
+
+Nur auf Normknoten-Seiten. Eine Norm kann mehrere Typen tragen (Liste). Grep-bar für `query wiki`.
+
+**`in_kraft:` / `wirksam_ab:` (Inkrafttreten vs. Anwendbarkeit).** Das LKIF-`time-modification`-Modul trennt `In_Force_Interval` (formaler Geltungsbeginn) von `Efficacy_Interval` (tatsächlicher Beginn der Rechtsfolgen). Beide fallen oft auseinander: die DSGVO war ab 24.05.2016 *in Kraft*, aber erst ab 25.05.2018 *anwendbar*. `in_kraft:` = Inkrafttreten, `wirksam_ab:` = Anwendbarkeit/Wirksamkeit. Nur setzen, wenn die Daten divergieren oder rechtlich relevant sind; bei Gleichlauf genügt `in_kraft:` (s. Abschnitt „Geltung: Inkrafttreten vs. Wirksamkeit").
+
+**`bindungswirkung:` (Bindungswirkung von Leitentscheidungen).** LKIF unterscheidet `Mandatory_Precedent` von `Persuasive_Precedent`. Für deutsche Verhältnisse: **Gesetzeskraft** = förmliche Bindung (BVerfG-Entscheidungen nach § 31 Abs. 1 BVerfGG, teils mit Gesetzeskraft nach § 31 Abs. 2 BVerfGG); **faktisch** = keine förmliche Bindung, aber Leitwirkung (sonstige Obergerichtsentscheidungen, EuGH-Auslegung im nationalen Kontext). Nur auf Leitentscheidungs-Seiten. Der Wert ist unabhängig vom `rang:` — der folgt der Norm, nicht der Bindungswirkung des Urteils.
 
 ## Seiten-Typen
 
@@ -65,7 +82,7 @@ resource:          # optional: stabile URI des zugrunde liegenden Rechts-Assets 
 ### Normknoten-Seite
 - Spezialform der Entitäts-Seite für eine einzelne Leitnorm (Artikel/Paragraph)
 - Namensschema: `[Gesetz] [Norm].md` (z.B. `DSGVO Art. 6.md`, `MStV § 93.md`)
-- `wiki-category: entitaet`, zusätzlich `rang:` (1–6) gesetzt
+- `wiki-category: entitaet`, zusätzlich `rang:` (1–6) gesetzt; optional `normtyp:`, `in_kraft:`/`wirksam_ab:`
 - Struktur: Definition · Absätze/Tatbestandsmerkmale (mit Wikilinks zu Konzeptseiten) · Leitentscheidungen · Verhältnis zu anderen Normen
 - Zweck: Anker-Knoten — Konzeptseiten verlinken hierauf; Backlinks ersetzen die SPARQL-Abfrage des KG-Konzepts
 - Abgrenzung zur Gesetz-Entität: `DSGVO.md` beschreibt die Verordnung als Ganzes; `DSGVO Art. 6.md` ist der granulare Normknoten und verlinkt auf die Gesetz-Seite
@@ -73,7 +90,7 @@ resource:          # optional: stabile URI des zugrunde liegenden Rechts-Assets 
 ### Leitentscheidungs-Seite
 - Spezialform der Entitäts-Seite für eine Grundsatzentscheidung
 - Namensschema: `[Kurzbezeichnung].md` (z.B. `BVerfGE 65,1 (Volkszählungsurteil).md`)
-- `wiki-category: entitaet`, zusätzlich `rang:`, `ecli:` (wo verifiziert vorhanden), `rechtsstand:`
+- `wiki-category: entitaet`, zusätzlich `rang:`, `ecli:` (wo verifiziert vorhanden), `rechtsstand:`; optional `bindungswirkung:`
 - Struktur: Leitsatz · Tragende Erwägungen · Bezug zu Normen (Wikilinks) · Nachfolge-/Vorgängerentscheidungen
 - Zweck: Anker-Knoten für Rechtsprechung; verknüpft Normknoten mit Konzeptseiten
 
@@ -178,6 +195,10 @@ Kontrolliertes Vokabular:
 - **konkretisiert** — Rechtsprechung präzisiert ältere Entscheidung/Norm
 - **definiert** — Norm definiert einen Begriff
 - **wendet an** — Entscheidung wendet eine Norm an
+- **setzt aus** — vorübergehende Aussetzung der Wirksamkeit (LKIF `Suspension`)
+- **erklärt für nichtig** — gerichtliche Nichtigerklärung, ex tunc (LKIF `Annulment`; ≠ gesetzgeberische Aufhebung „hebt auf")
+- **wirkt nach** — abgelöste Norm bleibt für Altfälle anwendbar (Nachwirkung, LKIF `Ultractivity`)
+- **wirkt zurück** — Norm erfasst rückwirkend abgeschlossene Sachverhalte (LKIF `Retroactivity`)
 - **zitiert** — allgemeiner Verweis
 
 Beispiel:
@@ -198,6 +219,26 @@ Das Wiki spiegelt immer den **aktuellen Rechtsstand** wider — es ist kein hist
 | **Partielle Verdrängung** | EU-Verordnung mit Anwendungsvorrang (lex posterior/superior) | DSA Art. 15, 16 verdrängen NetzDG § 2, § 3 Abs. 2 | Verdrängten Teil im Callout markieren; verbliebenen Restanwendungsbereich dokumentieren |
 | **Novellierung** | Geänderte Fassung einer bestehenden Norm | AVMD-RL 2018/1808 ändert AVMD-RL 2010/13/EU | Neue Fassung ist maßgeblich; Fassung/Datum im Callout führen (`i.d.F. [Jahr]`) |
 | **Rechtsprechungsänderung** | Neueres Urteil klärt, präzisiert oder revidiert ältere Entscheidung | BVerfGE 158, 389 konkretisiert BVerfGE 149, 222 | Neueres Urteil primär zitieren; älteres Urteil mit Kontexthinweis auf Nachfolgeentscheidung versehen |
+
+### Geltung: Inkrafttreten vs. Wirksamkeit
+
+Das LKIF-`time-modification`-Modul trennt zwei Zeitachsen, die Seiten zu zeitkritischen Normen sauber halten sollten:
+
+- **Inkrafttreten** (`In_Force`, Feld `in_kraft:`) — ab wann die Norm formal zur Rechtsordnung gehört.
+- **Wirksamkeit/Anwendbarkeit** (`Efficacy`, Feld `wirksam_ab:`) — ab wann sie tatsächlich Rechtsfolgen erzeugt.
+
+Divergieren beide, im `[!recht]`-Callout beide Daten führen (Beispiel unten). Für abgelöste Normen ist relevant, dass das Inkrafttreten enden kann, die Wirksamkeit für Altfälle aber fortbesteht → **Nachwirkung** (s.u.).
+
+### Weitere Modifikationstypen
+
+Über die vier Supersessionstypen hinaus kennt das LKIF-`time-modification`-Modul temporale Modifikationen, die keine Ablösung sind, aber den Geltungsstatus verändern. Mit dem Relationsvokabular ausdrücken und im Callout kennzeichnen:
+
+| Typ | LKIF-Klasse | Auslöser | Konsequenz |
+|---|---|---|---|
+| **Aussetzung** | `Suspension` | Wirksamkeit vorübergehend ausgesetzt (gerichtliche Anordnung, Moratorium) | Relation `setzt aus`; Callout `⏸️ ausgesetzt [Zeitraum/Grund]`; Seite bleibt gültig, Status markiert |
+| **Nichtigerklärung** | `Annulment` | Gericht erklärt Norm für nichtig (ex tunc) — ≠ gesetzgeberische Aufhebung | Relation `erklärt für nichtig`; Callout mit Gericht/ECLI; von „aufgehoben" (durch Gesetzgeber) abgrenzen |
+| **Nachwirkung** | `Ultractivity` | Abgelöste Norm bleibt für Altfälle anwendbar (Übergangsrecht) | Relation `wirkt nach`; Callout: verdrängt ab [Datum], **aber** anwendbar auf Sachverhalte vor [Datum] |
+| **Rückwirkung** | `Retroactivity` | Norm erfasst rückwirkend abgeschlossene Sachverhalte | Relation `wirkt zurück`; Callout `wirkt zurück auf [Datum]`; ggf. verfassungsrechtl. Rückwirkungsverbot vermerken |
 
 ### Ingest-Pflicht: Normersetzungsprüfung
 
@@ -229,6 +270,27 @@ Präzisierte oder revidierte Gerichtsentscheidung:
 ```
 > [!recht] ⚖️ Rang 4 (Verfassungsrecht) · BVerfGE 149, 222 (Rundfunkbeitrag, 2018)
 > Durch BVerfGE 158, 389 (Sachsen-Anhalt, 2021) in der Frage der Mitverantwortungspflicht der Länder konkretisiert.
+```
+
+In Kraft, aber noch nicht anwendbar (Geltung ≠ Wirksamkeit):
+
+```
+> [!recht] ⚖️ Rang 2 (EU-Verordnung) · EU AI Act Art. 5
+> In Kraft seit 01.08.2024; Verbote anwendbar ab 02.02.2025.
+```
+
+Für nichtig erklärte Norm (≠ gesetzgeberische Aufhebung):
+
+```
+> [!recht] ⚖️ Rang 5 (Bundesgesetz) · [Norm] i.d.F. [Jahr]
+> ⚠️ Vom BVerfG für nichtig erklärt (ex tunc) durch [ECLI/Fundstelle].
+```
+
+Abgelöste Norm mit Nachwirkung für Altfälle:
+
+```
+> [!recht] ⚖️ Rang 5 (Bundesgesetz) · [Norm] i.d.F. [Jahr]
+> Verdrängt durch [X] ab [Datum]; wirkt nach auf vor [Datum] abgeschlossene Sachverhalte.
 ```
 
 ### rechtsstand-Frontmatter-Feld
@@ -402,7 +464,7 @@ Diese Typen sind **keine** Wiki-Seiten i.S.d. Tiefenstandards und werden von Lin
 
 Das Wiki ist bewusst weitgehend OKF-kompatibel gehalten (Knowledge-Austausch mit Dritten/Agenten).
 
-- **Pflichtregel erfüllt:** Jede Nicht-Reserved-`.md` in `[WIKI-ORDNER]/` trägt ein nicht-leeres `type`-Feld. Alle übrigen Felder (`wiki-category`, `normen`, `urteile`, `rang`, `ecli`, `thema`, `quellen`) sind OKF-konforme Extensions — Consumer müssen unbekannte Keys tolerieren.
+- **Pflichtregel erfüllt:** Jede Nicht-Reserved-`.md` in `[WIKI-ORDNER]/` trägt ein nicht-leeres `type`-Feld. Alle übrigen Felder (`wiki-category`, `normen`, `urteile`, `rang`, `normtyp`, `in_kraft`, `wirksam_ab`, `bindungswirkung`, `ecli`, `thema`, `quellen`) sind OKF-konforme Extensions — Consumer müssen unbekannte Keys tolerieren.
 - **`resource:`** ist das OKF-Empfehlungsfeld für die Asset-URI (s. Frontmatter-Schema oben; ELI/ECLI/DOI).
 - **Reserved Files:** `index.md` + `log.md` vorhanden. Hinweis: OKF sieht für `index.md` *kein* Frontmatter vor — unser `type: wiki-index` ist eine geduldete Abweichung. Optional kann im Root-`index.md` `okf_version: 0.1` deklariert werden.
 - **Bewusste Divergenz — Links:** Wir nutzen Obsidian-`[[Wikilinks]]` statt OKF-Standard-Markdown-Links (`[Text](/pfad.md)`). OKF toleriert das (Links werden als „broken" geduldet, Relationssemantik liegt ohnehin im Fließtext). Für einen echten OKF-Export wäre eine Build-Pipeline (Wikilinks → Markdown-Links) der richtige Weg — nicht die Umstellung des Vaults.
