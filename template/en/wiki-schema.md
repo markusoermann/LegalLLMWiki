@@ -299,7 +299,7 @@ Controlled vocabulary:
 
 Example:
 
-> Der DSA **verdrängt** [[NetzDG]] §§ 2, 3 (seit 17.02.2024); das österr. KoPl-G-Analogon ist europarechtswidrig laut [[EuGH C-376-22 (KoPl-G)]].
+> Der DSA **verdrängt** [[NetzDG]] §§ 2, 3 (seit 17.02.2024); der Gesetzgeber **hebt** die §§ 2 bis 3f mit Wirkung zum 14.05.2024 **auf**; das österr. KoPl-G-Analogon ist europarechtswidrig laut [[EuGH C-376-22 (KoPl-G)]].
 
 ## Legal Currency and Norm Supersession
 
@@ -336,6 +336,22 @@ Beyond the four supersession types, the LKIF `time-modification` module recogniz
 | **Ultra-activity** | `Ultractivity` | Superseded norm remains applicable to old cases (transitional law) | Relation `wirkt nach`; callout: superseded from [date], **but** applicable to facts before [date] |
 | **Retroactivity** | `Retroactivity` | Norm retroactively covers already-concluded facts | Relation `wirkt zurück`; callout `wirkt zurück auf [date]`; note constitutional ban on retroactivity where relevant |
 
+### Warning: supersession is often mistaken for the final state
+
+The most common failure when maintaining this section is not missing a supersession, but **stopping at the first event**. A norm can be affected several times in sequence, and recording only the first stage eventually produces a false statement.
+
+The teaching case is the German NetzDG:
+
+1. From 2024-02-17 the directly applicable DSA superseded §§ 2, 3 NetzDG by virtue of application priority. The provisions remained in existence and merely stepped back. § 3a (reporting duty to the Federal Criminal Police Office) had no DSA equivalent and therefore counted as a **remaining scope of application**.
+2. Only months later the legislator **formally repealed** §§ 2 to 3f, including § 3a (Art. 29 no. 2 of the Act implementing Regulation (EU) 2022/2065 of 2024-05-06, Federal Law Gazette 2024 I no. 149; in force 2024-05-14).
+
+A wiki that captured only step 1 will then assert that § 3a remains independently applicable. That is wrong, yet it sounds plausible and is well sourced, because the literature up to 2024 said exactly that.
+
+Two practical consequences:
+
+- **Supersession is a state, not a conclusion.** Wherever `verdrängt` is set, put the topic on a review list; in such constellations the legislator often follows up.
+- **A remaining scope of application is the most fragile statement in the whole vocabulary.** It asserts that something survived, and that is precisely what changes fastest. Such statements need a `rechtsstand:` date and a cross-check against the official consolidated text, not only against secondary literature.
+
 ### Ingest Obligation: Norm-Supersession Check
 
 On every ingest of a legal source (statute, regulation, judgment, commentary) **before writing**:
@@ -358,7 +374,7 @@ Partially superseded norm with a remaining scope of application:
 ```
 > [!recht] ⚖️ Rang 5 (Bundesgesetz) · NetzDG § 3 Abs. 2 i.d.F. 2021
 > Weitgehend verdrängt durch DSA Art. 16 Abs. 6 (seit 17.02.2024).
-> Restanwendungsbereich: § 3a NetzDG (Meldepflicht staatsschützende Straftatbestände) bleibt eigenständig anwendbar.
+> Restanwendungsbereich: § 5 NetzDG (inländischer Zustellungsbevollmächtigter) bleibt eigenständig anwendbar.
 ```
 
 Refined or revised court decision:
