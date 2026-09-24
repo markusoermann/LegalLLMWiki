@@ -20,7 +20,7 @@ Lawyers, researchers and anyone who wants a queryable subject wiki with clean so
 - 🔗 **Graph without a triplestore:** backlinks of the norm/decision nodes as the query path
 - 🔍 **Evidence layer:** verification pass against the source (`verify wiki`), `[!unbelegt]` flags for unsupported claims, `verifiziert:` field, gold benchmark of answer quality (`bench wiki`)
 - 🖥️ **Wiki MCP server:** local, read-only access to the wiki (full-text search, norm nodes, backlinks, maintenance reports) over stdio — no network port, no write tool
-- 🔎 **Mechanical check scripts** (`tools/`): citekeys against Zotero, `resource:` URIs, norm nodes against the official consolidated text
+- 🔎 **Mechanical check scripts** (`tools/`): citekeys against Zotero, `resource:` URIs, norm nodes against the official consolidated text, a guard for staggered applicability
 - 🧩 **5 skills:** `wiki-query`, `wiki-verify`, `zotero-skill`, `quellencheck`, `defuddle`
 - 📐 **Schema aligned with the OKF standard** ([Google Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md))
 
@@ -42,7 +42,7 @@ template/    AGENTS.md, wiki-schema.md, index/log, examples/, agent-config/
              localized text in template/en/ + template/de/; language-neutral agent-config/, mcp/
 skills/      5 skills + integration guide (skills/README.md)
 mcp/         Example MCP configuration + wiki-mcp/ (local read-only wiki MCP server)
-tools/       Mechanical check scripts (citekeys, resource URIs, norm-text comparison)
+tools/       Mechanical check scripts (citekeys, resource URIs, norm-text comparison, staggered applicability)
 ```
 
 ## Notes
