@@ -131,7 +131,7 @@ Konkret:
 - Eine Quellenangabe wird **nie** rekonstruiert. Keine Seitenzahl, kein citekey, kein ECLI und keine Fundstelle,
   die nicht im Wiki steht.
 
-Diese Disziplin wird gemessen: Block B von `[WIKI-ORDNER]/benchmark.md` enthält Fragen zu Rechtsgebieten, die das
+Diese Disziplin wird gemessen: Block B von `[BENCHMARK-ORT]/benchmark.md` enthält Fragen zu Rechtsgebieten, die das
 Wiki nachweislich nicht führt. Korrekte Antwort ist dort in allen Fällen die Zurückweisung (siehe Skill `wiki-verify`).
 
 ## Grenzen

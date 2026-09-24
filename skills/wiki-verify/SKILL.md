@@ -26,7 +26,7 @@ Vollständige Spezifikation: `[WIKI-ORDNER]/wiki-schema.md`, Abschnitte *Verifik
 | `verify wiki [Seitenname]` | prüft eine Seite |
 | `verify wiki [Thema]` | prüft alle Seiten eines Themenordners |
 | `verify wiki letzter Ingest` | prüft die Seiten des letzten `log.md`-Eintrags |
-| `bench wiki` | führt `[WIKI-ORDNER]/benchmark.md` aus |
+| `bench wiki` | führt `[BENCHMARK-ORT]/benchmark.md` aus |
 
 Unabhängig davon läuft die Belegprüfung automatisch als abschließender Schritt jedes Ingests.
 
@@ -57,9 +57,9 @@ Aus der Seite extrahieren:
 
 Zotero MCP (Standard-Endpunkt `http://127.0.0.1:23120/mcp`, siehe `docs/de/03-zotero-mcp.md`):
 
-- `search_fulltext` mit einer charakteristischen Wendung der Aussage, um die Stelle zu finden
-- `get_content` gezielt für den Abschnitt (`mode: "standard"` genügt meist)
+- **`get_content` ist der primäre Weg:** Volltext gezielt abrufen, bei langen Dokumenten abschnittsweise
 - `get_annotations` für eigene Hervorhebungen
+- **`search_fulltext` nur für Stichproben mit bekannter Originalwendung.** Es sucht Substrings, keine Termkombinationen, und versagt daher bei deutscher Paraphrase einer fremdsprachigen Quelle, also im Regelfall. Für systematische Belegprüfung ungeeignet.
 
 Normen und Entscheidungen gegen die amtliche Quelle prüfen: EUR-Lex/ELI für EU-Recht, gesetze-im-internet.de für deutsches Bundesrecht, ECLI-Resolver für Entscheidungen. Für andere Jurisdiktionen die jeweils amtliche Fundstelle verwenden.
 
@@ -128,7 +128,7 @@ Nicht bestandene Aussagen bekommen einen Callout. Sie verschwinden nicht komment
 
 ### Ablauf
 
-1. `[WIKI-ORDNER]/benchmark.md` lesen
+1. `[BENCHMARK-ORT]/benchmark.md` lesen
 2. Jede Frage aus **Block A** über den `wiki-query`-Workflow beantworten, **ohne dass die Goldantwort im Kontext liegt**. In der Praxis heißt das: je Frage ein Subagent, der nur die Frage bekommt.
 3. Jede Frage aus **Block B** ebenso. Erwartet wird die Zurückweisung.
 4. Antworten gegen die Goldantworten prüfen

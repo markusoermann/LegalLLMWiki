@@ -561,7 +561,7 @@ Nach dem Schreiben:
 ### Checks
 
 **Fehler:**
-- [ ] **Broken Wikilinks** — `[[Seite]]`-Verweise auf nicht existierende Dateien. **Beim Parsen das echte Linkziel isolieren**, bevor gegen Dateien geprüft wird: Alias nach `|` *und* nach escaptem `\|` (Pflicht-Escaping in Markdown-Tabellen!) abtrennen, `#`-Sprungmarken abtrennen, Pfad auf letztes Segment reduzieren. Sonst entstehen Fehlalarme bei Tabellen-Links wie `[[Antrag X\|Alias]]` und Anker-Links wie `[[Seite#Abschnitt]]`. **Unicode-Normalisierung beachten:** macOS legt Dateinamen auf APFS/iCloud in **NFD** ab (`ü` = `u` + Kombinationszeichen), Markdown-Dateien enthalten dagegen **NFC**. Ein naiver Stringvergleich meldet deshalb *jede* Seite mit Umlaut im Dateinamen als broken. Vor dem Vergleich beide Seiten mit `unicodedata.normalize("NFC", …)` normalisieren. (Lauf vom 2026-09-23: 3 von 4 verbliebenen Treffern waren Fehlalarme dieser Art, u.a. `[[LG München I 26 O 869-26 (Google AI Overview)]]` und `[[Anchoring Bias (KI-gestützte Entscheidungen)]]`.) Ebenso eine etwaige `.md`-Endung im Linkziel abschneiden (`[[00 Kontext/Grundannahmen.md]]`), sonst entsteht derselbe Fehlalarm.
+- [ ] **Broken Wikilinks** — `[[Seite]]`-Verweise auf nicht existierende Dateien. **Beim Parsen das echte Linkziel isolieren**, bevor gegen Dateien geprüft wird: Alias nach `|` *und* nach escaptem `\|` (Pflicht-Escaping in Markdown-Tabellen!) abtrennen, `#`-Sprungmarken abtrennen, Pfad auf letztes Segment reduzieren. Sonst entstehen Fehlalarme bei Tabellen-Links wie `[[Antrag X\|Alias]]` und Anker-Links wie `[[Seite#Abschnitt]]`. **Unicode-Normalisierung beachten:** macOS legt Dateinamen auf APFS/iCloud in **NFD** ab (`ü` = `u` + Kombinationszeichen), Markdown-Dateien enthalten dagegen **NFC**. Ein naiver Stringvergleich meldet deshalb *jede* Seite mit Umlaut im Dateinamen als broken. Vor dem Vergleich beide Seiten mit `unicodedata.normalize("NFC", …)` normalisieren. (Lauf vom 2026-09-23: 3 von 4 verbliebenen Treffern waren Fehlalarme dieser Art, u.a. `[[LG München I 26 O 869-26 (Google AI Overview)]]` und `[[Anchoring Bias (KI-gestützte Entscheidungen)]]`.) Ebenso eine etwaige `.md`-Endung im Linkziel abschneiden (`[[00 Kontext/Grundannahmen.md]]`), sonst entsteht derselbe Fehlalarm. **Quellen-Wikilinks ausnehmen:** Links der Form `[[@citekey]]` im Abschnitt *Quellen* verweisen auf den Zotero-Eintrag und **nicht** auf eine Vault-Datei. Es gibt bewusst keine `@citekey.md`-Dateien. Da praktisch jede Wiki-Seite einen solchen Link führt, erzeugt ein Check ohne diese Ausnahme mehr Fehlalarme als der gesamte Bestand Seiten hat. Linkziele, die mit `@` beginnen, deshalb überspringen.
 - [ ] **Index-Konsistenz** — Einträge in `index.md` ohne zugehörige Datei (und umgekehrt: Dateien mit `type: wiki-page` die nicht in `index.md` stehen)
 
 **Warnungen:**
@@ -609,9 +609,11 @@ Nach je 10 Ingests oder monatlich als Mindest-Wartung.
 
 Der Lint misst Struktur. Er misst nicht die **Antwortqualität**, also ob das Wiki eine Frage richtig beantwortet und ob es eine Frage, die es nicht beantworten kann, auch korrekt zurückweist. Ohne diese Messung lässt sich nicht feststellen, ob eine Schema-Änderung (etwa die Einführung von `normtyp:`) überhaupt etwas verbessert hat.
 
-- **Datei:** `[WIKI-ORDNER]/benchmark.md`
+- **Datei:** `[BENCHMARK-ORT]/benchmark.md`. `[BENCHMARK-ORT]` ist ein Ordner **außerhalb** von `[WIKI-ORDNER]/`, etwa ein Kontext- oder Konfigurationsordner des Vaults.
 - **Trigger:** `bench wiki`
 - **Kadenz:** nach je 10 Ingests, gemeinsam mit `lint wiki`
+
+**Ablageort außerhalb des Wiki-Ordners.** Die Datei liegt bewusst **nicht** in `[WIKI-ORDNER]/`, sondern daneben (hier: `00 Kontext/Wiki-Benchmark.md`). Grund: `query wiki` durchsucht den gesamten Wiki-Ordner. Läge das Frageset darin, fänden die antwortenden Agenten beim Grep die Goldantworten und bei den Out-of-Scope-Fragen den Vermerk „Zurückweisung". Die Messung würde dann nicht mehr erfassen, ob das Wiki seine Grenze erkennt, sondern ob der Agent den Spickzettel findet. Im Lauf vom 2026-09-24 ist genau das eingetreten: Alle vier antwortenden Agenten stießen beim Grep auf die Datei, drei legten es von sich aus offen. Das Ergebnis jenes Laufs ist deshalb nicht verwertbar.
 
 ### Aufbau
 

@@ -10,7 +10,7 @@ All triggers are defined in `AGENTS.md`; the agent recognizes them in the chat. 
 | `query wiki: [question]` | Searches `[WIKI-FOLDER]/` (index + grep), synthesizes an answer with `[[Wikilinks]]`, optionally offers a synthesis page. |
 | `lint wiki` | Integrity audit (broken links, orphans, missing nodes, frontmatter drift) with severity levels. |
 | `verify wiki [page]` | Citation check by a fresh subagent: does the cited passage carry the claim? Argument optional (page, topic, or last ingest); runs as step 6 of every ingest anyway. (→ `07-verification.md`) |
-| `bench wiki` | Measures answer quality against `[WIKI-FOLDER]/benchmark.md` (knowledge questions + out-of-scope questions). |
+| `bench wiki` | Measures answer quality against `[BENCHMARK-LOCATION]/benchmark.md` (knowledge questions + out-of-scope questions). |
 | `workflow: [name]` | The agent reads the workflow page in `[WIKI-FOLDER]/Workflows/` and works through it step by step. |
 
 ## Typical flow

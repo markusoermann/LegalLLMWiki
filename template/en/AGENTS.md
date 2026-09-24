@@ -61,7 +61,7 @@ Your own non-wiki folders are **not** part of the wiki. `Workflows/` is an **inf
 | `lint wiki` | Checks wiki integrity with severity classification — details in `wiki-schema.md` |
 | `query wiki: [question]` | Searches `[WIKI-FOLDER]/` (index + grep), synthesizes an answer with [[Wikilinks]], offers a synthesis page |
 | `verify wiki [page\|topic\|last ingest]` | Verification pass: a fresh subagent checks every statement against its source passage, flags unsubstantiated ones, removes hard fails |
-| `bench wiki` | Runs the gold benchmark from `[WIKI-FOLDER]/benchmark.md` (knowledge questions and out-of-scope questions) |
+| `bench wiki` | Runs the gold benchmark from `[BENCHMARK-LOCATION]/benchmark.md` (knowledge questions and out-of-scope questions) |
 | `workflow: [name]` | Reads the workflow page `[WIKI-FOLDER]/Workflows/Workflow - [name].md` and works through it step by step |
 
 ### Ingest workflow (always the same, regardless of the trigger)

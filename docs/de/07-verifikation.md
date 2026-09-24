@@ -37,7 +37,7 @@ Der Callout ist ein offener Befund, kein Dauerzustand: `lint wiki` meldet `[!unb
 
 Der Pass läuft automatisch als **Schritt 6 jedes Ingests** und zusätzlich auf den Trigger `verify wiki [Seite|Thema|letzter Ingest]`.
 
-Geprüft wird von einem **frischen Subagenten ohne den Schreibkontext**. Wer den Text geschrieben hat, kann ihn nicht unbefangen gegenprüfen; das ist der Kern des Verfahrens, keine Formalie. Der Subagent bekommt Seitenpfad, alle Locator und die Felder `normen:`/`urteile:`/`ecli:`, schlägt die Passagen per Zotero-MCP nach (`search_fulltext`, `get_content`, `get_annotations`) und klassifiziert jede Aussage:
+Geprüft wird von einem **frischen Subagenten ohne den Schreibkontext**. Wer den Text geschrieben hat, kann ihn nicht unbefangen gegenprüfen; das ist der Kern des Verfahrens, keine Formalie. Der Subagent bekommt Seitenpfad, alle Locator und die Felder `normen:`/`urteile:`/`ecli:`, schlägt die Passagen per Zotero-MCP nach (primär `get_content`; `search_fulltext` nur bei bekannter Originalwendung, da es Substrings und keine Termkombinationen sucht) und klassifiziert jede Aussage:
 
 | Befund | Bedeutung | Konsequenz |
 |---|---|---|
@@ -77,7 +77,7 @@ Ablage der JSONs in `/tmp/wiki-ingest/<citekey>/`, bewusst außerhalb des Vaults
 
 ## Benchmark
 
-`lint wiki` misst Struktur, nicht Antwortqualität. Ohne Messung lässt sich nicht feststellen, ob eine Schema-Änderung überhaupt etwas verbessert hat. Datei: `[WIKI-ORDNER]/benchmark.md`, Trigger `bench wiki`, Kadenz nach je 10 Ingests gemeinsam mit `lint wiki`.
+`lint wiki` misst Struktur, nicht Antwortqualität. Ohne Messung lässt sich nicht feststellen, ob eine Schema-Änderung überhaupt etwas verbessert hat. Datei: `[BENCHMARK-ORT]/benchmark.md`, also **außerhalb** des Wiki-Ordners, damit die antwortenden Agenten die Goldantworten nicht per Grep finden, Trigger `bench wiki`, Kadenz nach je 10 Ingests gemeinsam mit `lint wiki`.
 
 1. **Wissensfragen:** Fragen, deren Antwort im Wiki nachweislich steht. Je Eintrag `Frage` · `Goldantwort` · `Belegseite` (Wikilink). Die Goldantworten werden aus den Wiki-Seiten abgeleitet, nicht aus dem Modellwissen formuliert.
 2. **Out-of-Scope-Fragen:** Fragen zu Themen, die das Wiki nachweislich nicht führt. Korrekt ist hier die **Zurückweisung** („Dazu steht nichts im Wiki.").
