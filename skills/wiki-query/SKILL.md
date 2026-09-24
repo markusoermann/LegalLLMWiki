@@ -5,7 +5,8 @@ description: |
   "was weiß ich über X", "finde alles zu X im Wiki", "zeig mir was im Wiki steht zu X",
   "suche im Wiki nach X", "was sagt mein Wiki zu X", "search my wiki for X".
   Searches all of [WIKI-ORDNER]/ (the LLMWiki; any non-wiki folders are excluded) using
-  index + grep, synthesizes an answer with [[wikilinks]], and optionally saves
+  the wiki MCP server when connected, plus index + grep, synthesizes an answer with
+  [[wikilinks]] and a mandatory evidence-status line, and optionally saves
   the result as a new synthesis wiki page.
 ---
 
@@ -29,7 +30,11 @@ Beantwortet Fragen aus dem LLMWiki durch strukturierte Suche in `[WIKI-ORDNER]/`
 
 `[WIKI-ORDNER]/index.md` lesen. Thematisch relevante Wiki-Seiten identifizieren und vormerken.
 
-### Schritt 2 — Grep-Suche
+### Schritt 2 — Suche
+
+**Bevorzugt, sofern der Wiki-MCP-Server verbunden ist:** `search_wiki` für die Volltextsuche, `get_norm` für Normbezüge (liefert den Normknoten plus alle Seiten, die die Norm im `normen:`-Frontmatter führen) und `get_backlinks` für die Nachbarschaft einer Seite. Diese Tools werten das Frontmatter aus, was Grep nicht kann, und liefern bei Normfragen deutlich vollständigere Treffer.
+
+**Ohne MCP-Server: Grep-Suche.**
 
 Schlüsselbegriffe aus der Frage extrahieren. Immer **deutsche + englische Varianten** suchen (Fachbegriffe kommen in beiden Sprachen vor):
 
@@ -61,6 +66,16 @@ Format je nach Fragetyp:
 | Listenfrage | Kommentierte Liste |
 
 Jede zentrale Aussage mit `[[Wikilink]]` belegen. Widersprüche zwischen Quellen explizit nennen.
+
+#### Pflicht: Belegstatus-Block
+
+Jede Antwort endet mit einem Belegstatus. Er trennt sichtbar, was aus dem Wiki stammt und was nicht:
+
+```markdown
+**Belegstatus:** 6 Aussagen aus dem Wiki belegt (4 Seiten) · 1 Aussage aus Modellwissen ergänzt (oben markiert) · Lücke: keine Wiki-Seite zu [Teilaspekt]
+```
+
+Ohne diesen Block ist die Antwort nicht fertig. Eine Wissensabfrage, deren Antwort nicht erkennen lässt, welcher Teil belegt ist, erzeugt den Anschein von Belegtheit für das Ganze.
 
 ### Schritt 5 — Rückfrage Synthese-Seite
 
@@ -99,6 +114,25 @@ Nach der Antwort fragen:
 - **Transparent:** Wenn das Wiki zum Thema lückenhaft ist → klar sagen was fehlt + `ingest`-Vorschlag machen
 - **Ehrlich:** Nicht aus Fachwissen ergänzen ohne Kennzeichnung — das ist eine Wiki-Abfrage, keine Expertise-Abfrage. Eigenes Wissen nur als explizit markierten Zusatz (`*Hinweis: nicht im Wiki belegt*`)
 - **Widersprüche:** Zwischen Quellen explizit benennen, nicht glätten
+
+## Zurückweisung ist eine richtige Antwort
+
+**„Dazu steht nichts im Wiki" ist ein vollwertiges und erwünschtes Ergebnis.** Es ist keine Niederlage und darf nicht durch eine plausibel klingende Ersatzantwort überdeckt werden.
+
+Die gefährlichste Antwort dieses Skills ist nicht die falsche, sondern die inhaltlich richtige, die aber aus dem Modellwissen stammt und wie belegtes Wiki-Wissen aussieht. Sie ist deshalb gefährlich, weil sie das Wiki für etwas in Haftung nimmt, das nie hineingeschrieben und nie geprüft wurde. Wer danach die Belegseite sucht, findet nichts und kann den Fehler nicht mehr zuordnen.
+
+Konkret:
+
+- Liefern Index, MCP-Suche und Grep **keine einschlägige Seite**, lautet die Antwort: „Dazu steht nichts im Wiki",
+  gefolgt von dem, was inhaltlich am nächsten liegt, und einem `ingest`-Vorschlag.
+- Deckt das Wiki die Frage nur **teilweise**, wird die Grenze benannt: welcher Teil belegt ist und welcher nicht.
+- Modellwissen darf ergänzt werden, aber **nur** mit `*Hinweis: nicht im Wiki belegt*` und niemals als
+  Hauptantwort ohne vorherige Zurückweisung.
+- Eine Quellenangabe wird **nie** rekonstruiert. Keine Seitenzahl, kein citekey, kein ECLI und keine Fundstelle,
+  die nicht im Wiki steht.
+
+Diese Disziplin wird gemessen: Block B von `[WIKI-ORDNER]/benchmark.md` enthält Fragen zu Rechtsgebieten, die das
+Wiki nachweislich nicht führt. Korrekte Antwort ist dort in allen Fällen die Zurückweisung (siehe Skill `wiki-verify`).
 
 ## Grenzen
 

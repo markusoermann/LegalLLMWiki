@@ -2,15 +2,18 @@
 
 # Skills
 
-Four capabilities for the LegalLLMWiki. At its core, a "skill" is a `SKILL.md` instruction file (+ optional scripts) — the substance is agent-agnostic, only the integration differs per agent.
+Five capabilities for the LegalLLMWiki. At its core, a "skill" is a `SKILL.md` instruction file (+ optional scripts) — the substance is agent-agnostic, only the integration differs per agent.
 
 > **The LLMWiki as single point of truth:** `wiki-query` is the interface to the vault's authoritative knowledge layer. Content-generating skills (lectures, assessments, research) should query the wiki **first**, use its content with priority, cite it via [[wikilinks]], and propose additions via `ingest` — so the wiki stays the single source of truth.
+
+> **The evidence layer:** `wiki-verify` is the counterpart to `wiki-query`. It checks in a fresh subagent whether each claim on a page is actually carried by its cited source passage (supportedness, not correctness), flags unsupported claims with `[!unbelegt]`, removes fabricated identifiers (ECLI, norm designation, source of record, citekey), and measures the wiki's answer quality against the gold benchmark. Triggers: `verify wiki`, `bench wiki`.
 
 Each skill ships bilingually: `SKILL.md` (German) and `SKILL.en.md` (English). To install, use the desired language variant as `SKILL.md`.
 
 | Skill | Purpose | Dependencies |
 |---|---|---|
-| `wiki-query` | Search the wiki + synthesize an answer with [[Wikilinks]] | — (index + grep) |
+| `wiki-query` | Search the wiki + synthesize an answer with [[Wikilinks]] and a mandatory evidence-status block | — (index + grep; wiki MCP server optional) |
+| `wiki-verify` | Evidence check of wiki pages (`verify wiki`) + gold benchmark of answer quality (`bench wiki`) | Zotero MCP server (see `docs/03`); a fresh subagent for the check |
 | `zotero-skill` | Use the Zotero library via MCP (ingest, metadata, PDF, BibTeX) | Zotero MCP server (see `docs/03`) |
 | `quellencheck` | Check whether cited sources actually exist (DOI/CrossRef/OpenAlex) | Python 3 (`scripts/verify_dois.py`); enter your own email in the script |
 | `defuddle` | Extract web content cleanly as Markdown | external `defuddle` CLI (`npm install -g defuddle`) |
@@ -20,7 +23,7 @@ Each skill ships bilingually: `SKILL.md` (German) and `SKILL.en.md` (English). T
 ### Claude Code (native)
 Copy the skill folders into `~/.claude/skills/`:
 ```bash
-cp -R skills/wiki-query skills/zotero-skill skills/quellencheck skills/defuddle ~/.claude/skills/
+cp -R skills/wiki-query skills/wiki-verify skills/zotero-skill skills/quellencheck skills/defuddle ~/.claude/skills/
 ```
 Claude loads the skill metadata automatically and activates them on matching triggers.
 

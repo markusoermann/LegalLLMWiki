@@ -18,7 +18,9 @@ Lawyers, researchers and anyone who wants a queryable subject wiki with clean so
 - ⚖️ **Law-optimized:** norm nodes, landmark decisions, 6-level legal hierarchy, `[!recht]` callouts, `ecli`/`resource` (ELI/ECLI)
 - 🤖 **Multi-agent:** works with **Claude Code, OpenAI Codex, OpenCode and Gemini CLI** (canonical `AGENTS.md`)
 - 🔗 **Graph without a triplestore:** backlinks of the norm/decision nodes as the query path
-- 🧩 **4 skills:** `wiki-query`, `zotero-skill`, `quellencheck`, `defuddle`
+- 🔍 **Evidence layer:** verification pass against the source (`verify wiki`), `[!unbelegt]` flags for unsupported claims, `verifiziert:` field, gold benchmark of answer quality (`bench wiki`)
+- 🖥️ **Wiki MCP server:** local, read-only access to the wiki (full-text search, norm nodes, backlinks, maintenance reports) over stdio — no network port, no write tool
+- 🧩 **5 skills:** `wiki-query`, `wiki-verify`, `zotero-skill`, `quellencheck`, `defuddle`
 - 📐 **Schema aligned with the OKF standard** ([Google Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md))
 
 ## Quickstart
@@ -27,18 +29,18 @@ Lawyers, researchers and anyone who wants a queryable subject wiki with clean so
 2. **Drop in the framework files** from `template/` (`AGENTS.md`, `wiki-schema.md`, `index.md`, `log.md`)
 3. **Connect Zotero + MCP** → [`docs/en/03-zotero-mcp.md`](docs/en/03-zotero-mcp.md)
 4. **Set up your agent** (context file + MCP config + skills) → [`docs/en/04-agent-setup.md`](docs/en/04-agent-setup.md)
-5. **Get going:** `ingest @citekey`, `query wiki: …`, `lint wiki` → [`docs/en/05-workflows.md`](docs/en/05-workflows.md)
+5. **Get going:** `ingest @citekey`, `query wiki: …`, `lint wiki`, `verify wiki`, `bench wiki` → [`docs/en/05-workflows.md`](docs/en/05-workflows.md)
 
-Legal specifics: [`docs/en/06-legal-features.md`](docs/en/06-legal-features.md) · Concept/architecture: [`docs/en/01-concept.md`](docs/en/01-concept.md)
+Legal specifics: [`docs/en/06-legal-features.md`](docs/en/06-legal-features.md) · Verification & benchmark: [`docs/en/07-verification.md`](docs/en/07-verification.md) · Wiki MCP server: [`docs/en/08-mcp-server.md`](docs/en/08-mcp-server.md) · Concept/architecture: [`docs/en/01-concept.md`](docs/en/01-concept.md)
 
 ## Repository layout
 
 ```
-docs/        Setup guide (01–06), per language: docs/en/ + docs/de/
+docs/        Setup guide (01–08), per language: docs/en/ + docs/de/
 template/    AGENTS.md, wiki-schema.md, index/log, examples/, agent-config/
              localized text in template/en/ + template/de/; language-neutral agent-config/, mcp/
-skills/      4 skills + integration guide (skills/README.md)
-mcp/         Example MCP configuration
+skills/      5 skills + integration guide (skills/README.md)
+mcp/         Example MCP configuration + wiki-mcp/ (local read-only wiki MCP server)
 ```
 
 ## Notes
@@ -51,6 +53,7 @@ mcp/         Example MCP configuration
 - **LLM wiki pattern** — The underlying concept (an AI-maintained, "compounding" Markdown knowledge wiki as a layer between the user and the raw sources) comes from **Andrej Karpathy** ([gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)), introduced in April 2026. LegalLLMWiki is an agent-agnostic implementation of this pattern specialized for legal content.
 - **Second-brain implementation** — The concrete wiki architecture (the concepts/entities/synthesis taxonomy, `index.md`/`log.md`, the ingest/query/lint skills, the Obsidian and multi-agent integration) builds on Nicholas Spisak's [second-brain](https://github.com/NicholasSpisak/second-brain) project, adapted and extended for legal content.
 - **Open Knowledge Format (OKF)** — The schema is aligned with Google's open knowledge format standard: every non-reserved page carries a `type` field, `resource` is the OKF asset URI field (ELI/ECLI/DOI). Specification: [GoogleCloudPlatform/knowledge-catalog · okf/SPEC.md](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md). Details + deliberate deviations in the schema (`template/wiki-schema.md`, section "OKF compatibility").
+- **Verification pass (Paper2Agent)** — The evidence layer, the verification pass and the sub-agent decomposition of the ingest are modeled on the *test verifier–improver* and the orchestrator architecture from **Miao, Davis, Zhang, Pritchard & Zou, "Reimagining research papers as interactive and reliable AI agents", Nature (2026), DOI [10.1038/s41586-026-11044-y](https://doi.org/10.1038/s41586-026-11044-y)**, reference implementation [jmiao24/Paper2Agent](https://github.com/jmiao24/Paper2Agent). What was adopted is the principle that no artifact enters the finished corpus without being checked against its source — deliberately not the executable tool layer: legal content has no machine-checkable standard of truth, so what is checked is supportedness, not correctness.
 - **LKIF-Core (legal vocabulary)** — The controlled vocabularies for the norm function (`normtyp`, Hohfeld-granular: deontics + Hohfeldian legal positions + function norms), the separation of entry-into-force and efficacy (`in_kraft`/`wirksam_ab`), the binding force of landmark decisions (`bindungswirkung`), and the typed modification relations (`setzt aus`/`erklärt für nichtig`/`wirkt nach`/`wirkt zurück`) are modeled on the **LKIF-Core legal ontology** (modules `norm` and `time-modification`). Only the vocabulary was adopted — deliberately not the formal OWL/SPARQL architecture — keeping the approach Obsidian-native. Reference: [RinkeHoekstra/lkif-core](https://github.com/RinkeHoekstra/lkif-core).
 
 ### Legal standards & identifiers
