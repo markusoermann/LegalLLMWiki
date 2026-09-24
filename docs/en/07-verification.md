@@ -37,7 +37,7 @@ The callout is an open finding, not a permanent state: `lint wiki` reports `[!un
 
 The pass runs automatically as **step 6 of every ingest** and on the trigger `verify wiki [page|topic|last ingest]`.
 
-The check is performed by a **fresh subagent without the writing context**. Whoever wrote the text cannot check it impartially; that is the core of the procedure, not a formality. The subagent receives the page path, all locators, and the fields `normen:`/`urteile:`/`ecli:`, looks up the passages via the Zotero MCP server (`search_fulltext`, `get_content`, `get_annotations`), and classifies each claim:
+The check is performed by a **fresh subagent without the writing context**. Whoever wrote the text cannot check it impartially; that is the core of the procedure, not a formality. The subagent receives the page path, all locators, and the fields `normen:`/`urteile:`/`ecli:`, looks up the passages via the Zotero MCP server (primarily `get_content`; `search_fulltext` only when the original wording is known, since it matches substrings rather than term combinations), and classifies each claim:
 
 | Finding | Meaning | Consequence |
 |---|---|---|
@@ -77,7 +77,7 @@ The JSON files live in `/tmp/wiki-ingest/<citekey>/`, deliberately outside the v
 
 ## Benchmark
 
-`lint wiki` measures structure, not answer quality. Without measurement there is no way to tell whether a schema change improved anything at all. File: `[WIKI-FOLDER]/benchmark.md`, trigger `bench wiki`, cadence after every 10 ingests together with `lint wiki`.
+`lint wiki` measures structure, not answer quality. Without measurement there is no way to tell whether a schema change improved anything at all. File: `[BENCHMARK-LOCATION]/benchmark.md`, i.e. **outside** the wiki folder, so that answering agents cannot grep their way to the gold answers, trigger `bench wiki`, cadence after every 10 ingests together with `lint wiki`.
 
 1. **Knowledge questions:** questions whose answer is demonstrably in the wiki. Per entry: `question` · `gold answer` · `source page` (wikilink). Gold answers are derived from the wiki pages, not formulated from model knowledge.
 2. **Out-of-scope questions:** questions on topics the wiki demonstrably does not cover. Here the correct answer is **refusal** ("The wiki has nothing on that.").

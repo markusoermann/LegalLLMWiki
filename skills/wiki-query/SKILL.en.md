@@ -131,7 +131,7 @@ Concretely:
 - A source reference is **never** reconstructed. No page number, no citekey, no ECLI and no source of record
   that is not in the wiki.
 
-This discipline is measured: Block B of `[WIKI-FOLDER]/benchmark.md` contains questions on areas of law the wiki
+This discipline is measured: Block B of `[BENCHMARK-LOCATION]/benchmark.md` contains questions on areas of law the wiki
 demonstrably does not cover. The correct answer there is the refusal in every case (see the `wiki-verify` skill).
 
 ## Limits

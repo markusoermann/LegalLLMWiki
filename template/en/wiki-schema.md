@@ -565,7 +565,7 @@ After writing:
 ### Checks
 
 **Errors:**
-- [ ] **Broken wikilinks** — `[[Page]]` references to non-existent files. **When parsing, isolate the real link target** before checking against files: strip the alias after `|` *and* after escaped `\|` (mandatory escaping in Markdown tables!), strip `#` jump anchors, reduce the path to the last segment. Otherwise false positives arise for table links like `[[Antrag X\|Alias]]` and anchor links like `[[Seite#Abschnitt]]`. **Mind Unicode normalisation:** macOS stores filenames on APFS/iCloud in **NFD** (`ü` = `u` + combining mark), while Markdown files contain **NFC**. A naive string comparison therefore reports *every* page with an umlaut in its filename as broken. Normalise both sides with `unicodedata.normalize("NFC", …)` before comparing. Likewise strip a trailing `.md` from the link target (`[[folder/Page.md]]`), which otherwise produces the same false positive.
+- [ ] **Broken wikilinks** — `[[Page]]` references to non-existent files. **When parsing, isolate the real link target** before checking against files: strip the alias after `|` *and* after escaped `\|` (mandatory escaping in Markdown tables!), strip `#` jump anchors, reduce the path to the last segment. Otherwise false positives arise for table links like `[[Antrag X\|Alias]]` and anchor links like `[[Seite#Abschnitt]]`. **Mind Unicode normalisation:** macOS stores filenames on APFS/iCloud in **NFD** (`ü` = `u` + combining mark), while Markdown files contain **NFC**. A naive string comparison therefore reports *every* page with an umlaut in its filename as broken. Normalise both sides with `unicodedata.normalize("NFC", …)` before comparing. Likewise strip a trailing `.md` from the link target (`[[folder/Page.md]]`), which otherwise produces the same false positive. **Exempt source wikilinks:** links of the form `[[@citekey]]` in the *Sources* section point to the Zotero entry and **not** to a vault file. There are deliberately no `@citekey.md` files. Since virtually every wiki page carries such a link, a check without this exemption produces more false positives than the corpus has pages. Skip link targets starting with `@`.
 - [ ] **Index consistency** — Entries in `index.md` without a corresponding file (and vice versa: files with `type: wiki-page` that are not listed in `index.md`)
 
 **Warnings:**
@@ -613,9 +613,11 @@ After every 10 ingests, or monthly as minimum maintenance.
 
 Lint measures structure. It does not measure **answer quality**, that is, whether the wiki answers a question correctly and whether it properly refuses a question it cannot answer. Without this measurement there is no way to tell whether a schema change (the introduction of `normtyp:`, say) improved anything at all.
 
-- **File:** `[WIKI-FOLDER]/benchmark.md`
+- **File:** `[BENCHMARK-LOCATION]/benchmark.md`. `[BENCHMARK-LOCATION]` is a folder **outside** `[WIKI-FOLDER]/`, for example a context or configuration folder of the vault.
 - **Trigger:** `bench wiki`
 - **Cadence:** after every 10 ingests, together with `lint wiki`
+
+**Store it outside the wiki folder.** The file deliberately does **not** live in `[WIKI-FOLDER]/` but next to it. Reason: `query wiki` searches the entire wiki folder. If the question set were inside it, answering agents would hit the gold answers via grep, and for out-of-scope questions the expected verdict "refusal". The measurement would then no longer capture whether the wiki recognises its own boundary, but whether the agent finds the answer key. This actually happened on the first live run: all four answering agents encountered the file, three disclosed it unprompted, and that run's result is therefore not usable.
 
 ### Structure
 

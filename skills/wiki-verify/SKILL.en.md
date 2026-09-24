@@ -28,7 +28,7 @@ Full specification: `[WIKI-FOLDER]/wiki-schema.md`, sections *Verification Pass*
 | `verify wiki [page name]` | checks one page |
 | `verify wiki [topic]` | checks all pages of a topic folder |
 | `verify wiki letzter Ingest` | checks the pages of the latest `log.md` entry |
-| `bench wiki` | runs `[WIKI-FOLDER]/benchmark.md` |
+| `bench wiki` | runs `[BENCHMARK-LOCATION]/benchmark.md` |
 
 Independently of these triggers, the evidence check runs automatically as the closing step of every ingest.
 
@@ -59,9 +59,9 @@ Extract from the page:
 
 Zotero MCP (default endpoint `http://127.0.0.1:23120/mcp`, see `docs/en/03-zotero-mcp.md`):
 
-- `search_fulltext` with a characteristic phrase from the claim, to locate the passage
-- `get_content` targeted at the section (`mode: "standard"` is usually enough)
-- `get_annotations` for your own highlights
+- **`get_content` is the primary route:** fetch the full text deliberately, section by section for long documents
+- `get_annotations` for the user's own highlights
+- **`search_fulltext` only for spot checks where the original wording is known.** It matches substrings, not term combinations, and therefore fails whenever the wiki page paraphrases a foreign-language source, i.e. in the normal case. Unsuitable for systematic evidence checking.
 
 Check norms and decisions against the official source: EUR-Lex/ELI for EU law, gesetze-im-internet.de for German federal law, the ECLI resolver for decisions. For other jurisdictions, use the respective official source of record.
 
@@ -130,7 +130,7 @@ Claims that fail get a callout. They do not disappear silently, and they do not 
 
 ### Procedure
 
-1. Read `[WIKI-FOLDER]/benchmark.md`
+1. Read `[BENCHMARK-LOCATION]/benchmark.md`
 2. Answer every question from **Block A** through the `wiki-query` workflow, **without the gold answer being in context**. In practice: one subagent per question, receiving only the question.
 3. Do the same for every question from **Block B**. The expected answer there is the refusal.
 4. Check the answers against the gold answers

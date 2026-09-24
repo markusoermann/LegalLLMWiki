@@ -61,7 +61,7 @@ Eigene Nicht-Wiki-Ordner sind **nicht** Teil des Wikis. `Workflows/` ist ein **I
 | `lint wiki` | Prüft Wiki-Integrität mit Schweregrad-Klassifikation — Details in `wiki-schema.md` |
 | `query wiki: [Frage]` | Durchsucht `[WIKI-ORDNER]/` (Index + Grep), synthetisiert Antwort mit [[Wikilinks]], bietet Synthese-Seite an |
 | `verify wiki [Seite\|Thema\|letzter Ingest]` | Verifikations-Pass: frischer Subagent prüft jede Aussage gegen ihre Quellenstelle, markiert Unbelegtes, entfernt Hard-Fails |
-| `bench wiki` | Führt den Gold-Benchmark aus `[WIKI-ORDNER]/benchmark.md` aus (Wissensfragen und Out-of-Scope-Fragen) |
+| `bench wiki` | Führt den Gold-Benchmark aus `[BENCHMARK-ORT]/benchmark.md` aus (Wissensfragen und Out-of-Scope-Fragen) |
 | `workflow: [Name]` | Liest die Workflow-Seite `[WIKI-ORDNER]/Workflows/Workflow - [Name].md` und arbeitet sie Schritt für Schritt ab |
 
 ### Ingest-Ablauf (immer gleich, unabhängig vom Trigger)
