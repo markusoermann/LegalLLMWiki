@@ -4,6 +4,16 @@
       "type": "http",
       "url": "http://127.0.0.1:23120/mcp"
     },
+    "wiki": {
+      "command": "python3",
+      "args": [
+        "/PFAD/ZU/LegalLLMWiki/mcp/wiki-mcp/server.py",
+        "--wiki-root",
+        "/PFAD/ZU/DEINEM/VAULT/[WIKI-ORDNER]",
+        "--exclude",
+        "ORDNER-DER-NICHT-ZUM-WIKI-GEHOERT"
+      ]
+    },
     "filesystem": {
       "command": "npx",
       "args": [
