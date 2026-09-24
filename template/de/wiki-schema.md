@@ -1,6 +1,6 @@
 ---
 type: wiki-schema
-updated: 2026-08-10
+updated: 2026-09-23
 ---
 
 # Wiki Schema
@@ -20,6 +20,7 @@ quellen: ["@citekey1", "@citekey2"]
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 rechtsstand: YYYY-MM-DD   # optional; nur bei Seiten mit zeitkritischem juristischen Inhalt
+verifiziert: YYYY-MM-DD   # optional; Datum des letzten bestandenen Verifikations-Passes (s. Abschnitt Verifikations-Pass)
 ---
 ```
 
@@ -194,6 +195,88 @@ Der Rang folgt der Norm, nicht dem Gericht. Ein BVerfG-Urteil zu Art. 5 GG ist R
 - ❌ Nicht bei allgemeinen Zusammenfassungen oder Literaturmeinungen
 - ❌ Nicht bei jeder Aussage auf einer Seite — nur bei rechtlich fundierten Kernaussagen
 
+## Belege und Locator-Granularität
+
+Das Feld `quellen:` belegt eine Seite als Ganzes. Das reicht nicht aus, um eine einzelne Aussage zu prüfen. Jede Kernaussage trägt deshalb zusätzlich ihren eigenen **Locator**: citekey plus Fundstelle. Das ist zugleich die Voraussetzung dafür, dass der Verifikations-Pass billig bleibt, denn geprüft wird eine Passage und nicht ein ganzes PDF. Das Vorbild ist die agentische Codeextraktion, in der jedes generierte Werkzeug einen Verweis auf die konkrete Codestelle trägt, aus der es abgeleitet wurde.
+
+### Juristische Aussagen: `Beleg:`-Zeile im `[!recht]`-Callout
+
+Der `[!recht]`-Callout erhält eine optionale, aber erwünschte `Beleg:`-Zeile. Sie steht direkt unter der Titelzeile, vor dem Kurzkommentar:
+
+```
+> [!recht] ⚖️ Rang 2 (EU-Verordnung) · DSGVO Art. 6 Abs. 1 lit. f
+> Beleg: @citekey S. 142 Rn. 18
+> Direkt anwendbares EU-Sekundärrecht; verbindlich seit 25.05.2018.
+```
+
+Stützt sich die Aussage unmittelbar auf den Normtext selbst und nicht auf Literatur, entfällt die `Beleg:`-Zeile: Der Normverweis in der Titelzeile *ist* dann der Locator. Pflicht ist sie dort, wo eine **Auslegung, Streitdarstellung oder Zahlenangabe** aus einer Sekundärquelle stammt.
+
+### Nicht-juristische Kernaussagen: Inline-Locator
+
+Aussagen ohne Norm- oder Entscheidungsbezug, die auf eine Quelle zurückgehen, tragen den Locator am Satzende in Klammern:
+
+```markdown
+Der Effekt ist in den Daten ab 2023 messbar und betrifft vor allem Berufseinsteiger:innen (@citekey, S. 14).
+```
+
+Format: `(@citekey, S. N)` bzw. `(@citekey, Abschn. N)`, oder `(@citekey)`, wenn die Quelle keine Paginierung hat (Website, Preprint ohne Seitenzählung). Die Form ist grep-bar über `\(@[a-z]`.
+
+### Nicht bestandene Aussagen: `[!unbelegt]`-Callout
+
+Aussagen, die den Verifikations-Pass nicht bestehen und nicht korrigiert werden konnten, werden **markiert statt stillschweigend behalten**:
+
+```
+> [!unbelegt] ⚠️ Nicht belegt — geprüft YYYY-MM-DD
+> Die angegebene Quelle @citekey trägt diese Aussage an der genannten Stelle nicht.
+> Entweder Locator korrigieren, Quelle nachliefern oder Aussage entfernen.
+```
+
+Der Callout ist ein offener Befund, kein Dauerzustand: Der Lint meldet `[!unbelegt]`-Befunde, die älter als 30 Tage sind, als Warnung.
+
+## Verifikations-Pass (Ingest-Schritt 6)
+
+Der Lint prüft **Struktur**: tote Links, Index-Konsistenz, Frontmatter-Drift. Er prüft nicht, ob ein Satz von seiner Quelle gedeckt ist. Genau diese Lücke schließt der Verifikations-Pass. Das Muster stammt aus der agentischen Codeextraktion: Was sich nicht gegen die Quelle prüfen lässt, wird nicht stillschweigend übernommen, sondern mit Befund gekennzeichnet oder entfernt.
+
+Zwei Konstruktionsentscheidungen tragen das Verfahren und sollten beim Anpassen nicht wegfallen. **Erstens prüft ein frischer Subagent ohne den Schreibkontext.** Wer einen Text verfasst hat, liest ihn gegen die Quelle als Bestätigung und nicht als Prüfung; die Trennung ist der Kern, keine Formalie. **Zweitens wird Nichtbestandenes ausgeschlossen statt behalten.** Eine Aussage, die ihre Quelle nicht trägt, verschwindet entweder oder wird sichtbar markiert, und sie bleibt nie unkommentiert stehen.
+
+Herkunft und Belege für beides: Miao u.a., *Reimagining research papers as interactive and reliable AI agents*, Nature 2026, DOI [10.1038/s41586-026-11044-y](https://doi.org/10.1038/s41586-026-11044-y); Referenzimplementierung [jmiao24/Paper2Agent](https://github.com/jmiao24/Paper2Agent). Ausführlich in `docs/de/07-verifikation.md`.
+
+### Grundsatz: Belegtheit, nicht Richtigkeit
+
+Juristische Aussagen haben keinen ausführbaren Prüfmaßstab, weil Auslegung streitig ist. Der Verifier stellt deshalb **ausschließlich** fest, ob die angegebene Quellenstelle die Aussage trägt. Er entscheidet nicht, ob die Aussage zutrifft, und er ersetzt keine fachliche Prüfung. Wer beides verwechselt, erzeugt falsche Sicherheit.
+
+### Ablauf
+
+Der Pass läuft **automatisch als Schritt 6 jedes Ingests** und zusätzlich auf den Trigger `verify wiki [Seite|Thema|letzter Ingest]`.
+
+1. **Frischer Subagent.** Die Prüfung übernimmt ein Subagent *ohne* den Schreibkontext. Wer den Text geschrieben hat, kann ihn nicht unbefangen gegenprüfen. Das ist der Kern des Verfahrens, keine Formalie.
+2. **Eingabe:** Seitenpfad, alle Locator der Seite (`Beleg:`-Zeilen, Inline-Locator, `quellen:`) sowie `normen:`/`urteile:`/`ecli:`.
+3. **Quellenrückgriff:** Passagen per Zotero MCP nachschlagen (`get_content` gezielt, `search_fulltext` für die Locator-Stelle, `get_annotations`).
+4. **Klassifikation je Aussage:**
+
+| Befund | Bedeutung | Konsequenz |
+|---|---|---|
+| `belegt` | Quellenstelle trägt die Aussage | nichts |
+| `nicht belegt` | Stelle existiert, trägt die Aussage aber nicht | max. 2 Nachbesserungsversuche (Locator korrigieren, bessere Stelle suchen), danach `[!unbelegt]` |
+| `widersprochen` | Quelle sagt etwas anderes | Aussage im selben Durchgang korrigieren, Korrektur in `log.md` vermerken |
+| `nicht prüfbar` | kein Volltext vorhanden | Seite behält die Aussage, `verifiziert:` wird **nicht** gesetzt, `log.md`-Vermerk `[kein Volltext]` |
+
+5. **Hard-Fail-Klasse, sofortige Entfernung ohne Nachbesserung:**
+   - erfundene oder nicht auffindbare **ECLI**
+   - erfundene **Normbezeichnung** (Artikel oder Paragraph existiert im zitierten Gesetz nicht)
+   - erfundene **Fundstelle** (Band, Seite oder Randnummer nicht verifizierbar)
+   - erfundener **citekey** (nicht in Zotero vorhanden)
+
+   Diese vier Fälle werden entfernt, nicht markiert, und im `log.md`-Eintrag als `Hard-Fail` geführt. Die Schema-Regel „ECLI niemals erfinden" ist damit nicht mehr nur eine Anweisung, sondern eine Prüfung. Anweisungen erzwingen nichts, Prüfungen schon.
+
+6. **Abschluss:** Besteht die Seite ohne offenen Befund, wird `verifiziert: YYYY-MM-DD` gesetzt. Bleibt ein `[!unbelegt]`-Callout stehen, wird das Feld **nicht** gesetzt.
+
+### Eintrag in `log.md`
+
+```
+- **Verifikation** [[Seitenname]] — 14 Aussagen: 12 belegt, 1 korrigiert, 1 unbelegt, 0 Hard-Fail
+```
+
 ## Typisierte Wikilinks (Relationsvokabular)
 
 Rechtliche Beziehungen zwischen Knoten werden im Fließtext mit einem kontrollierten Relationsverb vor dem Wikilink ausgedrückt. Lesbar für Menschen, grep-bar für `query wiki`. Übernimmt die typisierten Kanten des KG-Konzepts (setzt_um, ändert, konkretisiert) Obsidian-nativ ohne Schema-Overhead.
@@ -320,6 +403,33 @@ Vom Nutzer selbst festzulegen — je ein Ordner pro Fachgebiet unter `[WIKI-ORDN
 
 Eigene Nicht-Wiki-Ordner (z.B. `Persönlich/`, `Werkzeuge/`) bleiben außen vor.
 
+## Workflow-Seiten (`type: wiki-workflow`)
+
+Die Wiki-Seiten halten Wissen fest, nicht Verfahren. Verfahrensschritte (wie eine Normprüfung abläuft, in welcher Reihenfolge geprüft wird) liegen sonst als Prosa über dieses Schema verstreut, bleiben implizit und wirken nur beim Ingest. Workflow-Seiten machen sie explizit und aufrufbar.
+
+- **Ort:** `[WIKI-ORDNER]/Workflows/`, ein **Infrastruktur-Ordner** und kein Themenordner. Er wird von thematischen Auswertungen und vom Tiefenstandard nicht erfasst.
+- **Namensschema:** `Workflow - [Verfahren].md`
+- **Frontmatter:** `type: wiki-workflow`, dazu `thema:`, `created:`, `updated:`. Kein `wiki-category:` (das bleibt Wiki-Seiten vorbehalten), kein `quellen:`-Zwang.
+- **Trigger:** `workflow: [Name]`. Der Agent liest die Seite und arbeitet sie Schritt für Schritt ab.
+- **Aufbau:** `Zweck` · `Schritte` (nummeriert, je mit Prüffrage) · `Abbruchkriterien` · `Verwandte Knoten` (Wikilinks auf Normknoten und Konzeptseiten).
+
+Workflow-Seiten sind **keine** Wiki-Seiten i.S.d. Tiefenstandards und werden von allen Lint-Checks, die auf `type: wiki-page` filtern, nicht erfasst. Sie sind zugleich der Ort, an dem andere Skills (Lehrmaterial, Gutachten, Fallstudien) Verfahrenswissen abholen, statt es jeweils neu zu rekonstruieren.
+
+Ein vollständiges Beispiel liegt in `examples/Workflow - Normprüfung.md`.
+
+### Welche Verfahren eine eigene Seite verdienen
+
+Nicht jedes juristische Prüfschema gehört hierher. Der brauchbare Test lautet: **Erzeugt das Verfahren ein Artefakt, das dieses Schema definiert?**
+
+- **Ja** bei Betriebsverfahren des Wikis (Verifikations-Pass, Normersetzungsprüfung) und bei Bauanleitungen für einen Seitentyp. Die Normprüfung etwa füllt genau die vier Abschnitte, die für Normknoten-Seiten vorgeschrieben sind.
+- **Nein** bei allgemeiner juristischer Methodik ohne Entsprechung im Bestand. Eine Grundrechtsprüfung nach Schutzbereich, Eingriff und Rechtfertigung ist fachlich richtig, erzeugt aber keinen Seitentyp. Ihre Abnehmer sind Gutachten-, Lehr- und Fallstudien-Skills. Solange diese die Seite nicht konsultieren, ist sie totes Gewicht, und der Lint-Check *Workflow-Drift* meldet sie zu Recht.
+
+### Verhältnis zu diesem Schema
+
+In einer laufenden Installation empfiehlt es sich, die **Workflow-Seite zur maßgeblichen Fassung des Verfahrens** zu erklären und dieses Schema an der betreffenden Stelle nur noch auf sie verweisen zu lassen. Im Schema bleiben dann die Festlegungen, auf die sich Frontmatter und Lint beziehen (Befundklassen, Typologien, Callout-Formate), im Workflow der Ablauf. Sonst steht dasselbe Verfahren an zwei Orten und läuft auseinander.
+
+Dieses Template belässt beide Verfahren bewusst vollständig hier, weil `examples/` beim Nachbau nicht zwingend mitinstalliert wird und das Schema für sich lesbar bleiben muss.
+
 ## Zotero MCP-Tools (Referenz)
 
 Für den Ingest wird ausschließlich der Zotero MCP-Server genutzt (nativer MCP-über-HTTP-Endpoint `http://127.0.0.1:23120/mcp`, Zotero-Plugin `zotero-mcp-plugin` v1.5.0). Die Tools sind direkt als `mcp__zotero__*` aufrufbar. Die meisten Lese-Tools akzeptieren optional `libraryID` (Default: Nutzerbibliothek) und `mode` (`minimal`|`preview`|`standard`|`complete`) zur Ergebnis-/Inhaltssteuerung.
@@ -338,6 +448,66 @@ Für den Ingest wird ausschließlich der Zotero MCP-Server genutzt (nativer MCP-
 | `get_subcollections` | Unterkollektionen einer Kollektion (Params: `collectionKey`, `recursive`) |
 
 **Fallback auf lokale API (Port 23119):** Nur wenn der MCP-Server nicht antwortet (Zotero-Plugin nicht aktiv). Dann wie bisher per HTTP-Calls via Python/curl.
+
+## Ingest-Dekomposition (Sub-Agenten mit JSON-Handoff)
+
+Der lineare Ingest lädt Volltext, Index und Schreibkontext in ein einziges Kontextfenster. Genau daher stammt das Abbruchprotokoll beim Token-Budget. Die Alternative ist Zerlegung: Ein Orchestrator dispatcht spezialisierte Sub-Agenten, die Daten **ausschließlich über standardisierte JSON-Reports** austauschen und nie über geteilten Kontext. Die monolithische Variante schneidet selbst in einem großen Kontextfenster messbar schlechter ab (Ablation bei Miao u.a., *Reimagining research papers as interactive and reliable AI agents*, Nature 2026, DOI [10.1038/s41586-026-11044-y](https://doi.org/10.1038/s41586-026-11044-y)).
+
+### Wann anwenden
+
+Nicht bei jedem Ingest, denn der Overhead lohnt sich erst ab:
+
+- Bulk-Ingest mit **mehr als 3 Quellen**, oder
+- Einzelquelle mit **mehr als ~50 Seiten** Volltext (Monografien, Kommentare, Sammelbände).
+
+Darunter bleibt der klassische lineare Ablauf richtig.
+
+### Vier Rollen
+
+| Rolle | Eingabe | Ausgabe | Hält im Kontext |
+|---|---|---|---|
+| **Extraktor** | Zotero-Item | `extraktion.json` | nur die eine Quelle |
+| **Kollisionsprüfer** | `extraktion.json` + `index.md` | `kollision.json` | nur Index und JSON |
+| **Schreiber** (parallel, je Seite) | ein Eintrag aus `kollision.json` | `schreibbericht.json` | nur seine Seite |
+| **Verifier** (frisch) | Seite und Locator | `verifikat.json` | nur Passagen |
+
+Der Orchestrator hält **nur die JSONs**, nie die PDFs. Damit wird die Grenze von etwa 15 Seiten pro Ingest von einer Kontextfrage zu einer Durchsatzfrage.
+
+### Ablage
+
+`/tmp/wiki-ingest/<citekey>/`, bewusst außerhalb des Vaults, damit Zwischenstände den Wissensbestand nicht verunreinigen. Nach erfolgreichem Abschluss kann der Ordner verworfen werden; bei Abbruch ist er der Wiederaufsetzpunkt (Verweis im `log.md`-Eintrag `[unterbrochen …]`).
+
+### Schemata
+
+```jsonc
+// extraktion.json
+{
+  "citekey": "citekey2024",
+  "titel": "...",
+  "volltext_status": "complete | partial | kein_volltext",
+  "konzepte":   [{"name": "...", "kurz": "...", "belege": [{"locator": "S. 142", "zitat": "..."}]}],
+  "entitaeten": [{"name": "...", "art": "person | gesetz | institution"}],
+  "normen":     ["DSGVO Art. 6 Abs. 1 lit. f"],
+  "urteile":    ["EuGH C-300-21 (Österreichische Post)"],
+  "themen":     ["[Thema 1]"]
+}
+
+// kollision.json
+{
+  "neu":               [{"titel": "...", "pfad": "[Thema 1]/....md", "kategorie": "konzept"}],
+  "update":            [{"pfad": "[Thema 2]/....md", "aenderung": "Abschnitt Kernaspekte ergaenzen"}],
+  "normknoten_faellig":[{"norm": "MStV § 93", "zitiert_in": 3}]
+}
+
+// schreibbericht.json
+{"pfad": "...", "status": "erstellt | aktualisiert | uebersprungen",
+ "wikilinks": 7, "callouts": 2, "locatoren": 5}
+
+// verifikat.json
+{"pfad": "...", "geprueft": 14, "belegt": 12,
+ "nicht_belegt": [{"aussage": "...", "locator": "S. 88"}],
+ "widersprochen": [], "hard_fail": []}
+```
 
 ## Ingest-Checkliste
 
@@ -367,8 +537,11 @@ Beim Schreiben:
 - [ ] Cross-Links mit [[Wikilinks]] gesetzt?
 - [ ] Bestehende atomare Notizen im selben Ordner auf Verlinkbarkeit geprüft?
 - [ ] `updated`-Datum aktualisiert?
+- [ ] **Locator gesetzt?** Jede Aussage aus einer Sekundärquelle trägt eine `Beleg:`-Zeile (juristisch) oder einen Inline-Locator `(@citekey, S. N)` (sonstige), s. Abschnitt *Belege und Locator-Granularität*
 
 Nach dem Schreiben:
+- [ ] **Verifikations-Pass (Schritt 6) durchgeführt?** Frischer Subagent, Befundklassen, Hard-Fail-Prüfung, s. Abschnitt *Verifikations-Pass*
+- [ ] `verifiziert:`-Datum gesetzt (nur wenn kein offener `[!unbelegt]`-Befund verbleibt)?
 - [ ] `[WIKI-ORDNER]/index.md` aktualisiert?
 - [ ] `[WIKI-ORDNER]/log.md` Eintrag angehängt? (inkl. `[kein PDF]` falls zutreffend)
 - [ ] Neuer Ordner angelegt? → Dann auch CLAUDE.md und wiki-schema.md Themenordner-Liste aktualisieren
@@ -388,7 +561,7 @@ Nach dem Schreiben:
 ### Checks
 
 **Fehler:**
-- [ ] **Broken Wikilinks** — `[[Seite]]`-Verweise auf nicht existierende Dateien. **Beim Parsen das echte Linkziel isolieren**, bevor gegen Dateien geprüft wird: Alias nach `|` *und* nach escaptem `\|` (Pflicht-Escaping in Markdown-Tabellen!) abtrennen, `#`-Sprungmarken abtrennen, Pfad auf letztes Segment reduzieren. Sonst entstehen Fehlalarme bei Tabellen-Links wie `[[Antrag X\|Alias]]` und Anker-Links wie `[[Seite#Abschnitt]]`.
+- [ ] **Broken Wikilinks** — `[[Seite]]`-Verweise auf nicht existierende Dateien. **Beim Parsen das echte Linkziel isolieren**, bevor gegen Dateien geprüft wird: Alias nach `|` *und* nach escaptem `\|` (Pflicht-Escaping in Markdown-Tabellen!) abtrennen, `#`-Sprungmarken abtrennen, Pfad auf letztes Segment reduzieren. Sonst entstehen Fehlalarme bei Tabellen-Links wie `[[Antrag X\|Alias]]` und Anker-Links wie `[[Seite#Abschnitt]]`. **Unicode-Normalisierung beachten:** macOS legt Dateinamen auf APFS/iCloud in **NFD** ab (`ü` = `u` + Kombinationszeichen), Markdown-Dateien enthalten dagegen **NFC**. Ein naiver Stringvergleich meldet deshalb *jede* Seite mit Umlaut im Dateinamen als broken. Vor dem Vergleich beide Seiten mit `unicodedata.normalize("NFC", …)` normalisieren. (Lauf vom 2026-09-23: 3 von 4 verbliebenen Treffern waren Fehlalarme dieser Art, u.a. `[[LG München I 26 O 869-26 (Google AI Overview)]]` und `[[Anchoring Bias (KI-gestützte Entscheidungen)]]`.) Ebenso eine etwaige `.md`-Endung im Linkziel abschneiden (`[[00 Kontext/Grundannahmen.md]]`), sonst entsteht derselbe Fehlalarm.
 - [ ] **Index-Konsistenz** — Einträge in `index.md` ohne zugehörige Datei (und umgekehrt: Dateien mit `type: wiki-page` die nicht in `index.md` stehen)
 
 **Warnungen:**
@@ -398,8 +571,12 @@ Nach dem Schreiben:
 - [ ] **Norm ohne Knoten** — Normen in `normen:`-Frontmatter, die in ≥3 Seiten vorkommen, aber keine eigene Normknoten-Seite haben
 - [ ] **Urteil ohne Knoten** — Urteile in `urteile:`-Frontmatter, die in ≥3 Seiten vorkommen, aber keine eigene Leitentscheidungs-Seite haben
 - [ ] **Frontmatter-Drift** — Seite mit `[!recht]`-Callout zu einer Norm/Entscheidung, die nicht im `normen:`/`urteile:`-Frontmatter steht
+- [ ] **Unverifiziert** — Seiten mit `type: wiki-page` und nicht-leerem `quellen:`, die kein `verifiziert:`-Feld führen und deren `updated:` nach dem `[EINFÜHRUNGSDATUM]` liegt. Trage dort das Datum ein, an dem du den Verifikations-Pass eingeführt hast; ältere Seiten sind vom Bestandsschutz erfasst und werden nicht gemeldet.
+- [ ] **Offener Belegbefund** — Seiten mit `[!unbelegt]`-Callout, dessen Prüfdatum mehr als 30 Tage zurückliegt. Ein `[!unbelegt]` ist ein offener Vorgang, kein Dauerzustand.
 
 **Info:**
+- [ ] **Beleg ohne Locator** — Seite führt `quellen:` und enthält `[!recht]`-Callouts, von denen keiner eine `Beleg:`-Zeile trägt. Kein Fehler (normtextgestützte Aussagen brauchen keine), aber ein Hinweis auf ungeprüfte Sekundärzitate.
+- [ ] **Workflow-Drift** — `type: wiki-workflow`-Seiten, die von keiner Wiki-Seite, keinem Skill und keiner `AGENTS.md`/`CLAUDE.md` referenziert werden.
 - [ ] **Data gaps** — Wiki-Seiten mit weniger als 2 Quellen im `quellen:`-Frontmatter (Themen mit dünner Abdeckung)
 - [ ] **Fehlende Cross-Links** — Seiten zum gleichen Thema ohne gegenseitige Verlinkung (erkennbar durch übereinstimmende `thema:`-Felder)
 - [ ] **Seiten ohne Frontmatter** — Dateien in Wiki-Ordnern ohne `type: wiki-page`
@@ -427,6 +604,33 @@ Befunde in `log.md` mit Syntax `- **Lint** — N Fehler, N Warnungen, N Info` do
 Nach je 10 Ingests oder monatlich als Mindest-Wartung.
 
 ---
+
+## Benchmark-Spezifikation
+
+Der Lint misst Struktur. Er misst nicht die **Antwortqualität**, also ob das Wiki eine Frage richtig beantwortet und ob es eine Frage, die es nicht beantworten kann, auch korrekt zurückweist. Ohne diese Messung lässt sich nicht feststellen, ob eine Schema-Änderung (etwa die Einführung von `normtyp:`) überhaupt etwas verbessert hat.
+
+- **Datei:** `[WIKI-ORDNER]/benchmark.md`
+- **Trigger:** `bench wiki`
+- **Kadenz:** nach je 10 Ingests, gemeinsam mit `lint wiki`
+
+### Aufbau
+
+Zwei Blöcke:
+
+1. **Wissensfragen** sind Fragen, deren Antwort im Wiki nachweislich steht. Je Eintrag: `Frage` · `Goldantwort` · `Belegseite` (Wikilink). Die Goldantworten werden **aus den Wiki-Seiten abgeleitet** und nicht aus dem Modellwissen formuliert.
+2. **Out-of-Scope-Fragen** sind Fragen zu Themen, die das Wiki nachweislich *nicht* führt. Die korrekte Antwort ist die **Zurückweisung** („Dazu steht nichts im Wiki."). Solche Fragen vor der Aufnahme per Grep auf Trefferfreiheit prüfen.
+
+Der zweite Block ist der wichtigere. Eine Wissensbasis, die auf Lücken mit plausiblem Modellwissen antwortet, ist gefährlicher als eine, die schweigt, weil die Antwort wie belegtes Wiki-Wissen aussieht.
+
+### Durchführung
+
+Jede Frage wird über `query wiki` gestellt, ohne dass die Goldantwort im Kontext liegt. Bewertet wird zweistufig: **inhaltlich korrekt** (ja/nein) und **korrekt belegt** (verweist auf die Belegseite). Eine inhaltlich richtige, aber unbelegte Antwort zählt als Teiltreffer und wird gesondert ausgewiesen.
+
+### Eintrag in `log.md`
+
+```
+- **Bench** — Wissen 13/15 korrekt (11 belegt), Out-of-Scope 5/5 zurückgewiesen
+```
 
 ## Namenskonventionen
 
@@ -468,6 +672,7 @@ Neben den Wiki-Seiten (`type: wiki-page`) tragen alle übrigen `.md`-Dateien in 
 - `hub` — Themen-Hub-Seite (Dateiname == Ordnername, z.B. `KI/KI.md`)
 - `quelle` — Zotero-/Literatur-Quellenüberblick (`tags: [literatur]`)
 - `notiz` — sonstige Notizen (atomare Gedanken, Referenz-/Hilfsnotizen ohne Wiki-Seiten-Status)
+- `wiki-workflow` — aufrufbare Verfahrensseite in `Workflows/` (s. Abschnitt *Workflow-Seiten*)
 
 Diese Typen sind **keine** Wiki-Seiten i.S.d. Tiefenstandards und werden von Lint-/Ingest-Routinen, die auf `type: wiki-page` filtern, nicht erfasst. `Persönlich/` und `Werkzeuge/` bleiben ganz außen vor.
 

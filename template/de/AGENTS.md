@@ -49,7 +49,7 @@ Der Ordner `[WIKI-ORDNER]/` enthält ein LLM-gepflegtes Wiki nach dem Karpathy-L
 Lege deine eigenen Themenordner unter `[WIKI-ORDNER]/` an — je ein Ordner pro Fachgebiet — und trage sie hier ein:
 `[Thema 1]` · `[Thema 2]` · `[Thema 3]` · …
 
-Eigene Nicht-Wiki-Ordner sind **nicht** Teil des Wikis.
+Eigene Nicht-Wiki-Ordner sind **nicht** Teil des Wikis. `Workflows/` ist ein **Infrastruktur-Ordner** und kein Themenordner: Dort liegen aufrufbare Verfahrensseiten (`type: wiki-workflow`), die von thematischen Auswertungen und vom Tiefenstandard nicht erfasst werden.
 
 ### Ingest-Trigger
 
@@ -60,15 +60,24 @@ Eigene Nicht-Wiki-Ordner sind **nicht** Teil des Wikis.
 | `Aktualisiere Wiki: [Thema]` | Sucht Zotero nach diesem Thema/Tag, verarbeitet alle Treffer |
 | `lint wiki` | Prüft Wiki-Integrität mit Schweregrad-Klassifikation — Details in `wiki-schema.md` |
 | `query wiki: [Frage]` | Durchsucht `[WIKI-ORDNER]/` (Index + Grep), synthetisiert Antwort mit [[Wikilinks]], bietet Synthese-Seite an |
+| `verify wiki [Seite\|Thema\|letzter Ingest]` | Verifikations-Pass: frischer Subagent prüft jede Aussage gegen ihre Quellenstelle, markiert Unbelegtes, entfernt Hard-Fails |
+| `bench wiki` | Führt den Gold-Benchmark aus `[WIKI-ORDNER]/benchmark.md` aus (Wissensfragen und Out-of-Scope-Fragen) |
+| `workflow: [Name]` | Liest die Workflow-Seite `[WIKI-ORDNER]/Workflows/Workflow - [Name].md` und arbeitet sie Schritt für Schritt ab |
 
 ### Ingest-Ablauf (immer gleich, unabhängig vom Trigger)
 1. `[WIKI-ORDNER]/wiki-schema.md` lesen
 2. Zotero MCP-Server (nativer Endpoint `http://127.0.0.1:23120/mcp`): Metadaten + Abstract per `get_item_details` (bzw. `get_item_abstract`); Volltext per `get_content` (`mode: "complete"` = ganzes Dokument, kein `page`-Parameter); Annotationen per `get_annotations`. Bei `ingest @citekey`: zuerst `search_library` mit q=citekey → `itemKey`, dann `get_item_details`.
 3. `[WIKI-ORDNER]/index.md` lesen — existierende Wiki-Seiten prüfen
 4. Betroffene Konzepte/Entitäten identifizieren, Themenordner bestimmen
-5. Wiki-Seiten schreiben/aktualisieren (max. ~15 pro Ingest), [[Wikilinks]] setzen
-6. `[WIKI-ORDNER]/index.md` aktualisieren
-7. `[WIKI-ORDNER]/log.md` Eintrag anhängen
+5. Wiki-Seiten schreiben/aktualisieren (max. ~15 pro Ingest), [[Wikilinks]] setzen und **Locator setzen**: `Beleg:`-Zeile im `[!recht]`-Callout bei juristischen Aussagen, sonst Inline-Locator `(@citekey, S. N)`
+6. **Verifikations-Pass:** frischer Subagent prüft jede Aussage gegen ihre Quellenstelle, markiert Unbelegtes mit `[!unbelegt]`, entfernt Hard-Fails, setzt bei sauberem Befund `verifiziert:` (Details in `wiki-schema.md`)
+7. `[WIKI-ORDNER]/index.md` aktualisieren
+8. `[WIKI-ORDNER]/log.md` Eintrag anhängen
+
+Bei großen Ingests (mehr als 3 Quellen oder Einzelquellen mit mehr als ~50 Seiten Volltext) den Ablauf in Sub-Agenten mit JSON-Handoff zerlegen, statt alles in ein Kontextfenster zu laden (Abschnitt *Ingest-Dekomposition* in `wiki-schema.md`).
+
+### Belegdisziplin
+Jede Kernaussage trägt ihren eigenen Locator: bei juristischen Aussagen eine `Beleg:`-Zeile im `[!recht]`-Callout (`Beleg: @citekey S. 142 Rn. 18`), sonst einen Inline-Locator am Satzende (`(@citekey, S. 14)`). Stützt sich eine Aussage unmittelbar auf den Normtext, genügt der Normverweis im Callout. Der Verifikations-Pass prüft anschließend jede Aussage gegen ihre Quellenstelle. **Geprüft wird Belegtheit, nicht Richtigkeit.** Aussagen, die die Prüfung nicht bestehen und nicht korrigiert werden können, werden mit `[!unbelegt]` markiert statt stillschweigend behalten; erfundene ECLI, Normbezeichnungen, Fundstellen oder citekeys werden entfernt. Details in `wiki-schema.md`.
 
 ### Neue Themenordner
 Neuen Ordner anlegen, wenn eine Quelle keinem bestehenden Ordner sinnvoll zugeordnet werden kann (mind. 2–3 Konzepte). Dann: Hub-Datei `[Thema].md` erstellen, Ordner in `wiki-schema.md`-Themenliste, `index.md` und diese `AGENTS.md`-Liste ergänzen, in `log.md` dokumentieren. Bei Grenzfällen kurz beim Nutzer rückfragen.
@@ -84,3 +93,18 @@ Leitnormen (Artikel/Paragraphen) und Grundsatzentscheidungen erhalten eigene Ank
 
 ### Rechtshierarchie-Annotation
 Rechtlich fundierte Aussagen werden mit einem `[!recht]`-Callout annotiert (steht *unter* der Aussage). Format: `⚖️ Rang [N] ([Normkategorie]) · [Gericht/Norm] → [Referenz]`. Rang folgt der Norm, nicht dem Gericht (6-stufige Hierarchietabelle in `wiki-schema.md`). Nur bei konkreten Normen/Entscheidungen setzen — nicht bei allgemeinen Literaturmeinungen.
+
+### Wiki-MCP-Server
+Das Wiki lässt sich zusätzlich als lokaler MCP-Server einbinden: read-only, Kommunikation über stdio, kein Netzwerk-Port und kein Zugriff von außen. Sieben Tools:
+
+| Tool | Zweck |
+|---|---|
+| `wiki_info` | Kennzahlen und Konfiguration des Wikis |
+| `search_wiki` | Volltextsuche über alle Wiki-Seiten |
+| `get_page` | Eine Seite mit Frontmatter und Inhalt |
+| `get_norm` | Normknoten zu einer Normreferenz |
+| `get_backlinks` | Eingehende Wikilinks einer Seite |
+| `list_unverified` | Seiten ohne `verifiziert:`-Feld |
+| `list_stale` | Seiten mit veraltetem `rechtsstand:` |
+
+Einrichtung und Details in `docs/de/08-mcp-server.md`.
