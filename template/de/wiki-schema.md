@@ -297,7 +297,7 @@ Kontrolliertes Vokabular:
 
 Beispiel:
 
-> Der DSA **verdrängt** [[NetzDG]] §§ 2, 3 (seit 17.02.2024); das österr. KoPl-G-Analogon ist europarechtswidrig laut [[EuGH C-376-22 (KoPl-G)]].
+> Der DSA **verdrängt** [[NetzDG]] §§ 2, 3 (seit 17.02.2024); der Gesetzgeber **hebt** die §§ 2 bis 3f mit Wirkung zum 14.05.2024 **auf**; das österr. KoPl-G-Analogon ist europarechtswidrig laut [[EuGH C-376-22 (KoPl-G)]].
 
 ## Rechtliche Aktualität und Normersetzung
 
@@ -334,6 +334,22 @@ Divergieren beide, im `[!recht]`-Callout beide Daten führen (Beispiel unten). F
 | **Nachwirkung** | `Ultractivity` | Abgelöste Norm bleibt für Altfälle anwendbar (Übergangsrecht) | Relation `wirkt nach`; Callout: verdrängt ab [Datum], **aber** anwendbar auf Sachverhalte vor [Datum] |
 | **Rückwirkung** | `Retroactivity` | Norm erfasst rückwirkend abgeschlossene Sachverhalte | Relation `wirkt zurück`; Callout `wirkt zurück auf [Datum]`; ggf. verfassungsrechtl. Rückwirkungsverbot vermerken |
 
+### Warnung: Verdrängung wird gern für den Endzustand gehalten
+
+Der häufigste Fehler beim Pflegen dieses Abschnitts ist nicht das Übersehen einer Ablösung, sondern das **Stehenbleiben beim ersten Vorgang**. Eine Norm kann nacheinander mehrfach betroffen sein, und wer nur die erste Stufe protokolliert, führt am Ende eine falsche Aussage.
+
+Der Lehrfall dazu ist das deutsche NetzDG:
+
+1. Ab 17.02.2024 verdrängte der unmittelbar geltende DSA die §§ 2, 3 NetzDG kraft Anwendungsvorrangs. Die Vorschriften bestanden fort und traten nur zurück. § 3a (Meldepflicht an das Bundeskriminalamt) hatte kein DSA-Äquivalent und galt deshalb als **verbleibender Restanwendungsbereich**.
+2. Nur wenige Monate später hob der Gesetzgeber die §§ 2 bis 3f, einschließlich § 3a, **förmlich auf** (Art. 29 Nr. 2 des Gesetzes zur Durchführung der Verordnung (EU) 2022/2065 v. 06.05.2024, BGBl. 2024 I Nr. 149; in Kraft am 14.05.2024).
+
+Ein Wiki, das nur Schritt 1 erfasst hat, behauptet danach, § 3a bleibe eigenständig anwendbar. Das ist unrichtig, klingt aber plausibel und ist gut belegt, weil die Literatur bis 2024 genau das schrieb.
+
+Zwei Konsequenzen für die Praxis:
+
+- **Verdrängung ist ein Zustand, kein Abschluss.** Wo `verdrängt` gesetzt wird, gehört das Thema auf Wiedervorlage; der Gesetzgeber zieht in solchen Konstellationen oft nach.
+- **Ein Restanwendungsbereich ist die fragilste Aussage des ganzen Vokabulars.** Er behauptet, dass etwas übrig geblieben ist. Genau das ändert sich am schnellsten. Solche Aussagen brauchen ein `rechtsstand:` und eine Gegenprobe an der amtlichen Fassung, nicht nur an der Sekundärliteratur.
+
 ### Ingest-Pflicht: Normersetzungsprüfung
 
 Bei jedem Ingest einer juristischen Quelle (Gesetz, Verordnung, Urteil, Kommentar) **vor dem Schreiben**:
@@ -356,7 +372,7 @@ Teilweise verdrängte Norm mit verbleibendem Restanwendungsbereich:
 ```
 > [!recht] ⚖️ Rang 5 (Bundesgesetz) · NetzDG § 3 Abs. 2 i.d.F. 2021
 > Weitgehend verdrängt durch DSA Art. 16 Abs. 6 (seit 17.02.2024).
-> Restanwendungsbereich: § 3a NetzDG (Meldepflicht staatsschützende Straftatbestände) bleibt eigenständig anwendbar.
+> Restanwendungsbereich: § 5 NetzDG (inländischer Zustellungsbevollmächtigter) bleibt eigenständig anwendbar.
 ```
 
 Präzisierte oder revidierte Gerichtsentscheidung:
