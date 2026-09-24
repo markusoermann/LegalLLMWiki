@@ -1,6 +1,6 @@
 ---
 type: wiki-schema
-updated: 2026-08-10
+updated: 2026-09-23
 ---
 
 # Wiki Schema
@@ -20,6 +20,7 @@ quellen: ["@citekey1", "@citekey2"]
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 rechtsstand: YYYY-MM-DD   # optional; only on pages with time-sensitive legal content
+verifiziert: YYYY-MM-DD   # optional; date of the last passed verification pass (see section Verification Pass)
 ---
 ```
 
@@ -194,6 +195,90 @@ The rank follows the norm, not the court. A BVerfG judgment on Art. 5 GG is rank
 - ❌ Not for general summaries or scholarly opinions
 - ❌ Not for every statement on a page — only for legally grounded core statements
 
+## Evidence and Locator Granularity
+
+The `quellen:` field substantiates a page as a whole. That is not enough to check an individual statement. Every core statement therefore additionally carries its own **evidence locator**: citekey plus pinpoint reference. This is also what keeps the verification pass cheap, because what gets checked is a passage, not an entire PDF. The model for this is agentic code extraction, where every generated tool carries a reference to the specific line of code it was derived from.
+
+### Legal statements: `Beleg:` line inside the `[!recht]` callout
+
+The `[!recht]` callout gains an optional but desirable `Beleg:` line ("Beleg" = evidence). It sits directly below the title line, before the short comment:
+
+```
+> [!recht] ⚖️ Rang 2 (EU-Verordnung) · DSGVO Art. 6 Abs. 1 lit. f
+> Beleg: @citekey S. 142 Rn. 18
+> Direkt anwendbares EU-Sekundärrecht; verbindlich seit 25.05.2018.
+```
+
+If the statement rests directly on the norm text itself rather than on scholarly literature, the `Beleg:` line is omitted: the norm reference in the title line *is* the locator. It is mandatory wherever an **interpretation, an account of a controversy, or a figure** comes from a secondary source.
+
+### Non-legal core statements: inline locator
+
+Statements without a norm or decision reference that nevertheless go back to a source carry the locator in parentheses at the end of the sentence:
+
+```markdown
+The effect is measurable in the data from 2023 onwards and mainly affects labour-market entrants (@citekey, S. 14).
+```
+
+Format: `(@citekey, S. N)` or `(@citekey, Abschn. N)`, or `(@citekey)` when the source has no pagination (website, preprint without page numbers). The form is grep-able via `\(@[a-z]`.
+
+### Failed statements: the `[!unbelegt]` callout
+
+Statements that do not pass the verification pass and could not be corrected are **flagged rather than silently kept**. The callout keeps its German name `[!unbelegt]` ("unsubstantiated") so that both language versions produce identical markup:
+
+```
+> [!unbelegt] ⚠️ Not substantiated — checked YYYY-MM-DD
+> The cited source @citekey does not carry this statement at the passage given.
+> Either correct the locator, supply a source, or remove the statement.
+```
+
+(Title line: "not substantiated — checked YYYY-MM-DD"; body: the cited source does not carry this statement at the given place; either correct the locator, supply a source, or remove the statement.)
+
+The callout is an open finding, not a permanent state: lint reports `[!unbelegt]` findings older than 30 days as a warning.
+
+## Verification Pass (Ingest Step 6)
+
+Lint checks **structure**: dead links, index consistency, frontmatter drift. It does not check whether a sentence is actually carried by its source. The verification pass closes exactly this gap. The pattern comes from agentic code extraction: whatever cannot be checked against the source is not silently adopted, but flagged with a finding or removed.
+
+Two design decisions carry the procedure and should survive any adaptation. **First, a fresh sub-agent without the writing context performs the check.** Whoever wrote a text reads it against the source as confirmation rather than as verification; that separation is the core of the method, not a formality. **Second, what fails is excluded rather than kept.** A statement its source does not carry is either removed or visibly flagged, and it is never left standing without comment.
+
+Provenance and evidence for both: Miao et al., *Reimagining research papers as interactive and reliable AI agents*, Nature 2026, DOI [10.1038/s41586-026-11044-y](https://doi.org/10.1038/s41586-026-11044-y); reference implementation [jmiao24/Paper2Agent](https://github.com/jmiao24/Paper2Agent). In detail in `docs/en/07-verification.md`.
+
+### Principle: supportedness, not correctness
+
+Legal statements have no executable test standard, because interpretation is contestable. The verifier therefore establishes **only** whether the cited source passage carries the statement. It does not decide whether the statement is correct, and it does not replace substantive review. Confusing the two produces false confidence.
+
+### Procedure
+
+The pass runs **automatically as step 6 of every ingest** and additionally on the trigger `verify wiki [page|topic|last ingest]`.
+
+1. **A fresh subagent.** The check is performed by a subagent *without* the writing context. Whoever wrote the text cannot review it impartially. That is the core of the procedure, not a formality.
+2. **Input:** page path, all locators on the page (`Beleg:` lines, inline locators, `quellen:`) plus `normen:`/`urteile:`/`ecli:`.
+3. **Source retrieval:** look up passages via Zotero MCP (`get_content` targeted, `search_fulltext` for the locator position, `get_annotations`).
+4. **Classification per statement:**
+
+| Finding | Meaning | Consequence |
+|---|---|---|
+| `belegt` (substantiated) | the source passage carries the statement | nothing |
+| `nicht belegt` (not substantiated) | the passage exists but does not carry the statement | max. 2 repair attempts (correct the locator, look for a better passage), then `[!unbelegt]` |
+| `widersprochen` (contradicted) | the source says something different | correct the statement in the same run, note the correction in `log.md` |
+| `nicht prüfbar` (not checkable) | no full text available | the page keeps the statement, `verifiziert:` is **not** set, `log.md` note `[kein Volltext]` |
+
+5. **Hard-fail class, immediate removal without repair attempts:**
+   - invented or untraceable **ECLI**
+   - invented **norm designation** (the article or section does not exist in the cited law)
+   - invented **citation** (volume, page, or marginal number not verifiable)
+   - invented **citekey** (not present in Zotero)
+
+   These four cases are removed, not flagged, and recorded as `Hard-Fail` in the `log.md` entry. The schema rule "never invent an ECLI" thereby stops being a mere instruction and becomes a check. Instructions enforce nothing; checks do.
+
+6. **Completion:** if the page passes without an open finding, `verifiziert: YYYY-MM-DD` is set. If an `[!unbelegt]` callout remains, the field is **not** set.
+
+### Entry in `log.md`
+
+```
+- **Verification** [[Page name]] — 14 statements: 12 substantiated, 1 corrected, 1 not substantiated, 0 hard fail
+```
+
 ## Typed Wikilinks (Relation Vocabulary)
 
 Legal relationships between nodes are expressed in the running text with a controlled relation verb placed before the wikilink. Human-readable, grep-able for `query wiki`. Adopts the typed edges of the KG approach (setzt_um, ändert, konkretisiert) Obsidian-natively, without schema overhead.
@@ -320,6 +405,33 @@ To be defined by the user — one folder per subject area under `[WIKI-FOLDER]/`
 
 Your own non-wiki folders (e.g. `Persönlich/`, `Werkzeuge/`) remain excluded.
 
+## Workflow Pages (`type: wiki-workflow`)
+
+Wiki pages record knowledge, not procedures. Procedural steps (how a norm review proceeds, in which order things are checked) otherwise lie scattered as prose across this schema, remain implicit, and only take effect during ingest. Workflow pages make them explicit and callable.
+
+- **Location:** `[WIKI-FOLDER]/Workflows/`, an **infrastructure folder**, not a topic folder. It is not covered by thematic evaluations or by the depth standard.
+- **Naming scheme:** `Workflow - [procedure].md`
+- **Frontmatter:** `type: wiki-workflow`, plus `thema:`, `created:`, `updated:`. No `wiki-category:` (that is reserved for wiki pages), no mandatory `quellen:`.
+- **Trigger:** `workflow: [name]`. The agent reads the page and works through it step by step.
+- **Structure:** `Purpose` · `Steps` (numbered, each with a checking question) · `Abort criteria` · `Related nodes` (wikilinks to norm nodes and concept pages).
+
+Workflow pages are **not** wiki pages within the meaning of the depth standard and are not captured by any lint check that filters on `type: wiki-page`. They are also the place where other skills (teaching material, expert opinions, case studies) pick up procedural knowledge instead of reconstructing it each time.
+
+A complete example is in `examples/Workflow - Norm Review.md`.
+
+### Which procedures deserve their own page
+
+Not every legal test belongs here. The workable criterion is: **does the procedure produce an artefact that this schema defines?**
+
+- **Yes** for wiki operating procedures (verification pass, supersession check) and for build instructions for a page type. Norm review, for instance, fills exactly the four sections prescribed for norm-node pages.
+- **No** for general legal methodology without a counterpart in the corpus. A fundamental-rights test (scope, interference, justification) is doctrinally sound but produces no page type. Its consumers are assessment, teaching and case-study skills. As long as those do not consult the page, it is dead weight, and the *workflow drift* lint check flags it rightly.
+
+### Relation to this schema
+
+In a live installation it is advisable to make the **workflow page the authoritative version of the procedure** and have this schema merely point to it at the relevant place. The schema then retains what frontmatter and lint refer to (finding classes, typologies, callout formats), the workflow retains the steps. Otherwise the same procedure lives in two places and drifts apart.
+
+This template deliberately keeps both procedures in full here, because `examples/` is not necessarily installed when the framework is adopted and the schema must remain readable on its own.
+
 ## Zotero MCP Tools (Reference)
 
 For ingest, only the Zotero MCP server is used (native MCP-over-HTTP endpoint `http://127.0.0.1:23120/mcp`, Zotero plugin `zotero-mcp-plugin` v1.5.0). The tools are callable directly as `mcp__zotero__*`. Most read tools optionally accept `libraryID` (default: user library) and `mode` (`minimal`|`preview`|`standard`|`complete`) to control results/content.
@@ -338,6 +450,68 @@ For ingest, only the Zotero MCP server is used (native MCP-over-HTTP endpoint `h
 | `get_subcollections` | Subcollections of a collection (params: `collectionKey`, `recursive`) |
 
 **Fallback to the local API (port 23119):** Only when the MCP server does not respond (Zotero plugin not active). Then proceed as before via HTTP calls through Python/curl.
+
+## Ingest Decomposition (Sub-agents with JSON Handoff)
+
+A linear ingest loads full text, index, and writing context into a single context window. That is exactly where the token-budget abort protocol comes from. The alternative is decomposition: an orchestrator dispatches specialized sub-agents that exchange data **exclusively via standardized JSON reports**, never via shared context. The monolithic variant performs measurably worse even in a large context window (ablation in Miao et al., *Reimagining research papers as interactive and reliable AI agents*, Nature 2026, DOI [10.1038/s41586-026-11044-y](https://doi.org/10.1038/s41586-026-11044-y)).
+
+### When to apply it
+
+Not on every ingest, because the overhead only pays off from:
+
+- a bulk ingest with **more than 3 sources**, or
+- a single source with **more than ~50 pages** of full text (monographs, commentaries, edited volumes).
+
+Below that, the classic linear workflow remains correct.
+
+### Four roles
+
+| Role | Input | Output | Holds in context |
+|---|---|---|---|
+| **Extractor** | Zotero item | `extraktion.json` | only the single source |
+| **Collision checker** | `extraktion.json` + `index.md` | `kollision.json` | only index and JSON |
+| **Writer** (parallel, one per page) | one entry from `kollision.json` | `schreibbericht.json` | only its own page |
+| **Verifier** (fresh) | page and locators | `verifikat.json` | only passages |
+
+The orchestrator holds **only the JSONs**, never the PDFs. This turns the limit of roughly 15 pages per ingest from a context question into a throughput question.
+
+### Storage
+
+`/tmp/wiki-ingest/<citekey>/`, deliberately outside the vault so that intermediate states do not contaminate the knowledge base. After a successful run the folder can be discarded; on an abort it is the resumption point (referenced in the `log.md` entry `[unterbrochen …]`).
+
+### Schemas
+
+```jsonc
+// extraktion.json
+{
+  "citekey": "citekey2024",
+  "titel": "...",
+  "volltext_status": "complete | partial | kein_volltext",
+  "konzepte":   [{"name": "...", "kurz": "...", "belege": [{"locator": "S. 142", "zitat": "..."}]}],
+  "entitaeten": [{"name": "...", "art": "person | gesetz | institution"}],
+  "normen":     ["DSGVO Art. 6 Abs. 1 lit. f"],
+  "urteile":    ["EuGH C-300-21 (Österreichische Post)"],
+  "themen":     ["[Topic 1]"]
+}
+
+// kollision.json
+{
+  "neu":               [{"titel": "...", "pfad": "[Topic 1]/....md", "kategorie": "konzept"}],
+  "update":            [{"pfad": "[Topic 2]/....md", "aenderung": "Abschnitt Kernaspekte ergaenzen"}],
+  "normknoten_faellig":[{"norm": "MStV § 93", "zitiert_in": 3}]
+}
+
+// schreibbericht.json
+{"pfad": "...", "status": "erstellt | aktualisiert | uebersprungen",
+ "wikilinks": 7, "callouts": 2, "locatoren": 5}
+
+// verifikat.json
+{"pfad": "...", "geprueft": 14, "belegt": 12,
+ "nicht_belegt": [{"aussage": "...", "locator": "S. 88"}],
+ "widersprochen": [], "hard_fail": []}
+```
+
+The JSON keys stay in German, mirroring the frontmatter field names.
 
 ## Ingest Checklist
 
@@ -367,8 +541,11 @@ While writing:
 - [ ] Cross-links set with [[Wikilinks]]?
 - [ ] Existing atomic notes in the same folder checked for linkability?
 - [ ] `updated` date updated?
+- [ ] **Locator set?** Every statement taken from a secondary source carries a `Beleg:` line (legal) or an inline locator `(@citekey, S. N)` (all others), see section *Evidence and Locator Granularity*
 
 After writing:
+- [ ] **Verification pass (step 6) carried out?** Fresh subagent, finding classes, hard-fail check, see section *Verification Pass*
+- [ ] `verifiziert:` date set (only if no open `[!unbelegt]` finding remains)?
 - [ ] `[WIKI-FOLDER]/index.md` updated?
 - [ ] `[WIKI-FOLDER]/log.md` entry appended? (incl. `[kein PDF]` if applicable)
 - [ ] New folder created? → Then also update CLAUDE.md and the wiki-schema.md thematic-folder list
@@ -388,7 +565,7 @@ After writing:
 ### Checks
 
 **Errors:**
-- [ ] **Broken wikilinks** — `[[Page]]` references to non-existent files. **When parsing, isolate the real link target** before checking against files: strip the alias after `|` *and* after escaped `\|` (mandatory escaping in Markdown tables!), strip `#` jump anchors, reduce the path to the last segment. Otherwise false positives arise for table links like `[[Antrag X\|Alias]]` and anchor links like `[[Seite#Abschnitt]]`.
+- [ ] **Broken wikilinks** — `[[Page]]` references to non-existent files. **When parsing, isolate the real link target** before checking against files: strip the alias after `|` *and* after escaped `\|` (mandatory escaping in Markdown tables!), strip `#` jump anchors, reduce the path to the last segment. Otherwise false positives arise for table links like `[[Antrag X\|Alias]]` and anchor links like `[[Seite#Abschnitt]]`. **Mind Unicode normalisation:** macOS stores filenames on APFS/iCloud in **NFD** (`ü` = `u` + combining mark), while Markdown files contain **NFC**. A naive string comparison therefore reports *every* page with an umlaut in its filename as broken. Normalise both sides with `unicodedata.normalize("NFC", …)` before comparing. Likewise strip a trailing `.md` from the link target (`[[folder/Page.md]]`), which otherwise produces the same false positive.
 - [ ] **Index consistency** — Entries in `index.md` without a corresponding file (and vice versa: files with `type: wiki-page` that are not listed in `index.md`)
 
 **Warnings:**
@@ -398,8 +575,12 @@ After writing:
 - [ ] **Norm without node** — Norms in `normen:` frontmatter that occur in ≥3 pages but have no dedicated norm-node page
 - [ ] **Judgment without node** — Judgments in `urteile:` frontmatter that occur in ≥3 pages but have no dedicated leading-decision page
 - [ ] **Frontmatter drift** — Page with a `[!recht]` callout on a norm/decision that is not in the `normen:`/`urteile:` frontmatter
+- [ ] **Unverified** — Pages with `type: wiki-page` and a non-empty `quellen:` that carry no `verifiziert:` field and whose `updated:` is later than `[INTRODUCTION-DATE]`. Enter there the date on which you introduced the verification pass; older pages are grandfathered in and are not reported.
+- [ ] **Open evidence finding** — Pages with an `[!unbelegt]` callout whose check date is more than 30 days old. An `[!unbelegt]` is an open item, not a permanent state.
 
 **Info:**
+- [ ] **Evidence without locator** — Page carries `quellen:` and contains `[!recht]` callouts, none of which has a `Beleg:` line. Not an error (statements resting on the norm text need none), but an indication of unchecked secondary citations.
+- [ ] **Workflow drift** — `type: wiki-workflow` pages that are referenced by no wiki page, no skill, and no `AGENTS.md`/`CLAUDE.md`.
 - [ ] **Data gaps** — Wiki pages with fewer than 2 sources in the `quellen:` frontmatter (topics with thin coverage)
 - [ ] **Missing cross-links** — Pages on the same topic without mutual linking (recognizable by matching `thema:` fields)
 - [ ] **Pages without frontmatter** — Files in wiki folders without `type: wiki-page`
@@ -407,26 +588,53 @@ After writing:
 ### Output Format
 
 ```
-## Lint-Ergebnis — YYYY-MM-DD
+## Lint result — YYYY-MM-DD
 
-### Fehler (N)
-- [[Seitenname]]: broken link zu [[NichtExistierendSeite]]
+### Errors (N)
+- [[Page name]]: broken link to [[NonExistentPage]]
 
-### Warnungen (N)
-- [[Seitenname]]: Orphan-Seite (keine eingehenden Links)
-- [[Seitenname]]: stale claim — NetzDG § 3 Abs. 2 (verdrängt durch DSA seit 17.02.2024, nicht markiert)
+### Warnings (N)
+- [[Page name]]: orphan page (no incoming links)
+- [[Page name]]: stale claim — NetzDG § 3(2) (superseded by the DSA since 2024-02-17, not flagged)
 
 ### Info (N)
-- [[Seitenname]]: nur 1 Quelle, Thema unterrepräsentiert
+- [[Page name]]: only 1 source, topic underrepresented
 ```
 
-Document findings in `log.md` with the syntax `- **Lint** — N Fehler, N Warnungen, N Info`.
+Document findings in `log.md` with the syntax `- **Lint** — N errors, N warnings, N info`.
 
 ### Recommended Cadence
 
 After every 10 ingests, or monthly as minimum maintenance.
 
 ---
+
+## Benchmark Specification
+
+Lint measures structure. It does not measure **answer quality**, that is, whether the wiki answers a question correctly and whether it properly refuses a question it cannot answer. Without this measurement there is no way to tell whether a schema change (the introduction of `normtyp:`, say) improved anything at all.
+
+- **File:** `[WIKI-FOLDER]/benchmark.md`
+- **Trigger:** `bench wiki`
+- **Cadence:** after every 10 ingests, together with `lint wiki`
+
+### Structure
+
+Two blocks:
+
+1. **Knowledge questions** are questions whose answer demonstrably exists in the wiki. Per entry: `Question` · `Gold answer` · `Evidence page` (wikilink). The gold answers are **derived from the wiki pages**, not formulated from model knowledge.
+2. **Out-of-scope questions** are questions on topics the wiki demonstrably does *not* cover. The correct answer is the **refusal** ("There is nothing on this in the wiki."). Check such questions by grep for zero hits before adding them.
+
+The second block is the more important one. A knowledge base that answers gaps with plausible model knowledge is more dangerous than one that stays silent, because the answer looks like substantiated wiki knowledge.
+
+### Execution
+
+Every question is asked via `query wiki`, without the gold answer being in context. Scoring is two-tiered: **substantively correct** (yes/no) and **correctly substantiated** (points to the evidence page). A substantively correct but unsubstantiated answer counts as a partial hit and is reported separately.
+
+### Entry in `log.md`
+
+```
+- **Bench** — knowledge 13/15 correct (11 substantiated), out-of-scope 5/5 refused
+```
 
 ## Naming Conventions
 
@@ -468,6 +676,7 @@ Besides the wiki pages (`type: wiki-page`), all other `.md` files in `[WIKI-FOLD
 - `hub` — topic hub page (file name == folder name, e.g. `KI/KI.md`)
 - `quelle` — Zotero/literature source overview (`tags: [literatur]`)
 - `notiz` — other notes (atomic thoughts, reference/helper notes without wiki-page status)
+- `wiki-workflow` — callable procedure page in `Workflows/` (see section *Workflow Pages*)
 
 These types are **not** wiki pages within the meaning of the depth standard and are not captured by lint/ingest routines that filter on `type: wiki-page`. `Persönlich/` and `Werkzeuge/` remain entirely excluded.
 

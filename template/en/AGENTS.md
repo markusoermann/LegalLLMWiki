@@ -49,7 +49,7 @@ The folder `[WIKI-FOLDER]/` contains an LLM-maintained wiki following the Karpat
 Create your own topic folders under `[WIKI-FOLDER]/` — one folder per field — and enter them here:
 `[Topic 1]` · `[Topic 2]` · `[Topic 3]` · …
 
-Your own non-wiki folders are **not** part of the wiki.
+Your own non-wiki folders are **not** part of the wiki. `Workflows/` is an **infrastructure folder**, not a topic folder: it holds callable procedure pages (`type: wiki-workflow`) that are not covered by thematic evaluations or by the depth standard.
 
 ### Ingest triggers
 
@@ -60,15 +60,24 @@ Your own non-wiki folders are **not** part of the wiki.
 | `update wiki: [topic]` | Searches Zotero for this topic/tag, processes all hits |
 | `lint wiki` | Checks wiki integrity with severity classification — details in `wiki-schema.md` |
 | `query wiki: [question]` | Searches `[WIKI-FOLDER]/` (index + grep), synthesizes an answer with [[Wikilinks]], offers a synthesis page |
+| `verify wiki [page\|topic\|last ingest]` | Verification pass: a fresh subagent checks every statement against its source passage, flags unsubstantiated ones, removes hard fails |
+| `bench wiki` | Runs the gold benchmark from `[WIKI-FOLDER]/benchmark.md` (knowledge questions and out-of-scope questions) |
+| `workflow: [name]` | Reads the workflow page `[WIKI-FOLDER]/Workflows/Workflow - [name].md` and works through it step by step |
 
 ### Ingest workflow (always the same, regardless of the trigger)
 1. Read `[WIKI-FOLDER]/wiki-schema.md`
 2. Zotero MCP server (native endpoint `http://127.0.0.1:23120/mcp`): metadata + abstract via `get_item_details` (or `get_item_abstract`); full text via `get_content` (`mode: "complete"` = entire document, no `page` parameter); annotations via `get_annotations`. For `ingest @citekey`: first `search_library` with q=citekey → `itemKey`, then `get_item_details`.
 3. Read `[WIKI-FOLDER]/index.md` — check existing wiki pages
 4. Identify affected concepts/entities, determine topic folders
-5. Write/update wiki pages (max. ~15 per ingest), set [[Wikilinks]]
-6. Update `[WIKI-FOLDER]/index.md`
-7. Append an entry to `[WIKI-FOLDER]/log.md`
+5. Write/update wiki pages (max. ~15 per ingest), set [[Wikilinks]] and **set locators**: a `Beleg:` line inside the `[!recht]` callout for legal statements, otherwise an inline locator `(@citekey, S. N)`
+6. **Verification pass:** a fresh subagent checks every statement against its source passage, flags unsubstantiated statements with `[!unbelegt]`, removes hard fails, and sets `verifiziert:` when the finding is clean (details in `wiki-schema.md`)
+7. Update `[WIKI-FOLDER]/index.md`
+8. Append an entry to `[WIKI-FOLDER]/log.md`
+
+For large ingests (more than 3 sources, or a single source with more than ~50 pages of full text), decompose the workflow into sub-agents with a JSON handoff instead of loading everything into one context window (section *Ingest Decomposition* in `wiki-schema.md`).
+
+### Evidence discipline
+Every core statement carries its own locator: a `Beleg:` line inside the `[!recht]` callout for legal statements (`Beleg: @citekey S. 142 Rn. 18`), otherwise an inline locator at the end of the sentence (`(@citekey, S. 14)`). If a statement rests directly on the norm text, the norm reference in the callout suffices. The verification pass then checks every statement against its source passage. **What is checked is supportedness, not correctness.** Statements that fail the check and cannot be corrected are flagged with `[!unbelegt]` rather than silently kept; invented ECLIs, norm designations, citations, or citekeys are removed. Details in `wiki-schema.md`.
 
 ### New topic folders
 Create a new folder when a source cannot be sensibly assigned to any existing folder (at least 2–3 concepts). Then: create the hub file `[topic].md`, add the folder to the topic list in `wiki-schema.md`, to `index.md`, and to this `AGENTS.md` list, and document it in `log.md`. For borderline cases, check briefly with the user.
@@ -84,3 +93,18 @@ Leading norms (articles/sections) and landmark decisions get their own anchor pa
 
 ### Legal hierarchy annotation
 Legally grounded statements are annotated with a `[!recht]` callout (placed *below* the statement). Format: `⚖️ Rank [N] ([norm category]) · [court/norm] → [reference]`. The rank follows the norm, not the court (6-level hierarchy table in `wiki-schema.md`). Set this only for concrete norms/decisions — not for general scholarly opinions.
+
+### Wiki MCP server
+The wiki can additionally be exposed as a local MCP server: read-only, communication over stdio, no network port and no outside access. Seven tools:
+
+| Tool | Purpose |
+|---|---|
+| `wiki_info` | Key figures and configuration of the wiki |
+| `search_wiki` | Full-text search across all wiki pages |
+| `get_page` | A single page with frontmatter and content |
+| `get_norm` | Norm node for a norm reference |
+| `get_backlinks` | Incoming wikilinks of a page |
+| `list_unverified` | Pages without a `verifiziert:` field |
+| `list_stale` | Pages with an outdated `rechtsstand:` |
+
+Setup and details in `docs/en/08-mcp-server.md`.
