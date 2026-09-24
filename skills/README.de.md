@@ -1,12 +1,15 @@
 # Skills
 
-Vier Capabilities für das LegalLLMWiki. Ein „Skill" ist im Kern eine `SKILL.md`-Anleitung (+ optionale Skripte) — die Substanz ist agent-agnostisch, nur die Einbindung unterscheidet sich pro Agent.
+Fünf Capabilities für das LegalLLMWiki. Ein „Skill" ist im Kern eine `SKILL.md`-Anleitung (+ optionale Skripte) — die Substanz ist agent-agnostisch, nur die Einbindung unterscheidet sich pro Agent.
 
 > **Das LLMWiki als Single Point of Truth:** `wiki-query` ist die Schnittstelle zur verbindlichen Wissensschicht des Vaults. Inhaltsgenerierende Skills (Lehrmaterial, Prüfung/Bewertung, Recherche) sollten das Wiki **zuerst** abfragen, seine Inhalte vorrangig nutzen, mit [[Wikilinks]] belegen und Ergänzungen via `ingest` vorschlagen — so bleibt das Wiki die einzige Wahrheitsquelle.
 
+> **Die Belegschicht:** `wiki-verify` ist das Gegenstück zu `wiki-query`. Der Skill prüft in einem frischen Subagenten, ob jede Aussage einer Seite von der zitierten Quellenstelle tatsächlich getragen wird (Belegtheit, nicht Richtigkeit), markiert Unbelegtes mit `[!unbelegt]`, entfernt erfundene Identifikatoren (ECLI, Normbezeichnung, Fundstelle, citekey) und misst die Antwortqualität des Wikis am Gold-Benchmark. Trigger: `verify wiki`, `bench wiki`.
+
 | Skill | Zweck | Abhängigkeiten |
 |---|---|---|
-| `wiki-query` | Wiki durchsuchen + Antwort mit [[Wikilinks]] synthetisieren | — (Index + grep) |
+| `wiki-query` | Wiki durchsuchen + Antwort mit [[Wikilinks]] und Pflicht-Belegstatus synthetisieren | — (Index + grep; Wiki-MCP-Server optional) |
+| `wiki-verify` | Belegprüfung von Wiki-Seiten (`verify wiki`) + Gold-Benchmark der Antwortqualität (`bench wiki`) | Zotero-MCP-Server (s. `docs/03`); frischer Subagent für die Prüfung |
 | `zotero-skill` | Zotero-Bibliothek per MCP nutzen (Ingest, Metadaten, PDF, BibTeX) | Zotero-MCP-Server (s. `docs/03`) |
 | `quellencheck` | Prüfen, ob zitierte Quellen real existieren (DOI/CrossRef/OpenAlex) | Python 3 (`scripts/verify_dois.py`); eigene E-Mail im Skript eintragen |
 | `defuddle` | Web-Inhalte sauber als Markdown extrahieren | externes `defuddle` CLI (`npm install -g defuddle`) |
@@ -16,7 +19,7 @@ Vier Capabilities für das LegalLLMWiki. Ein „Skill" ist im Kern eine `SKILL.m
 ### Claude Code (nativ)
 Skill-Ordner nach `~/.claude/skills/` kopieren:
 ```bash
-cp -R skills/wiki-query skills/zotero-skill skills/quellencheck skills/defuddle ~/.claude/skills/
+cp -R skills/wiki-query skills/wiki-verify skills/zotero-skill skills/quellencheck skills/defuddle ~/.claude/skills/
 ```
 Claude lädt die Skill-Metadaten automatisch und aktiviert sie bei passenden Triggern.
 

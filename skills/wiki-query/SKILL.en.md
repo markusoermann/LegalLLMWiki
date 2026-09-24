@@ -5,7 +5,8 @@ description: |
   "what do I know about X", "find everything on X in the wiki", "show me what the wiki says about X",
   "search my wiki for X", "what does my wiki say about X", "search my wiki for X".
   Searches all of [WIKI-FOLDER]/ (the LLMWiki; any non-wiki folders are excluded) using
-  index + grep, synthesizes an answer with [[wikilinks]], and optionally saves
+  the wiki MCP server when connected, plus index + grep, synthesizes an answer with
+  [[wikilinks]] and a mandatory evidence-status line, and optionally saves
   the result as a new synthesis wiki page.
 ---
 
@@ -29,7 +30,11 @@ Answers questions from the LLMWiki through structured search in `[WIKI-FOLDER]/`
 
 Read `[WIKI-FOLDER]/index.md`. Identify and note thematically relevant wiki pages.
 
-### Step 2 — Grep search
+### Step 2 — Search
+
+**Preferred, whenever the wiki MCP server is connected:** `search_wiki` for full-text search, `get_norm` for norm references (returns the norm node plus every page carrying that norm in its `normen:` frontmatter), and `get_backlinks` for the neighbourhood of a page. These tools evaluate the frontmatter, which grep cannot do, and return markedly more complete hits for norm questions.
+
+**Without the MCP server: grep search.**
 
 Extract key terms from the question. Always search **German + English variants** (technical terms appear in both languages):
 
@@ -61,6 +66,16 @@ Format depending on question type:
 | List question | Annotated list |
 
 Support every central statement with a `[[Wikilink]]`. Name contradictions between sources explicitly.
+
+#### Mandatory: evidence-status block
+
+Every answer ends with an evidence status. It visibly separates what comes from the wiki from what does not:
+
+```markdown
+**Belegstatus:** 6 claims substantiated from the wiki (4 pages) · 1 claim added from model knowledge (marked above) · Gap: no wiki page on [sub-aspect]
+```
+
+Without this block the answer is not finished. A knowledge query whose answer does not reveal which part is substantiated creates the appearance of substantiation for the whole.
 
 ### Step 5 — Synthesis page follow-up
 
@@ -99,6 +114,25 @@ After the answer, ask:
 - **Transparent:** If the wiki is incomplete on the topic → clearly say what is missing + suggest `ingest`
 - **Honest:** Do not supplement from domain knowledge without labeling it — this is a wiki query, not an expertise query. Add your own knowledge only as an explicitly marked addition (`*Note: not substantiated in the wiki*`)
 - **Contradictions:** Name them explicitly between sources, do not smooth them over
+
+## Refusal is a correct answer
+
+**"There is nothing on this in the wiki" is a full and desirable result.** It is not a defeat, and it must not be papered over with a plausible-sounding substitute answer.
+
+The most dangerous answer this skill can give is not the wrong one, but the substantively right one that comes from model knowledge and looks like substantiated wiki knowledge. It is dangerous because it makes the wiki answerable for something that was never written into it and never checked. Whoever goes looking for the evidence page afterwards finds nothing and can no longer trace the error.
+
+Concretely:
+
+- If index, MCP search and grep return **no relevant page**, the answer is: "There is nothing on this in the wiki",
+  followed by whatever lies closest in substance, plus an `ingest` suggestion.
+- If the wiki covers the question only **partially**, name the boundary: which part is substantiated and which is not.
+- Model knowledge may be added, but **only** with `*Note: not substantiated in the wiki*`, and never as the
+  main answer without a preceding refusal.
+- A source reference is **never** reconstructed. No page number, no citekey, no ECLI and no source of record
+  that is not in the wiki.
+
+This discipline is measured: Block B of `[WIKI-FOLDER]/benchmark.md` contains questions on areas of law the wiki
+demonstrably does not cover. The correct answer there is the refusal in every case (see the `wiki-verify` skill).
 
 ## Limits
 
