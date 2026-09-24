@@ -20,6 +20,7 @@ Jurist:innen, Forschende und alle, die ein befragbares Fach-Wiki mit sauberer Qu
 - 🔗 **Graph ohne Triplestore:** Backlinks der Norm-/Urteilsknoten als Abfragepfad
 - 🔍 **Belegschicht:** Verifikations-Pass gegen die Quelle (`verify wiki`), `[!unbelegt]`-Markierung unbelegter Aussagen, `verifiziert:`-Feld, Gold-Benchmark der Antwortqualität (`bench wiki`)
 - 🖥️ **Wiki-MCP-Server:** lokaler, read-only Zugriff auf das Wiki (Volltextsuche, Normknoten, Backlinks, Pflegeberichte) über stdio, ohne Netzwerk-Port und ohne Schreib-Tool
+- 🔎 **Mechanische Prüfwerkzeuge** (`tools/`): citekeys gegen Zotero, `resource:`-URIs, Abgleich der Normknoten gegen die amtliche konsolidierte Fassung
 - 🧩 **5 Skills:** `wiki-query`, `wiki-verify`, `zotero-skill`, `quellencheck`, `defuddle`
 - 📐 **An den OKF-Standard angepasstes Schema** ([Google Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md))
 
@@ -40,7 +41,8 @@ docs/        Setup-Guide (01–08), je Sprache: docs/de/ + docs/en/
 template/    je Sprache template/de/ + template/en/ (AGENTS.md, wiki-schema.md,
              index/log, examples/) · sprachneutral: agent-config/
 skills/      5 Skills (je SKILL.md + SKILL.en.md) + Einbindungs-Guide (skills/README.md)
-mcp/         Beispiel-MCP-Konfiguration + wiki-mcp/ (lokaler read-only Wiki-MCP-Server)
+mcp/         Beispiel-MCP-Konfiguration + wiki-mcp/ (lokaler read-only Server)
+tools/       Mechanische Prüfwerkzeuge (citekeys, resource-URIs, Normtext-Abgleich)
 ```
 
 ## Hinweise
