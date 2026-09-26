@@ -271,6 +271,23 @@ Der Pass läuft **automatisch als Schritt 6 jedes Ingests** und zusätzlich auf 
 
 6. **Abschluss:** Besteht die Seite ohne offenen Befund, wird `verifiziert: YYYY-MM-DD` gesetzt. Bleibt ein `[!unbelegt]`-Callout stehen, wird das Feld **nicht** gesetzt.
 
+### Bestandsschutz und Heben beim Anfassen
+
+Wer den Verifikations-Pass in einem gewachsenen Wiki einführt, steht vor einem Altbestand, der ihn nicht durchlaufen hat. Ihn nachträglich vollständig zu prüfen ist teuer: Ein Locator setzt voraus, die Quelle gelesen zu haben — das ist faktisch ein Re-Ingest jeder Seite.
+
+Die tragfähige Regel besteht aus zwei Hälften, die nur zusammen funktionieren:
+
+**Bestandsschutz.** Seiten mit `updated:` vor `[EINFÜHRUNGSDATUM]` werden nicht aktiv nachgezogen. Keine Kampagne. Das ist keine Nachlässigkeit, sondern korrekte Kennzeichnung: Fehlt `verifiziert:`, gilt die Seite als ungeprüft, und genau das ist sie auch.
+
+**Heben beim Anfassen.** Sobald eine Altseite aus anderem Anlass inhaltlich geändert wird — Ingest, Korrektur, Normersetzung, Ergänzung —, verliert sie den Bestandsschutz und ist in derselben Bearbeitung zu heben: Locator setzen, Verifikations-Pass, `verifiziert:` setzen. **Maßgeblich ist der Umfang der Seite, nicht der Umfang der Änderung.** Wer einen Satz korrigiert, hebt die Seite; wer die Seite nicht heben will, ändert sie nicht.
+
+Der Bestand konvergiert damit über die normale Arbeit statt über eine Sonderanstrengung, und zwar in der richtigen Reihenfolge: Was oft angefasst wird, wird zuerst geprüft.
+
+Zwei Abgrenzungen, ohne die die Regel kippt:
+
+- **Sprengt das Heben den Rahmen** — sehr umfangreiche Altseiten mit vielen Quellen —, wird `updated:` gesetzt (es ist eine Tatsache), `verifiziert:` bleibt **offen**, und `log.md` hält fest, welcher Teil geprüft wurde und welcher nicht. Ein halb geprüfter Stand darf nie als geprüft ausgewiesen werden: `verifiziert:` bezieht sich auf die ganze Seite, nicht auf die letzte Änderung.
+- **Rein mechanische Läufe heben nicht.** Korrektur eines citekeys, Nachtragen einer `resource:`-URI, Umbenennen eines Links berührt keine Aussage und löst die Hebepflicht nicht aus. Sonst erzwingt eine Suchen-und-Ersetzen-Operation über 40 Dateien 40 Verifikations-Pässe.
+
 ### Eintrag in `log.md`
 
 ```

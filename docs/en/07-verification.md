@@ -60,6 +60,20 @@ If the page passes with no open finding, `verifiziert: YYYY-MM-DD` is set. If an
 
 Legal interpretation has no machine-checkable standard of truth; it is contested, and legitimately so. A verifier that ruled on correctness would elevate an opinion to a test result and thereby manufacture false confidence, complete with a seal of approval. Supportedness is the weaker property, but it is checkable, and therefore the only assurance the wiki makes.
 
+## Introducing it into an existing stock
+
+If you do not introduce the verification pass on day one, you are left with a legacy stock that never went through it. Checking that stock retroactively is expensive: setting a locator presupposes having read the source, which makes it a re-ingest of every page. At a few hundred pages that is weeks of work.
+
+The temptation is to plan it as a campaign anyway. The better rule has two halves, and it only holds as a pair:
+
+**Grandfathering.** Pages last changed before the introduction date are not actively brought up to standard. This is not negligence but accurate labelling: if `verifiziert:` is absent, the page counts as unverified — which is exactly what it is. The error would not be leaving it unverified, but believing it verified.
+
+**Lifting on touch.** When a legacy page is changed substantively for any other reason, it loses grandfathered status and is lifted within that same edit: locators, verification pass, `verifiziert:`. What governs is the size of the page, not the size of the change.
+
+The stock then converges through ordinary work rather than a special effort — and in the right order, because what gets touched most often gets verified first. Pages nobody touches for years stay unverified; that is defensible as long as they are labelled unverified.
+
+Two boundaries, without which the rule collapses: if lifting exceeds the scope of the edit, `verifiziert:` stays **open** and the log records what was checked and what was not — a partially checked state must never appear as checked. And purely mechanical runs do not lift: otherwise a search-and-replace across 40 files would force 40 verification passes.
+
 ## Ingest decomposition
 
 A linear ingest loads full text, index, and writing context into a single context window. Splitting it into sub-agents that exchange data exclusively through standardized JSON reports, never through shared context, turns the context limit into a throughput question.
