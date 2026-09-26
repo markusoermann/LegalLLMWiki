@@ -60,6 +60,20 @@ Besteht die Seite ohne offenen Befund, wird `verifiziert: YYYY-MM-DD` gesetzt. B
 
 Juristische Auslegung hat keinen maschinell prüfbaren Wahrheitsmaßstab; sie ist streitig, und zwar berechtigt. Ein Verifier, der über Richtigkeit befände, würde eine Meinung zum Prüfergebnis erklären und damit falsche Sicherheit erzeugen, versehen mit einem Prüfsiegel. Belegtheit ist schwächer, aber prüfbar, und deshalb die einzige Zusage, die das Wiki macht.
 
+## Einführung im laufenden Bestand
+
+Wer den Verifikations-Pass nicht am ersten Tag einführt, steht vor einem Altbestand, der ihn nie durchlaufen hat. Ihn nachträglich vollständig zu prüfen ist teuer: Ein Locator setzt voraus, die Quelle gelesen zu haben — das ist faktisch ein Re-Ingest jeder Seite. Bei einigen hundert Seiten sind das Wochen.
+
+Die Versuchung ist, es trotzdem als Kampagne zu planen. Die bessere Regel besteht aus zwei Hälften, die nur zusammen tragen:
+
+**Bestandsschutz.** Seiten, die vor dem Einführungsdatum zuletzt geändert wurden, werden nicht aktiv nachgezogen. Das ist keine Nachlässigkeit, sondern korrekte Kennzeichnung: Fehlt `verifiziert:`, gilt die Seite als ungeprüft — und genau das ist sie. Der Fehler wäre nicht, sie ungeprüft zu lassen, sondern sie für geprüft zu halten.
+
+**Heben beim Anfassen.** Wird eine Altseite aus anderem Anlass inhaltlich geändert, verliert sie den Bestandsschutz und wird in derselben Bearbeitung gehoben: Locator, Verifikations-Pass, `verifiziert:`. Maßgeblich ist der Umfang der Seite, nicht der der Änderung.
+
+Der Bestand konvergiert damit über die normale Arbeit statt über eine Sonderanstrengung — und in der richtigen Reihenfolge, denn was oft angefasst wird, wird zuerst geprüft. Seiten, die jahrelang niemand berührt, bleiben ungeprüft; das ist vertretbar, solange sie als ungeprüft ausgewiesen sind.
+
+Zwei Abgrenzungen, ohne die die Regel kippt: Sprengt das Heben den Rahmen der Bearbeitung, bleibt `verifiziert:` **offen** und das Protokoll hält fest, was geprüft wurde und was nicht — ein halb geprüfter Stand darf nie als geprüft erscheinen. Und rein mechanische Läufe heben nicht: Sonst erzwingt ein Suchen-und-Ersetzen über 40 Dateien 40 Verifikations-Pässe.
+
 ## Ingest-Dekomposition
 
 Der lineare Ingest lädt Volltext, Index und Schreibkontext in ein einziges Kontextfenster. Die Zerlegung in Sub-Agenten, die Daten ausschließlich über standardisierte JSON-Berichte austauschen und nie über geteilten Kontext, macht aus der Kontextgrenze eine Durchsatzfrage.

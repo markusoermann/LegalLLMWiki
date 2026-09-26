@@ -273,6 +273,23 @@ The pass runs **automatically as step 6 of every ingest** and additionally on th
 
 6. **Completion:** if the page passes without an open finding, `verifiziert: YYYY-MM-DD` is set. If an `[!unbelegt]` callout remains, the field is **not** set.
 
+### Grandfathering and lifting on touch
+
+Introducing the verification pass into a wiki that already exists leaves you with a legacy stock that never went through it. Checking that stock retroactively is expensive: setting a locator presupposes having read the source, which makes it a re-ingest of every page.
+
+The workable rule has two halves, and it only works as a pair:
+
+**Grandfathering.** Pages whose `updated:` predates `[INTRODUCTION-DATE]` are not actively brought up to standard. No campaign. This is not negligence but accurate labelling: if `verifiziert:` is absent the page counts as unverified — which is exactly what it is.
+
+**Lifting on touch.** As soon as a legacy page is changed substantively for any other reason — ingest, correction, norm supersession, addition — it loses grandfathered status and must be lifted within that same edit: set locators, run the verification pass, set `verifiziert:`. **What governs is the size of the page, not the size of the change.** Correct one sentence and you lift the page; if you are not prepared to lift it, do not change it.
+
+The stock then converges through ordinary work rather than through a special effort, and in the right order: what gets touched most often gets verified first.
+
+Two boundaries, without which the rule collapses:
+
+- **If lifting exceeds the scope of the edit** — very large legacy pages with many sources — set `updated:` (it is a fact), leave `verifiziert:` **open**, and record in `log.md` which part was checked and which was not. A partially checked state must never be presented as checked: `verifiziert:` refers to the whole page, not to the latest change.
+- **Purely mechanical runs do not trigger lifting.** Fixing a citekey, adding a `resource:` URI or renaming a link touches no statement and does not trigger the duty. Otherwise a single search-and-replace across 40 files would force 40 verification passes.
+
 ### Entry in `log.md`
 
 ```
