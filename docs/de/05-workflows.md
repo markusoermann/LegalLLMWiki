@@ -9,7 +9,7 @@ Alle Trigger sind in `AGENTS.md` definiert; der Agent erkennt sie im Chat. Vor j
 | `Aktualisiere Wiki: [Thema]` | Sucht Zotero nach Thema/Tag, verarbeitet alle Treffer. |
 | `query wiki: [Frage]` | Durchsucht `[WIKI-ORDNER]/` (Index + Grep), synthetisiert eine Antwort mit `[[Wikilinks]]`, bietet optional eine Synthese-Seite an. |
 | `lint wiki` | Integritäts-Audit (Broken Links, Orphans, fehlende Knoten, Frontmatter-Drift) mit Schweregraden. |
-| `verify wiki [Seite]` | Belegprüfung durch einen frischen Subagenten: Trägt die zitierte Quellenstelle die Aussage? Argument optional (Seite, Thema oder letzter Ingest), läuft ohnehin als Schritt 6 jedes Ingests. (→ `07-verifikation.md`) |
+| `verify wiki [Seite]` | Belegprüfung durch einen frischen Subagenten: Trägt die zitierte Quellenstelle die Aussage? Argument optional (Seite, Thema oder letzter Ingest), läuft ohnehin als Schritt 7 jedes Ingests. (→ `07-verifikation.md`) |
 | `bench wiki` | Misst die Antwortqualität gegen `[BENCHMARK-ORT]/benchmark.md` (Wissensfragen + Out-of-Scope-Fragen). |
 | `workflow: [Name]` | Der Agent liest die Workflow-Seite in `[WIKI-ORDNER]/Workflows/` und arbeitet sie Schritt für Schritt ab. |
 
