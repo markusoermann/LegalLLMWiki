@@ -59,7 +59,7 @@ Zeitachse — und die steht im Frontmatter.
 
 ## Anpassung an die eigene Lage
 
-- **`EXCLUDE`** in allen dreien: Ordner innerhalb des Wiki-Ordners, die nicht zum Wiki gehören.
+- **`EXCLUDE`** in allen vieren: Ordner innerhalb des Wiki-Ordners, die nicht zum Wiki gehören.
 - **`GESETZE`** in `normtext_check.py`: Zuordnung von Gesetzeskürzeln zu Portal-Slugs.
   Die mitgelieferte Tabelle gilt für deutsches Bundesrecht auf `gesetze-im-internet.de`.
   EU-Recht, Staatsverträge und Konventionsrecht liegen dort nicht und werden übersprungen.
@@ -73,7 +73,7 @@ Zeitachse — und die steht im Frontmatter.
 
 ## Erfahrungen aus dem Betrieb
 
-Drei Punkte, die beim Nachbau Zeit sparen:
+Sechs Punkte, die beim Nachbau Zeit sparen:
 
 1. **Jeder Befund braucht eine Gegenprobe, bevor er zu einer Handlung führt.** Beim
    ersten Einsatz produzierte jedes Werkzeug Fehlalarme: ein ECLI-Muster, das für
