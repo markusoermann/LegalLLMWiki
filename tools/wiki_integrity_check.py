@@ -5,17 +5,23 @@ Mechanischer Integritaets-Check des LLMWiki.
 
 Prueft ohne LLM, rein datenbasiert:
   A  citekeys aus quellen:-Frontmatter gegen die Zotero-Bibliothek
-  B  Volltextlage je aufgeloester Quelle (PDF/HTML-Attachment vorhanden?)
+  B  Volltextlage je aufgeloester Quelle: Ist der Text tatsaechlich extrahierbar?
+     Das Vorhandensein eines PDF-Attachments genuegt dafuer NICHT. Ein Scan ohne
+     OCR-Ebene liefert null Zeichen und ist fuer die Belegpruefung wertlos, wird
+     von einer reinen Attachment-Pruefung aber als vorhanden gemeldet. Im Betrieb betraf das
+     fuenf zitierte Quellen, darunter die einzige tragende Quelle eines ganzen
+     Kernabschnitts. Geprueft wird deshalb mit pdftotext gegen die Datei in
+     ~/Zotero/storage/.
   C  ECLI-Syntax in ecli:-Feldern und urteile:-Eintraegen
   D  Normen/Urteile, die in >=3 Seiten vorkommen, aber keinen Knoten haben
 
 Aufruf:  python3 wiki_integrity_check.py [WIKI-ROOT]
 Voraussetzung: Zotero laeuft, lokale API auf Port 23119 erreichbar.
 """
-import os, re, io, sys, json, urllib.request, collections, unicodedata
+import os, re, io, sys, json, subprocess, urllib.request, collections, unicodedata
 
 WIKI = sys.argv[1] if len(sys.argv) > 1 else "/PFAD/ZU/DEINEM/VAULT/[WIKI-ORDNER]"
-EXCLUDE = set()  # Nicht-Wiki-Ordner eintragen, z.B. {"Persoenlich", "Werkzeuge"}
+EXCLUDE = {"Persönlich", "Werkzeuge"}
 API = "http://localhost:23119/api/users/0/items"
 N = lambda s: unicodedata.normalize("NFC", s)
 
@@ -36,7 +42,8 @@ def load_zotero():
         for it in batch:
             d = it["data"]
             if d.get("itemType") == "attachment":
-                children[d.get("parentItem")].append(d.get("contentType", ""))
+                children[d.get("parentItem")].append(
+                    (d.get("contentType", ""), d.get("key", ""), d.get("filename", "")))
             ck = d.get("citationKey")
             if ck:
                 items[ck] = {"key": d["key"], "title": d.get("title", ""),
@@ -47,6 +54,33 @@ def load_zotero():
         if parent in bykey:
             bykey[parent]["att"] = cts
     return items
+
+STORAGE = os.path.expanduser("~/Zotero/storage")
+
+def textlage(att):
+    """('text'|'scan'|'kein') fuer die Attachment-Liste einer Quelle.
+
+    'scan' = PDF vorhanden, aber pdftotext liefert praktisch nichts. Genau diese
+    Klasse war vorher unsichtbar. Ohne lokalen Zotero-Speicher faellt die Pruefung
+    auf die alte Attachment-Heuristik zurueck, statt falsche Befunde zu erzeugen."""
+    hat_pdf = False
+    for ct, akey, fname in att:
+        if "html" in ct:
+            return "text"
+        if "pdf" not in ct:
+            continue
+        hat_pdf = True
+        p = os.path.join(STORAGE, akey, fname or "")
+        if not (akey and fname and os.path.exists(p)):
+            continue
+        try:
+            out = subprocess.run(["pdftotext", "-q", p, "-"],
+                                 capture_output=True, timeout=180).stdout
+            if len(out.decode("utf-8", "replace").strip()) >= 400:
+                return "text"
+        except Exception:
+            return "text"          # pdftotext fehlt: nicht schlechter melden als frueher
+    return "scan" if hat_pdf else "kein"
 
 # ---------------------------------------------------------------- Wiki lesen
 # Gerichtskuerzel duerfen gemischte Schreibweise haben (BVerfG, BVerwG, BSG).
@@ -94,16 +128,18 @@ def main():
     for pg in pages:
         for k in pg["keys"]:
             use[k].append(pg["rel"])
-    missing, nofull, ok = [], [], 0
+    missing, nofull, scans, ok = [], [], [], 0
     for k, where in sorted(use.items(), key=lambda x: -len(x[1])):
         if k not in zot:
             missing.append((k, where))
+            continue
+        lage = textlage(zot[k]["att"])
+        if lage == "text":
+            ok += 1
+        elif lage == "scan":
+            scans.append((k, where, zot[k]["title"][:60]))
         else:
-            att = zot[k]["att"]
-            if not any(("pdf" in c) or ("html" in c) for c in att):
-                nofull.append((k, where, zot[k]["title"][:60]))
-            else:
-                ok += 1
+            nofull.append((k, where, zot[k]["title"][:60]))
 
     print("=" * 72)
     print("A  citekey-Aufloesung")
@@ -140,8 +176,16 @@ def main():
     print("\n" + "=" * 72)
     print("B  Volltextlage der aufgeloesten Quellen")
     print("=" * 72)
-    print("  %d mit PDF/HTML-Attachment · %d ohne" % (ok, len(nofull)))
-    print("  (ohne Attachment = Belegpruefung nicht moeglich, Befund 'nicht pruefbar')")
+    print("  %d mit extrahierbarem Volltext · %d Scan ohne Textebene · %d ohne Attachment"
+          % (ok, len(scans), len(nofull)))
+    print("  (beide letzten Klassen = Belegpruefung nicht moeglich, Befund 'nicht pruefbar')")
+    if scans:
+        print("\n  SCAN OHNE TEXTEBENE — mit OCR behebbar:")
+        for k, where, title in scans:
+            print("  ▣ @%-42s %d Seiten  %s" % (k, len(where), title))
+        print("     Behebung: ocrmypdf --language deu --skip-text <pdf> <pdf-neu>")
+    if nofull:
+        print("\n  OHNE ATTACHMENT — nicht maschinell behebbar:")
     for k, where, title in nofull[:15]:
         print("  ○ @%-42s %d Seiten  %s" % (k, len(where), title))
     if len(nofull) > 15:
@@ -186,7 +230,9 @@ def main():
     print("=" * 72)
     print("  Nicht aufloesbare citekeys:      %d  (betreffen %d Seiten)"
           % (len(missing), len(set(w for _, ws in missing for w in ws))))
-    print("  Quellen ohne Volltext:          %d  (betreffen %d Seiten)"
+    print("  Scan ohne Textebene:            %d  (betreffen %d Seiten, OCR behebt das)"
+          % (len(scans), len(set(w for _, ws, _ in scans for w in ws))))
+    print("  Quellen ohne Attachment:        %d  (betreffen %d Seiten)"
           % (len(nofull), len(set(w for _, ws, _ in nofull for w in ws))))
     print("  ECLI syntaktisch auffaellig:    %d" % len(bad))
 
