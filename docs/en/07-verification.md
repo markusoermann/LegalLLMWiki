@@ -60,6 +60,20 @@ If the page passes with no open finding, `verifiziert: YYYY-MM-DD` is set. If an
 
 Legal interpretation has no machine-checkable standard of truth; it is contested, and legitimately so. A verifier that ruled on correctness would elevate an opinion to a test result and thereby manufacture false confidence, complete with a seal of approval. Supportedness is the weaker property, but it is checkable, and therefore the only assurance the wiki makes.
 
+## Findings need a counter-check
+
+The verification pass produces findings that call for action, and a hard-fail finding calls for immediate removal. That is precisely why it needs a control step: **a finding is a claim about the text, not an established fact.**
+
+The most expensive case in practice was not a missed error but an invented one. A verifier reported an author attribution in the wiki as wrong, basing this on the author field in the reference manager. The full text of the article carried the wiki's spelling throughout its running head. The reference-manager record was wrong, not the text. Applying the finding unchecked would have destroyed correct attributions in three files, and would have done so under the heading "hard fail", that is, with a claim to particular rigour.
+
+Two rules follow:
+
+**The counter-check follows the hierarchy of sources.** Reference-manager metadata is derived and error-prone; the publication itself governs. For norm designations the official text decides, not the secondary literature citing it. In the same run, checking against official sources confirmed two reported doubts about norms and refuted a third.
+
+**What cannot be verified is removed, not replaced.** If a doubtful date could not be settled from the working environment, the statement is struck rather than swapped for a second unverified one. A docket number identifies a decision even without a date.
+
+This is the same discipline that applies to the mechanical check scripts (see `tools/README.md`). For the verification pass it weighs more heavily, because its finding is phrased authoritatively and calls for deletion, whereas a script merely prints a list.
+
 ## Introducing it into an existing stock
 
 If you do not introduce the verification pass on day one, you are left with a legacy stock that never went through it. Checking that stock retroactively is expensive: setting a locator presupposes having read the source, which makes it a re-ingest of every page. At a few hundred pages that is weeks of work.

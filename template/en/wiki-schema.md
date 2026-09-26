@@ -269,7 +269,11 @@ The pass runs **automatically as step 6 of every ingest** and additionally on th
    - invented **citation** (volume, page, or marginal number not verifiable)
    - invented **citekey** (not present in Zotero)
 
-   These four cases are removed, not flagged, and recorded as `Hard-Fail` in the `log.md` entry. The schema rule "never invent an ECLI" thereby stops being a mere instruction and becomes a check. Instructions enforce nothing; checks do.
+   These four cases are removed, not flagged, and recorded as `Hard-Fail` in the `log.md` entry.
+
+   **When removing a source, check the running text as well, not just `quellen:`.** Striking a source that turned out not to exist from the frontmatter and the source list is not enough: the attributions live in the prose as author-year mentions and survive the cleanup. In practice this produced four hard fails across two pages that stated a few lines further down that the source does not exist. The search therefore has to match the **surname**, not the citekey.
+
+   **Before removing anything, counter-check the finding against the higher-ranking source:** the publication itself takes precedence over reference-manager metadata, and the official norm text over the secondary literature citing it. A reported hard fail resting on derived data can hit correct information. If a doubtful statement cannot be settled, remove it rather than swapping it for a second unverified one. The schema rule "never invent an ECLI" thereby stops being a mere instruction and becomes a check. Instructions enforce nothing; checks do.
 
 6. **Completion:** if the page passes without an open finding, `verifiziert: YYYY-MM-DD` is set. If an `[!unbelegt]` callout remains, the field is **not** set.
 
@@ -376,6 +380,7 @@ On every ingest of a legal source (statute, regulation, judgment, commentary) **
 1. **Identification** — Which older norms or decisions are replaced, amended, or superseded by the new source? Watch for signal phrasings in the source text: "ersetzt", "aufgehoben", "tritt an die Stelle von", "verdrängt", "Anwendungsvorrang", "gilt nicht mehr", "überholt durch".
 2. **Wiki scan** — Check `index.md` and the affected wiki pages for callouts and running-text passages that cite the superseded norm/decision.
 3. **Update** — Update the affected pages within the same ingest run (flag callouts, adjust running text for substantive changes, set `updated` and `rechtsstand` dates).
+4. **Closing check** — The review is complete only once a search across the **entire** corpus for the superseded statement returns zero hits, not once the obviously affected pages have been edited. In practice a repealed provision survived a correction that had been reported as finished in six further places, one of them inside a `[!recht]` callout, that is, in the very element that asserts a norm is in force. Build the search terms from the **old** statement, not from the new one. Exclude the log (`log.md`) from such a run: it records what was true at the time.
 
 ### Callout Flagging of Superseded Norms
 

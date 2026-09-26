@@ -60,6 +60,20 @@ Besteht die Seite ohne offenen Befund, wird `verifiziert: YYYY-MM-DD` gesetzt. B
 
 Juristische Auslegung hat keinen maschinell prüfbaren Wahrheitsmaßstab; sie ist streitig, und zwar berechtigt. Ein Verifier, der über Richtigkeit befände, würde eine Meinung zum Prüfergebnis erklären und damit falsche Sicherheit erzeugen, versehen mit einem Prüfsiegel. Belegtheit ist schwächer, aber prüfbar, und deshalb die einzige Zusage, die das Wiki macht.
 
+## Befunde brauchen eine Gegenprobe
+
+Der Verifikations-Pass erzeugt Befunde, die zum Handeln auffordern, und der Hard-Fail-Befund fordert zur sofortigen Entfernung auf. Genau deshalb braucht er eine Kontrollinstanz: **Ein Befund ist eine Behauptung über den Text, keine Feststellung.**
+
+Der teuerste Fall aus dem Betrieb war kein übersehener Fehler, sondern ein erfundener. Ein Verifier meldete eine Autorenangabe im Wiki als falsch und stützte das auf das Autorenfeld der Literaturverwaltung. Der Volltext des Aufsatzes führte im Kolumnentitel durchgängig die Schreibweise des Wikis. Falsch war der Datensatz in der Literaturverwaltung, nicht der Text. Die ungeprüfte Umsetzung hätte korrekte Angaben in drei Dateien zerstört, und zwar unter der Überschrift „Hard Fail", also mit dem Anspruch besonderer Strenge.
+
+Daraus zwei Regeln:
+
+**Die Gegenprobe folgt der Rangordnung der Quellen.** Metadaten einer Literaturverwaltung sind abgeleitet und fehleranfällig; die Publikation selbst ist maßgeblich. Bei Normbezeichnungen entscheidet der amtliche Text, nicht die Sekundärliteratur, die ihn zitiert. Im selben Lauf bestätigte der amtliche Abgleich zwei gemeldete Normzweifel und widerlegte einen dritten.
+
+**Nicht verifizierbares wird entfernt, nicht ersetzt.** Ließ sich ein bezweifeltes Datum aus der Arbeitsumgebung nicht klären, wird die Angabe gestrichen, nicht gegen eine zweite ungeprüfte ausgetauscht. Ein Aktenzeichen identifiziert eine Entscheidung auch ohne Datum.
+
+Das ist dieselbe Disziplin, die für die mechanischen Prüfwerkzeuge gilt (siehe `tools/README.md`). Beim Verifikations-Pass wiegt sie schwerer, weil sein Befund autoritativ formuliert ist und zur Löschung auffordert, während ein Skript nur eine Liste ausgibt.
+
 ## Einführung im laufenden Bestand
 
 Wer den Verifikations-Pass nicht am ersten Tag einführt, steht vor einem Altbestand, der ihn nie durchlaufen hat. Ihn nachträglich vollständig zu prüfen ist teuer: Ein Locator setzt voraus, die Quelle gelesen zu haben — das ist faktisch ein Re-Ingest jeder Seite. Bei einigen hundert Seiten sind das Wochen.

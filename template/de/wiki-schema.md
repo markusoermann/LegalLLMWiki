@@ -267,7 +267,11 @@ Der Pass läuft **automatisch als Schritt 6 jedes Ingests** und zusätzlich auf 
    - erfundene **Fundstelle** (Band, Seite oder Randnummer nicht verifizierbar)
    - erfundener **citekey** (nicht in Zotero vorhanden)
 
-   Diese vier Fälle werden entfernt, nicht markiert, und im `log.md`-Eintrag als `Hard-Fail` geführt. Die Schema-Regel „ECLI niemals erfinden" ist damit nicht mehr nur eine Anweisung, sondern eine Prüfung. Anweisungen erzwingen nichts, Prüfungen schon.
+   Diese vier Fälle werden entfernt, nicht markiert, und im `log.md`-Eintrag als `Hard-Fail` geführt.
+
+   **Beim Entfernen einer Quelle ist der Fließtext mitzuprüfen, nicht nur `quellen:`.** Eine als nicht existent erkannte Quelle aus dem Frontmatter und dem Quellenverzeichnis zu streichen, genügt nicht: Die Attributionen stehen im Text als Autor-Jahr-Nennung und überleben die Bereinigung. Im Betrieb entstanden so vier Hard Fails auf zwei Seiten, auf denen wenige Zeilen tiefer vermerkt war, dass es die Quelle nicht gibt. Der Suchlauf muss deshalb den **Nachnamen** erfassen, nicht den citekey.
+
+   **Vor der Entfernung ist der Befund gegenzuprüfen, und zwar an der ranghöheren Quelle:** Die Publikation selbst geht den Metadaten der Literaturverwaltung vor, der amtliche Normtext der Sekundärliteratur. Ein gemeldeter Hard Fail, der auf abgeleiteten Daten beruht, kann korrekte Angaben treffen. Lässt sich eine bezweifelte Angabe nicht klären, wird sie entfernt und nicht gegen eine zweite ungeprüfte ausgetauscht. Die Schema-Regel „ECLI niemals erfinden" ist damit nicht mehr nur eine Anweisung, sondern eine Prüfung. Anweisungen erzwingen nichts, Prüfungen schon.
 
 6. **Abschluss:** Besteht die Seite ohne offenen Befund, wird `verifiziert: YYYY-MM-DD` gesetzt. Bleibt ein `[!unbelegt]`-Callout stehen, wird das Feld **nicht** gesetzt.
 
@@ -374,6 +378,7 @@ Bei jedem Ingest einer juristischen Quelle (Gesetz, Verordnung, Urteil, Kommenta
 1. **Identifikation** — Welche älteren Normen oder Entscheidungen werden durch die neue Quelle abgelöst, abgeändert oder verdrängt? Auf Signalformulierungen im Quelltext achten: „ersetzt", „aufgehoben", „tritt an die Stelle von", „verdrängt", „Anwendungsvorrang", „gilt nicht mehr", „überholt durch".
 2. **Wiki-Scan** — `index.md` und betroffene Wiki-Seiten auf Callouts und Fließtextstellen prüfen, die die supersedierte Norm/Entscheidung zitieren.
 3. **Update** — Betroffene Seiten im selben Ingest-Durchgang aktualisieren (Callouts kennzeichnen, Fließtext bei wesentlichen inhaltlichen Änderungen anpassen, `updated`- und `rechtsstand`-Datum setzen).
+4. **Abschlusskontrolle** — Die Prüfung ist erst abgeschlossen, wenn ein Suchlauf über den **gesamten** Bestand nach der überholten Aussage null Treffer liefert, nicht wenn die offensichtlich betroffenen Seiten bearbeitet sind. Im Betrieb überlebte eine aufgehobene Vorschrift nach einer für abgeschlossen gemeldeten Korrektur an sechs weiteren Stellen, darunter in einem `[!recht]`-Callout, also genau in dem Element, das Normgeltung behauptet. Die Suchbegriffe sind aus der **alten** Aussage zu bilden, nicht aus der neuen. Das Protokoll (`log.md`) ist von diesem Lauf auszunehmen: Es hält fest, was damals galt.
 
 ### Callout-Kennzeichnung abgelöster Normen
 
