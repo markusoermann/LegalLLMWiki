@@ -12,7 +12,7 @@ maschinenlesbare gibt, und der Abgleich der Zeitachse, wo es sie nicht gibt.
 
 | Werkzeug | Prüft | Netz |
 |---|---|---|
-| `wiki_integrity_check.py` | citekeys gegen Zotero, Volltextlage, ECLI-Syntax, Normen ohne Knoten | lokale Zotero-API |
+| `wiki_integrity_check.py` | citekeys gegen Zotero, **tatsächlich extrahierbarer** Volltext, ECLI-Syntax, Normen ohne Knoten | lokale Zotero-API |
 | `knoten_check.py` | `resource:`-URIs auflösbar, Alter des `rechtsstand:`, fehlende Anker-Felder | ja |
 | `normtext_check.py` | Normknoten gegen die amtliche konsolidierte Fassung: Wegfall, Fassungsangabe | ja |
 | `staffelung_check.py` | `in_kraft:` gegen `wirksam_ab:`: gestaffelte Anwendbarkeit, überschrittene Stufen | **nein** |
@@ -91,7 +91,22 @@ Drei Punkte, die beim Nachbau Zeit sparen:
    Aktenzeichen, Instanzgerichte. Beim ersten Lauf meldete `staffelung_check.py` deshalb
    elf Urteile als fehlende Normfelder. Die Erkennung braucht zusätzlich ein Muster auf
    Gerichtskürzel und Aktenzeichen.
-5. **Ein Wächter mit eingefrorenem Stichdatum ist keiner.** Die anderen Werkzeuge dürfen
+5. **Ein PDF-Attachment ist noch kein Volltext.** Die naheliegende Prüfung, ob eine
+   Quelle belegprüfbar ist, fragt nach einem PDF- oder HTML-Attachment. Sie geht fehl,
+   sobald das PDF ein Scan ohne OCR-Ebene ist: Die Datei liegt vor, liefert aber null
+   Zeichen. Im Betrieb betraf das fünf zitierte Quellen, darunter die einzige tragende
+   Quelle eines ganzen Kernabschnitts, und der Verifier meldete dort folgerichtig
+   „nicht prüfbar", während der Integritäts-Check dieselbe Quelle als versorgt führte.
+   Die Prüfung muss deshalb `pdftotext` gegen die Datei laufen lassen. Umgekehrt gilt:
+   Ein leerer Volltext-Cache der Literaturverwaltung beweist **nicht**, dass die
+   Textebene fehlt — er kann schlicht nicht aufgebaut worden sein. Auch hier trennt
+   erst der Blick in die Datei die beiden Fälle.
+
+   Behebbar ist der Scan-Fall mechanisch: `ocrmypdf --language deu --skip-text <pdf>
+   <pdf-neu>`. Das Werkzeug weist die betroffenen Quellen deshalb als eigene Klasse
+   aus, statt sie mit den Quellen ohne Attachment zu vermengen, denn die einen lassen
+   sich in Minuten erschließen und die anderen gar nicht.
+6. **Ein Wächter mit eingefrorenem Stichdatum ist keiner.** Die anderen Werkzeuge dürfen
    ein festes Datum tragen, weil sie gegen eine externe Quelle prüfen. Dieses prüft gegen
    den Kalender: Es nimmt `date.today()`, sonst bemerkt es das Überschreiten einer Stufe
    nie. Vor der Übernahme empfiehlt sich ein Lauf mit `--datum` auf ein Datum jenseits der
@@ -99,6 +114,11 @@ Drei Punkte, die beim Nachbau Zeit sparen:
    nicht zu unterscheiden aus.
 
 ## Was sie nicht können
+
+`wiki_integrity_check.py` setzt für die Volltextprüfung `pdftotext` (Poppler) voraus
+und erwartet den Attachment-Speicher unter `~/Zotero/storage`. Fehlt eines von beidem,
+fällt die Prüfung auf die alte Attachment-Heuristik zurück, statt falsche Befunde zu
+erzeugen.
 
 Keines der Werkzeuge prüft, ob eine Aussage inhaltlich zutrifft. `normtext_check.py`
 erkennt, dass eine Norm weggefallen ist, nicht ob die Auslegung auf der Seite stimmt.
