@@ -35,7 +35,7 @@ The callout is an open finding, not a permanent state: `lint wiki` reports `[!un
 
 ## Verification pass
 
-The pass runs automatically as **step 6 of every ingest** and on the trigger `verify wiki [page|topic|last ingest]`.
+The pass runs automatically as **step 7 of every ingest** and on the trigger `verify wiki [page|topic|last ingest]`.
 
 The check is performed by a **fresh subagent without the writing context**. Whoever wrote the text cannot check it impartially; that is the core of the procedure, not a formality. The subagent receives the page path, all locators, and the fields `normen:`/`urteile:`/`ecli:`, looks up the passages via the Zotero MCP server (primarily `get_content`; `search_fulltext` only when the original wording is known, since it matches substrings rather than term combinations), and classifies each claim:
 

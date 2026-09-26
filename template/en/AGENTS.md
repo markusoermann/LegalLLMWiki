@@ -67,12 +67,13 @@ Your own non-wiki folders are **not** part of the wiki. `Workflows/` is an **inf
 ### Ingest workflow (always the same, regardless of the trigger)
 1. Read `[WIKI-FOLDER]/wiki-schema.md`
 2. Zotero MCP server (native endpoint `http://127.0.0.1:23120/mcp`): metadata + abstract via `get_item_details` (or `get_item_abstract`); full text via `get_content` (`mode: "complete"` = entire document, no `page` parameter); annotations via `get_annotations`. For `ingest @citekey`: first `search_library` with q=citekey → `itemKey`, then `get_item_details`.
-3. Read `[WIKI-FOLDER]/index.md` — check existing wiki pages
-4. Identify affected concepts/entities, determine topic folders
-5. Write/update wiki pages (max. ~15 per ingest), set [[Wikilinks]] and **set locators**: a `Beleg:` line inside the `[!recht]` callout for legal statements, otherwise an inline locator `(@citekey, S. N)`
-6. **Verification pass:** a fresh subagent checks every statement against its source passage, flags unsubstantiated statements with `[!unbelegt]`, removes hard fails, and sets `verifiziert:` when the finding is clean (details in `wiki-schema.md`)
-7. Update `[WIKI-FOLDER]/index.md`
-8. Append an entry to `[WIKI-FOLDER]/log.md`
+3. **Check the full-text precondition (abort criterion).** Does `get_content` actually return text? **An existing PDF attachment is not enough** — a scan without an OCR layer returns zero characters yet looks provided in the attachment list. Counter-check: `pdftotext -q <file> -`. If it is a scan: **halt the ingest** and offer OCR. If no full text is obtainable: **warn explicitly and obtain a decision**; do not quietly write from metadata (details in `wiki-schema.md`, section *Full-Text Precondition for Ingest*)
+4. Read `[WIKI-FOLDER]/index.md` — check existing wiki pages
+5. Identify affected concepts/entities, determine topic folders
+6. Write/update wiki pages (max. ~15 per ingest), set [[Wikilinks]] and **set locators**: a `Beleg:` line inside the `[!recht]` callout for legal statements, otherwise an inline locator `(@citekey, S. N)`
+7. **Verification pass:** a fresh subagent checks every statement against its source passage, flags unsubstantiated statements with `[!unbelegt]`, removes hard fails, and sets `verifiziert:` when the finding is clean (details in `wiki-schema.md`)
+8. Update `[WIKI-FOLDER]/index.md`
+9. Append an entry to `[WIKI-FOLDER]/log.md`
 
 For large ingests (more than 3 sources, or a single source with more than ~50 pages of full text), decompose the workflow into sub-agents with a JSON handoff instead of loading everything into one context window (section *Ingest Decomposition* in `wiki-schema.md`).
 

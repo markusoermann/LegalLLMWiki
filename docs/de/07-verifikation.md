@@ -35,7 +35,7 @@ Der Callout ist ein offener Befund, kein Dauerzustand: `lint wiki` meldet `[!unb
 
 ## Verifikations-Pass
 
-Der Pass läuft automatisch als **Schritt 6 jedes Ingests** und zusätzlich auf den Trigger `verify wiki [Seite|Thema|letzter Ingest]`.
+Der Pass läuft automatisch als **Schritt 7 jedes Ingests** und zusätzlich auf den Trigger `verify wiki [Seite|Thema|letzter Ingest]`.
 
 Geprüft wird von einem **frischen Subagenten ohne den Schreibkontext**. Wer den Text geschrieben hat, kann ihn nicht unbefangen gegenprüfen; das ist der Kern des Verfahrens, keine Formalie. Der Subagent bekommt Seitenpfad, alle Locator und die Felder `normen:`/`urteile:`/`ecli:`, schlägt die Passagen per Zotero-MCP nach (primär `get_content`; `search_fulltext` nur bei bekannter Originalwendung, da es Substrings und keine Termkombinationen sucht) und klassifiziert jede Aussage:
 

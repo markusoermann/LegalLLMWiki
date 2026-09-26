@@ -233,7 +233,38 @@ Aussagen, die den Verifikations-Pass nicht bestehen und nicht korrigiert werden 
 
 Der Callout ist ein offener Befund, kein Dauerzustand: Der Lint meldet `[!unbelegt]`-Befunde, die älter als 30 Tage sind, als Warnung.
 
-## Verifikations-Pass (Ingest-Schritt 6)
+## Volltext-Vorbedingung des Ingests
+
+**Ohne extrahierbaren Volltext wird nicht ingestet.** Das ist ein Abbruchkriterium, keine Empfehlung.
+
+Zu prüfen ist, ob die Quelle **Text liefert**, nicht ob ein Attachment vorhanden ist. Ein Scan ohne OCR-Ebene erscheint in der Attachment-Liste als versorgt und liefert null Zeichen. Gegenprobe: `pdftotext -q <datei> -`.
+
+| Lage | Verhalten |
+|---|---|
+| Volltext extrahierbar | regulärer Ingest |
+| PDF vorhanden, aber Scan ohne Textebene | **Ingest anhalten.** Nutzer informieren, OCR anbieten (`ocrmypdf --language <sprache> --skip-text <pdf> <pdf-neu>`), danach neu ansetzen |
+| Kein Volltext beschaffbar (kein Attachment, Buch im Regal, Sammelnachweis) | **Ausdrücklich warnen und Entscheidung einholen.** Nicht stillschweigend aus Metadaten schreiben |
+
+Wird auf ausdrücklichen Wunsch dennoch geschrieben, gilt kumulativ: Die Seite trägt einen `[!unbelegt]`-Callout mit dem Vermerk, dass sie **nicht aus der Quelle gearbeitet** ist; `verifiziert:` bleibt offen; der `log.md`-Eintrag trägt `[kein Volltext]`.
+
+### Warum die Regel scharf ist
+
+Im Betrieb wurden drei Quellen nach OCR-Erschließung erstmals prüfbar. Bei allen dreien ergab die Prüfung, dass die daraus entstandenen Seiten **aus Modellwissen geschrieben waren**, nicht aus dem Text. Der Protokolleintrag einer dieser Quellen behauptete sogar, sie sei gelesen worden.
+
+Entscheidend ist, wie diese Seiten aussahen: Sie trafen ihren Gegenstand weitgehend richtig. Genau deshalb fiel es niemandem auf. **Ein Ingest ohne Volltext erzeugt kein erkennbar lückenhaftes Referat, sondern ein plausibles.** Die Fehler saßen nicht in der Substanz, sondern an den architektonischen Fugen, und zwar in vier wiederkehrenden Formen:
+
+- **Erfundene Fundstellen**, die das Nummernschema des Werks verfehlen (ein „Kapitel 23" in einem Buch, das teilintern 3.1 bis 3.9 zählt).
+- **Superlative ohne Grundlage** („der einflussreichste Theoretiker", „am schärfsten formuliert", „die maßgebliche Synopse").
+- **Zugeschriebene Haltungen** („X sieht die Umsetzbarkeit skeptisch", „X fordert strukturelle Transparenz"), die der Autor nicht vertritt.
+- **Zuordnungen über Grenzen hinweg, die der Autor selbst zieht** — ein Merkmal wird dem falschen von zwei Typen zugeschlagen, die die Quelle ausdrücklich trennt.
+
+Ein weiteres Erkennungszeichen: Die Seite reproduziert zuverlässig, was in der Sekundärrezeption kanonisch ist, und **nichts**, was nur beim Lesen auffällt — keine Zahl aus einer Erhebung, keinen Nebenstrang, nicht den Schlusssatz.
+
+### Bibliografische Gegenprobe
+
+Ist der Volltext erschlossen, ist zusätzlich zu prüfen, ob die Datei die Ausgabe ist, die der Eintrag behauptet. Im selben Lauf erwies sich eine als US-Erstausgabe geführte Datei als britische Ausgabe mit **abweichender Paginierung** — jeder daraus gezogene Locator wäre falsch gewesen. Titelblatt und Kolumnentitel beantworten das in Sekunden.
+
+## Verifikations-Pass (Ingest-Schritt 7)
 
 Der Lint prüft **Struktur**: tote Links, Index-Konsistenz, Frontmatter-Drift. Er prüft nicht, ob ein Satz von seiner Quelle gedeckt ist. Genau diese Lücke schließt der Verifikations-Pass. Das Muster stammt aus der agentischen Codeextraktion: Was sich nicht gegen die Quelle prüfen lässt, wird nicht stillschweigend übernommen, sondern mit Befund gekennzeichnet oder entfernt.
 
@@ -247,7 +278,7 @@ Juristische Aussagen haben keinen ausführbaren Prüfmaßstab, weil Auslegung st
 
 ### Ablauf
 
-Der Pass läuft **automatisch als Schritt 6 jedes Ingests** und zusätzlich auf den Trigger `verify wiki [Seite|Thema|letzter Ingest]`.
+Der Pass läuft **automatisch als Schritt 7 jedes Ingests** und zusätzlich auf den Trigger `verify wiki [Seite|Thema|letzter Ingest]`.
 
 1. **Frischer Subagent.** Die Prüfung übernimmt ein Subagent *ohne* den Schreibkontext. Wer den Text geschrieben hat, kann ihn nicht unbefangen gegenprüfen. Das ist der Kern des Verfahrens, keine Formalie.
 2. **Eingabe:** Seitenpfad, alle Locator der Seite (`Beleg:`-Zeilen, Inline-Locator, `quellen:`) sowie `normen:`/`urteile:`/`ecli:`.
@@ -578,7 +609,7 @@ Beim Schreiben:
 - [ ] **Locator gesetzt?** Jede Aussage aus einer Sekundärquelle trägt eine `Beleg:`-Zeile (juristisch) oder einen Inline-Locator `(@citekey, S. N)` (sonstige), s. Abschnitt *Belege und Locator-Granularität*
 
 Nach dem Schreiben:
-- [ ] **Verifikations-Pass (Schritt 6) durchgeführt?** Frischer Subagent, Befundklassen, Hard-Fail-Prüfung, s. Abschnitt *Verifikations-Pass*
+- [ ] **Verifikations-Pass (Schritt 7) durchgeführt?** Frischer Subagent, Befundklassen, Hard-Fail-Prüfung, s. Abschnitt *Verifikations-Pass*
 - [ ] `verifiziert:`-Datum gesetzt (nur wenn kein offener `[!unbelegt]`-Befund verbleibt)?
 - [ ] `[WIKI-ORDNER]/index.md` aktualisiert?
 - [ ] `[WIKI-ORDNER]/log.md` Eintrag angehängt? (inkl. `[kein PDF]` falls zutreffend)
