@@ -235,7 +235,38 @@ Statements that do not pass the verification pass and could not be corrected are
 
 The callout is an open finding, not a permanent state: lint reports `[!unbelegt]` findings older than 30 days as a warning.
 
-## Verification Pass (Ingest Step 6)
+## Full-Text Precondition for Ingest
+
+**No ingest without extractable full text.** This is an abort criterion, not a recommendation.
+
+What must be checked is whether the source **yields text**, not whether an attachment exists. A scan without an OCR layer shows up in the attachment list as provided and returns zero characters. Counter-check: `pdftotext -q <file> -`.
+
+| Situation | Behaviour |
+|---|---|
+| Full text extractable | regular ingest |
+| PDF present but a scan without a text layer | **Halt the ingest.** Inform the user, offer OCR (`ocrmypdf --language <lang> --skip-text <pdf> <pdf-new>`), then start over |
+| No full text obtainable (no attachment, book on the shelf, collective reference) | **Warn explicitly and obtain a decision.** Do not quietly write from metadata |
+
+If the user explicitly asks for it anyway, all of the following apply: the page carries an `[!unbelegt]` callout noting that it is **not worked from the source**; `verifiziert:` stays open; the `log.md` entry carries `[kein Volltext]`.
+
+### Why the rule is strict
+
+In practice, three sources became checkable for the first time after OCR. In all three cases the check showed that the pages built on them had been **written from model knowledge**, not from the text. The log entry for one of them even claimed the source had been read.
+
+What matters is how those pages looked: they were largely right about their subject. That is precisely why nobody noticed. **An ingest without full text does not produce a visibly patchy summary; it produces a plausible one.** The errors sat not in the substance but at the architectural joints, in four recurring forms:
+
+- **Invented citations** that miss the work's numbering scheme (a "chapter 23" in a book that numbers 3.1 to 3.9 per part).
+- **Unfounded superlatives** ("the most influential theorist", "put most sharply", "the definitive synopsis").
+- **Attributed stances** ("X is sceptical about feasibility", "X demands structural transparency") that the author does not hold.
+- **Assignments across a line the author himself draws** — a trait is given to the wrong one of two types that the source expressly separates.
+
+A further tell: the page reliably reproduces what is canonical in the secondary reception, and **nothing** that only becomes apparent on reading — no figure from a survey, no side strand, not the closing sentence.
+
+### Bibliographic counter-check
+
+Once the full text is available, also check whether the file is the edition the record claims. In the same run, a file catalogued as the US first edition turned out to be the British edition with **different pagination** — every locator drawn from it would have been wrong. Title page and running heads answer this in seconds.
+
+## Verification Pass (Ingest Step 7)
 
 Lint checks **structure**: dead links, index consistency, frontmatter drift. It does not check whether a sentence is actually carried by its source. The verification pass closes exactly this gap. The pattern comes from agentic code extraction: whatever cannot be checked against the source is not silently adopted, but flagged with a finding or removed.
 
@@ -249,7 +280,7 @@ Legal statements have no executable test standard, because interpretation is con
 
 ### Procedure
 
-The pass runs **automatically as step 6 of every ingest** and additionally on the trigger `verify wiki [page|topic|last ingest]`.
+The pass runs **automatically as step 7 of every ingest** and additionally on the trigger `verify wiki [page|topic|last ingest]`.
 
 1. **A fresh subagent.** The check is performed by a subagent *without* the writing context. Whoever wrote the text cannot review it impartially. That is the core of the procedure, not a formality.
 2. **Input:** page path, all locators on the page (`Beleg:` lines, inline locators, `quellen:`) plus `normen:`/`urteile:`/`ecli:`.
@@ -582,7 +613,7 @@ While writing:
 - [ ] **Locator set?** Every statement taken from a secondary source carries a `Beleg:` line (legal) or an inline locator `(@citekey, S. N)` (all others), see section *Evidence and Locator Granularity*
 
 After writing:
-- [ ] **Verification pass (step 6) carried out?** Fresh subagent, finding classes, hard-fail check, see section *Verification Pass*
+- [ ] **Verification pass (step 7) carried out?** Fresh subagent, finding classes, hard-fail check, see section *Verification Pass*
 - [ ] `verifiziert:` date set (only if no open `[!unbelegt]` finding remains)?
 - [ ] `[WIKI-FOLDER]/index.md` updated?
 - [ ] `[WIKI-FOLDER]/log.md` entry appended? (incl. `[kein PDF]` if applicable)
