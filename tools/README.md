@@ -35,6 +35,39 @@ voraus. `knoten_check.py` und `normtext_check.py` brauchen Netzzugang.
 und beantwortet damit die Frage, was sich am Tag einer künftigen Staffelstufe ändert.
 `rang_check.py` läuft ebenfalls offline und braucht nichts als die Markdown-Dateien.
 
+## Warum es keine Pruefsumme gibt
+
+Die naheliegende Erweiterung waere ein Hash ueber den Normtext, der `rechtsstand:`
+von einer Zusage in eine Pruefung verwandelt (so RuML 1.0.0 Kap. 4.12 mit SHA3-256
+ueber die kanonisierte Form). **Am 2026-11-19 geprueft und verworfen.**
+
+Der Grund ist `normtext_check.py` selbst: Es prueft die deutschen Normknoten gegen die
+amtliche konsolidierte Fassung und erkennt Wegfall **paragraphengenau**. Ein Hash fuegt
+dort allein die Erkennung von *Aenderungen* statt *Wegfall* hinzu — zu wenig fuer den
+Preis aus Kanonisierungsregel, Erheblichkeitsdefinition und Dauerrauschen. Ein Hash sagt,
+*dass* sich etwas geaendert hat, nicht *ob es erheblich ist*; redaktionelle Korrektur und
+Tatbestandsaenderung erzeugen denselben Befund.
+
+**Zwei Begruendungen, die unterwegs auftauchten und beide nicht tragen** — hier notiert,
+damit sie beim naechsten Anlauf nicht erneut als Argument erscheinen:
+
+- *"Erst wenn LegalDocML.de die GUID-Erhaltung verbindlich regelt."* Verwechselt zwei
+  Dinge. Die GUID leistet Identitaet ueber Fassungen hinweg, ein Hash leistet
+  Aenderungserkennung. Loest der Anker nach einer Umnummerierung nicht mehr auf, **ist das
+  das Signal** — "an dieser Norm hat sich strukturell etwas geaendert" —, nicht sein Ausfall.
+- *"EU-Normtext ist maschinell nicht erreichbar."* Gilt fuer EUR-Lex-HTML (HTTP 202,
+  JS-Challenge), nicht fuer Cellar: `<manifestation>/DOC_2` mit
+  `Accept: application/xhtml+xml` liefert die konsolidierte Fassung mit 198 `art_*`-IDs.
+  Der Zugriff war nie der Engpass.
+
+**Dokumentierte Restluecke.** `normtext_check.py` deckt **EU-Recht nicht ab** und konnte es
+nie — es beruht auf dem `(weggefallen)`-Marker, den EU-Recht nicht kennt. Fuer EU-Normknoten
+bleibt Aenderungserkennung damit **quellengetrieben**: Sie greift, wenn eine
+Aenderungsverordnung in der Literaturverwaltung landet und ingested wird. Das hat am
+2026-11-18 funktioniert (Digital-Omnibus-Verordnung, rund 70 Aenderungen am AI Act), haengt
+aber daran, dass die Quelle ankommt. Versagt dieser Pfad einmal, ist dieser Abschnitt der
+Ort, an dem nachzusehen waere.
+
 ## Warum Geltung und Wirksamkeit ein eigenes Werkzeug brauchen
 
 `normtext_check.py` funktioniert, weil `gesetze-im-internet.de` aufgehobene
