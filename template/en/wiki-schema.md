@@ -197,7 +197,7 @@ The rank follows the norm, not the court. A BVerfG judgment on Art. 5 GG is rank
 | 3 | `EU-Richtlinie` (directive) |
 | 4 | `Verfassungsrecht` (constitutional law) |
 | 5 | `Bundesgesetz` / `Staatsvertrag der Länder` / `Völkerrechtlicher Vertrag` (federal statute / interstate treaty / international treaty) |
-| 6 | `Landesgesetz` (state statute) |
+| 6 | `Landesgesetz` / `Landesrecht` (state statute / state law, the latter for by-laws such as examination regulations) |
 
 Without a fixed vocabulary the labels drift apart — the reference corpus accumulated some 60 variants for six ranks. They are not wrong, but they make the field unusable for queries.
 
@@ -220,7 +220,7 @@ The table maps the **domestic order of validity**. International law has no rank
 > Rang eines einfachen Bundesgesetzes (Art. 59 Abs. 2 GG); zugleich Auslegungsleitlinie für die Grundrechte des GG (BVerfGE 111, 307 Görgülü).
 ```
 
-Canonical labels: `Völkerrechtlicher Vertrag` · `Völkerrechtlicher Vertrag — EMRK` · `Völkerrecht — allgemeine Regel (Art. 25 GG)`.
+Canonical labels: `Völkerrechtlicher Vertrag` · `Völkerrechtlicher Vertrag — EMRK` · `Völkerrecht — allgemeine Regel` (die Fundstelle Art. 25 GG gehört in die Kommentarzeile — verschachtelte Klammern brechen die maschinelle Auswertung des Callouts).
 
 **Why not a seventh rank.** An extra rank would suggest that international law sits *alongside* the domestic order. It sits *inside* it — at different places depending on how it was transformed. The table therefore stays at six ranks; what it cannot express belongs in the callout's comment line. **The rank is an ordering device, not a substitute for the reasoning.**
 

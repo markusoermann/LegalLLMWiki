@@ -197,7 +197,7 @@ Der Rang folgt der Norm, nicht dem Gericht. Ein BVerfG-Urteil zu Art. 5 GG ist R
 | 3 | `EU-Richtlinie` |
 | 4 | `Verfassungsrecht` |
 | 5 | `Bundesgesetz` / `Staatsvertrag der Länder` / `Völkerrechtlicher Vertrag` |
-| 6 | `Landesgesetz` |
+| 6 | `Landesgesetz` / `Landesrecht` (für Satzungsrecht wie Prüfungsordnungen) |
 
 Ohne festes Vokabular driften die Etiketten auseinander — im Referenzbestand entstanden rund 60 Varianten für sechs Ränge. Sie sind nicht falsch, machen das Feld aber unauswertbar.
 
@@ -220,7 +220,7 @@ Die Tabelle bildet die **innerstaatliche Geltungsordnung** ab. Völkerrecht hat 
 > Rang eines einfachen Bundesgesetzes (Art. 59 Abs. 2 GG); zugleich Auslegungsleitlinie für die Grundrechte des GG (BVerfGE 111, 307 Görgülü).
 ```
 
-Kanonische Etiketten: `Völkerrechtlicher Vertrag` · `Völkerrechtlicher Vertrag — EMRK` · `Völkerrecht — allgemeine Regel (Art. 25 GG)`.
+Kanonische Etiketten: `Völkerrechtlicher Vertrag` · `Völkerrechtlicher Vertrag — EMRK` · `Völkerrecht — allgemeine Regel` (die Fundstelle Art. 25 GG gehört in die Kommentarzeile — verschachtelte Klammern brechen die maschinelle Auswertung des Callouts).
 
 **Warum kein eigener Rang 7.** Ein zusätzlicher Rang würde suggerieren, Völkerrecht stehe *neben* der innerstaatlichen Ordnung. Es steht aber *in* ihr — je nach Transformationsweg an unterschiedlicher Stelle. Die Tabelle bleibt deshalb sechsstufig; was sie nicht ausdrücken kann, gehört in die Kommentarzeile. **Die Rangzahl ist eine Ordnungsangabe, kein Ersatz für die Begründung.**
 

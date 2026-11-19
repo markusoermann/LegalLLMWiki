@@ -16,6 +16,7 @@ maschinenlesbare gibt, und der Abgleich der Zeitachse, wo es sie nicht gibt.
 | `knoten_check.py` | `resource:`-URIs auflösbar, Alter des `rechtsstand:`, fehlende Anker-Felder | ja |
 | `normtext_check.py` | Normknoten gegen die amtliche konsolidierte Fassung: Wegfall, Fassungsangabe | ja |
 | `staffelung_check.py` | `in_kraft:` gegen `wirksam_ab:`: gestaffelte Anwendbarkeit, überschrittene Stufen | **nein** |
+| `rang_check.py` | `[!recht]`-Callouts: Gericht als Normkategorie, Rang gegen Leitnorm, Etikettvarianten | **nein** |
 
 ## Aufruf
 
@@ -25,12 +26,14 @@ python3 tools/knoten_check.py         /pfad/zum/vault/WIKI-ORDNER
 python3 tools/normtext_check.py       /pfad/zum/vault/WIKI-ORDNER
 python3 tools/staffelung_check.py     /pfad/zum/vault/WIKI-ORDNER
 python3 tools/staffelung_check.py     /pfad/zum/vault/WIKI-ORDNER --datum=2027-08-02
+python3 tools/rang_check.py           /pfad/zum/vault/WIKI-ORDNER
 ```
 
 `wiki_integrity_check.py` setzt ein laufendes Zotero mit lokaler API auf Port 23119
 voraus. `knoten_check.py` und `normtext_check.py` brauchen Netzzugang.
 `staffelung_check.py` läuft vollständig offline; `--datum` verschiebt das Stichdatum
 und beantwortet damit die Frage, was sich am Tag einer künftigen Staffelstufe ändert.
+`rang_check.py` läuft ebenfalls offline und braucht nichts als die Markdown-Dateien.
 
 ## Warum Geltung und Wirksamkeit ein eigenes Werkzeug brauchen
 
@@ -125,6 +128,12 @@ erkennt, dass eine Norm weggefallen ist, nicht ob die Auslegung auf der Seite st
 `staffelung_check.py` prüft die Zeitachse gegen die eigenen Frontmatter-Angaben — ist
 ein `wirksam_ab:` von vornherein falsch eingetragen, bestätigt er diesen Fehler
 widerspruchsfrei. Er meldet Unstimmigkeit, nicht Unrichtigkeit.
+
+`rang_check.py` kann einen Callout nur prüfen, wenn er eine **Norm nennt**. Steht dort
+allein eine Entscheidung (`· EuGH C-131/12 (Google Spain)`), fehlt ihm der Anknüpfungs-
+punkt und er schweigt. Im Referenzbestand stand genau dort jahrelang Rang 2, obwohl das
+Urteil zur Richtlinie 95/46/EG erging und damit Rang 3 ist. Callouts ohne Normangabe
+bleiben Handarbeit — das Werkzeug verengt die Prüffläche, es ersetzt sie nicht.
 
 Die Grenze ist dieselbe wie beim Verifikations-Pass: geprüft wird Belegtheit und
 Aktualität, nicht Richtigkeit.

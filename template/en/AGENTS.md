@@ -100,7 +100,7 @@ Legally grounded statements are annotated with a `[!recht]` callout (placed *bel
 - **International law is ranked by its domestic rank.** Treaty with an act of approval (Art. 59(2) Basic Law) → **rank 5**; general rules (Art. 25 Basic Law) → rank 5 with a note on the intermediate rank. For the **ECHR** the Görgülü note (BVerfGE 111, 307: interpretive guideline for fundamental rights) is **mandatory**.
 - **Non-binding instruments get no rank** (UN General Assembly resolutions, OECD recommendations, policy papers) — and as a rule no `[!recht]` callout either; support them with an ordinary inline locator.
 
-Canonical norm category per rank: 1 `EU-Primärrecht` · 2 `EU-Sekundärrecht — Verordnung` · 3 `EU-Richtlinie` · 4 `Verfassungsrecht` · 5 `Bundesgesetz` / `Staatsvertrag der Länder` / `Völkerrechtlicher Vertrag` · 6 `Landesgesetz`.
+Canonical norm category per rank: 1 `EU-Primärrecht` · 2 `EU-Sekundärrecht — Verordnung` · 3 `EU-Richtlinie` · 4 `Verfassungsrecht` · 5 `Bundesgesetz` / `Staatsvertrag der Länder` / `Völkerrechtlicher Vertrag` · 6 `Landesgesetz` / `Landesrecht`.
 
 ### Wiki MCP server
 The wiki can additionally be exposed as a local MCP server: read-only, communication over stdio, no network port and no outside access. Seven tools:
