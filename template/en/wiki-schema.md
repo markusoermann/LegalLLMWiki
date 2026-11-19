@@ -1,6 +1,6 @@
 ---
 type: wiki-schema
-updated: 2026-09-23
+updated: 2026-11-19
 ---
 
 # Wiki Schema
@@ -45,6 +45,11 @@ wirksam_ab:        # norm nodes only: date of applicability/efficacy (start of l
 ecli:              # only on leading-decision pages: ECLI identifier
 bindungswirkung:   # leading decisions only: Gesetzeskraft | faktisch (see below)
 resource:          # optional: stable URI of the underlying legal asset (ELI/ECLI/DOI)
+resource_element:  # optional: element anchor inside the act (EU: art_9 · DE federal: eId art-z22)
+behandelt:         # anchor pages only: the norm/decision the page IS ABOUT (exactly one value)
+relationen:        # anchor pages only: machine-readable projection of the typed links (see below)
+ausser_kraft:      # norm nodes only: date of repeal, YYYY-MM-DD
+rechtsakte_sonstige: # authority decisions/position papers that are NOT court judgments
 ```
 
 **Normalization:** Write norm strings uniformly as `<Law> Art./§ <N> Abs. <N> lit. <x>` (law first), so that backlinks and queries do not fragment. Never invent ECLI values — only verified identifiers; otherwise keep just the citation.
@@ -78,6 +83,43 @@ Norm-node pages only. **Combinable as a list** (e.g. `[Verbot, Erlaubnis]`; a fu
 **`in_kraft:` / `wirksam_ab:` (entry into force vs. applicability).** The LKIF `time-modification` module separates `In_Force_Interval` (formal start of validity) from `Efficacy_Interval` (actual start of legal effects). The two often diverge: the DSGVO was *in force* from 24.05.2016 but only *applicable* from 25.05.2018. `in_kraft:` = entry into force, `wirksam_ab:` = applicability/efficacy. Set only when the dates diverge or are legally relevant; when they coincide, `in_kraft:` suffices (see section "Validity: Entry into Force vs. Efficacy").
 
 **`bindungswirkung:` (binding force of leading decisions).** LKIF distinguishes `Mandatory_Precedent` from `Persuasive_Precedent`. For the German context: **Gesetzeskraft** = formal binding force (BVerfG decisions under § 31 Abs. 1 BVerfGG, partly with statutory force under § 31 Abs. 2 BVerfGG); **faktisch** = no formal binding force but de facto guiding effect (other high-court decisions, CJEU interpretation in the national context). Leading-decision pages only. The value is independent of `rang:` — which follows the norm, not the binding force of the judgment.
+
+### Identity and Edge Fields (Phase 6)
+
+```yaml
+behandelt:          # anchor pages: the norm/decision the page IS ABOUT
+resource_element:   # anchor pages: element anchor inside the act
+ausser_kraft:       # norm nodes: date of repeal, YYYY-MM-DD
+relationen:         # anchor pages: machine-readable projection of the typed links
+  - typ: verdrängt
+    ziel: "NetzDG § 3"
+    seit: 2024-02-17
+```
+
+**`behandelt:` (represents vs. refers-to).** `normen:`/`urteile:` are **citation lists** — they record which norms a page *mentions*. `behandelt:` records what the page *is about*. An anchor page carries **exactly one** `behandelt:` value (its identity); concept pages do not carry the field at all. This separates the query "which page *is* the node for DSGVO Art. 22?" from "which pages *cite* Art. 22?" — in the reference corpus, 13 pages cite it and exactly one is about it.
+
+**`relationen:` (edge layer).** A machine-readable **projection** of the typed relations already expressed in the prose. The prose stays authoritative; the field adds **no** statement of its own. Three rules follow:
+- `typ:` is drawn **exclusively** from the controlled relation vocabulary (see below). Direction is encoded as its own type (`verdrängt` ≠ `verdrängt von`).
+- **Project only what the sentence says.** Negations ("overlaid, but *not* superseded") produce **no** edge. Nothing is inferred.
+- Use `seit:`/`bis:` only when the prose states the date.
+
+Because nothing is added, creating `relationen:` is a **mechanical pass without the lifting duty**: `updated:` stays untouched and no verification pass is triggered.
+
+**`resource_element:` (element anchor).** `resource:` identifies the **act**, `resource_element:` the **element** within it — RuML's separation of text entry and anchor (ch. 4.12). Conventions:
+- **EU law:** article anchor on the ELI, form `#art_9`.
+- **German federal law (consolidated):** `eId` per LegalDocML.de, form `art-z22`, **with the version stated**.
+- Where `resource:` is already element-precise (`gesetze-im-internet.de/urhg/__50.html`, `gesetze-bayern.de/…/MStV-93`, decision URLs), leave `resource_element:` **empty** — the anchor is already in the URI.
+
+> [!warning] What `resource_element:` does NOT deliver
+> The anchor makes a page **element-precise, not amendment-proof.** The two are easily confused.
+>
+> LegalDocML.de 1.9 (BMI, ch. 7.1) says of the `eId`: it is "not an identifier stable across expressions, since its value changes when the document structure changes." The `GUID` would be the stable counterpart — but the same specification restricts it: "the current version of LegalDocML.de does not yet conclusively define when new GUIDs are to be assigned or when GUIDs are to be preserved." Cross-check against the official test fixtures (Vereinsgesetz, two expressions): of 97 shared `eId` values, **6 carried a different GUID**. The public RIS API does not expose the GUID at all — addressing happens via `eId`.
+>
+> Only the **work-level GUID** (`work.FRBRalias`) is documented as stable: "assigned once and remains stable across all versions." It identifies the act, not the section — so it does not solve the problem.
+>
+> Add to this the corpus situation: the portal serves **only the version currently in force** (older ones → HTTP 404), there is no reverse lookup from anchor to element, and **repealed laws are absent entirely** (TMG: 0 hits). `resource_element:` is therefore a **dated pointer to the version retrieved**. Reading it as an amendment-proof identity builds on a property the source expressly does not promise.
+>
+> For EU law the same caveat applies for a different reason: the anchor form `art_N` follows the ELI convention, but **EUR-Lex is not machine-reachable from the working environment** (HTTP 202, JS challenge — see `tools/README.md`). The resolution is therefore unverified.
 
 ## Page Types
 

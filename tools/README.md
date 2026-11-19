@@ -45,7 +45,39 @@ kein vergleichbares Signal. Drei Zugänge wurden geprüft, alle drei scheiden au
 |---|---|
 | EUR-Lex HTML (auch über ELI und LexUriServ) | HTTP 202, JS-Challenge — die Statuszeile „No longer in force" ist maschinell nicht erreichbar |
 | Cellar REST, `Accept: application/rdf+xml` | HTTP 200, aber ohne Geltungsprädikat im ausgelieferten Rumpf |
-| Cellar SPARQL-Endpunkt | erreichbar, indexiert aber nur **konsolidierte** CELEX (`02016R0679-20160504`); Basis-Akte liefern null Treffer, damit kein `in-force`, kein `end-of-validity` |
+| Cellar SPARQL-Endpunkt | erreichbar, indexiert für **Rechtsakte** aber nur **konsolidierte** CELEX (`02016R0679-20160504`); Basis-Akte liefern null Treffer, damit kein `in-force`, kein `end-of-validity`. **Für Rechtsprechung gilt das nicht** — s. Abschnitt unten |
+
+### Nachtrag 2026-11-19: Für Rechtsprechung trägt Cellar doch
+
+Der Negativbefund oben war zu breit formuliert. Er gilt für **Rechtsakte** — dort
+indexiert Cellar nur konsolidierte Fassungen. Für **Rechtsprechung** liefert derselbe
+Endpunkt das Prädikat `cdm:case-law_ecli` und damit eine belastbare ECLI-Verifikation:
+
+```bash
+curl -s -G "https://publications.europa.eu/webapi/rdf/sparql" \
+  --data-urlencode "query=PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
+    SELECT DISTINCT ?celex ?d WHERE {
+      ?w cdm:case-law_ecli 'ECLI:EU:C:2023:957'^^<http://www.w3.org/2001/XMLSchema#string> .
+      ?w cdm:resource_legal_id_celex ?celex .
+      OPTIONAL { ?w cdm:work_date_document ?d }
+    } LIMIT 1" \
+  --data-urlencode "format=application/sparql-results+json"
+# → 62021CJ0634, 2023-12-07  (C-634/21 SCHUFA)
+```
+
+Am 2026-11-19 gegen den Bestand getestet: **10 von 10 EuGH-ECLI bestätigt**, CELEX-Nummer
+und Entscheidungsdatum stimmten durchweg mit der Knotenbezeichnung überein. Das schließt
+die Lücke, die für EuGH-Entscheidungen bestand, seit EUR-Lex nicht mehr erreichbar ist.
+
+Zwei Einschränkungen: Die Abfrage braucht einen **gebundenen Gegenstand** (ECLI oder
+CELEX) — unbeschränkte Prädikatssuchen laufen in den Timeout. Und sie verifiziert eine
+**vorhandene** ECLI; sie findet keine fehlende. Die Richtung Aktenzeichen → ECLI bleibt
+unscharf und darf nicht automatisiert werden.
+
+Für deutsche Entscheidungen ist das Gegenstück `testphase.rechtsinformationen.bund.de/v1/rechtsprechung?ecli=…`.
+Dessen Bestand beginnt etwa bei 2010: Lüth (1958), Spiegel (1966) und Volkszählung (1983)
+liefern null Treffer. Das ist ein Befund über den Bestand, **nicht über die ECLI** — solche
+Fälle gehören als `nicht prüfbar` geführt, nicht als Fehler.
 
 Hinzu kommt ein Granularitätsbruch: Ankerseiten liegen auf Artikelebene, der
 Geltungsstatus im EU-Recht auf Aktebene. Ein Dutzend Artikelknoten kollabiert zu einer

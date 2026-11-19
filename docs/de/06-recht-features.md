@@ -13,7 +13,24 @@ rechtsgebiet:  # ["Datenschutzrecht", …]
 rang:          # 1–6 (nur Norm-/Urteilsknoten)
 ecli:          # nur Leitentscheidungen (verifiziert)
 resource:      # stabile Asset-URI: ELI (Normen) / ECLI-Resolver (Urteile) / DOI
+resource_element: # Elementanker im Rechtsakt: art_9 (EU) / art-z22 (Bund)
+behandelt:     # nur Ankerseiten: wovon die Seite HANDELT (genau ein Wert)
+relationen:    # nur Ankerseiten: typisierte Kanten als Projektion des Fließtexts
+ausser_kraft:  # nur Normknoten: Außerkrafttreten
 ```
+
+**`behandelt:` trennt Knoten von Zitat.** `normen:` sagt, welche Normen eine Seite *erwähnt* — „DSGVO Art. 22" steht so auf 13 Seiten. `behandelt:` sagt, welche Seite der *Knoten* dazu ist: genau eine.
+
+**`relationen:` macht die Kante abfragbar.** Das Relationsvokabular stand bisher nur als fettes Verb im Fließtext — lesbar, aber nicht abfragbar. `relationen:` spiegelt es ins Frontmatter:
+```yaml
+relationen:
+  - typ: verdrängt
+    ziel: "NetzDG § 3"
+    seit: 2024-02-17
+```
+Maßgeblich bleibt der Fließtext; das Feld fügt **nichts** hinzu. Verneinungen („überlagert, aber *nicht* verdrängt") erzeugen keine Kante, und nichts wird erschlossen. Weil nichts hinzukommt, ist das Anlegen ein **mechanischer Lauf ohne Hebepflicht**.
+
+**`resource_element:` macht elementgenau — nicht novellenfest.** `resource:` bezeichnet den Rechtsakt, `resource_element:` das Element darin. Ohne den Anker tragen `DSGVO Art. 9` und `DSGVO Art. 22` denselben URI. Die Zusage endet aber dort: LegalDocML.de 1.9 nennt die `eId` ausdrücklich „kein über verschiedene Expressions hinweg stabiler Identifikator", und wann GUIDs erhalten bleiben, ist „noch nicht abschließend definiert". Der Anker ist ein **datierter Zeiger**, keine dauerhafte Identität.
 Norm-Strings einheitlich normalisieren (`<Gesetz> Art./§ <N>`), sonst zersplittern Backlinks/Abfragen.
 
 ## Rechtshierarchie (6 Ränge)
