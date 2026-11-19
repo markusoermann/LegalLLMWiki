@@ -678,6 +678,16 @@ After writing:
 **Errors:**
 - [ ] **Broken wikilinks** — `[[Page]]` references to non-existent files. **When parsing, isolate the real link target** before checking against files: strip the alias after `|` *and* after escaped `\|` (mandatory escaping in Markdown tables!), strip `#` jump anchors, reduce the path to the last segment. Otherwise false positives arise for table links like `[[Antrag X\|Alias]]` and anchor links like `[[Seite#Abschnitt]]`. **Mind Unicode normalisation:** macOS stores filenames on APFS/iCloud in **NFD** (`ü` = `u` + combining mark), while Markdown files contain **NFC**. A naive string comparison therefore reports *every* page with an umlaut in its filename as broken. Normalise both sides with `unicodedata.normalize("NFC", …)` before comparing. Likewise strip a trailing `.md` from the link target (`[[folder/Page.md]]`), which otherwise produces the same false positive. **Exempt source wikilinks:** links of the form `[[@citekey]]` in the *Sources* section point to the Zotero entry and **not** to a vault file. There are deliberately no `@citekey.md` files. Since virtually every wiki page carries such a link, a check without this exemption produces more false positives than the corpus has pages. Skip link targets starting with `@`.
 - [ ] **Index consistency** — Entries in `index.md` without a corresponding file (and vice versa: files with `type: wiki-page` that are not listed in `index.md`)
+- [ ] **Court used as norm category** — `[!recht]` callout whose parentheses name a court or an instance rather than a norm category (`(BGH)`, `(OLG)`, `(VG)`, `(OGH Österreich)`, `(EuGH-Urteil)`). Detection: the parenthesised text begins with a court abbreviation. **As a rule the rank is then wrong too**, because it follows the bench instead of the norm — report both findings together.
+- [ ] **Rank contradicts the lead norm** — the number does not match the norm that follows `→` (failing that, `·`). Mapping: EU regulation → 2 · EU directive → 3 · AEUV/EUV/GRCh → 1 · Basic Law → 4 · federal statute, interstate treaty, international treaty → 5 · state law → 6.
+
+> **Why these are errors rather than warnings.** The rank is a **classification field with a controlled vocabulary**, not a comment. A wrong value asserts something untrue and makes the field useless for queries — the same class of defect as an index entry pointing nowhere. In the reference corpus some 110 such callouts sat unnoticed for months precisely because they were not filed as errors.
+
+**Four traps when implementing this** — each of them bit during the reference run:
+1. **Trust the lead norm, not the label.** Three callouts were labelled `(EU-Sekundärrecht)` but referred to a directive — rank 3, not 2. A pass that maps labels to ranks will introduce new errors.
+2. **`Rechtsverordnung` contains `Verordnung`.** A naive match on "verordnung" classifies national ordinances as EU regulations. Exclude before testing for EU law.
+3. **Only check `type: wiki-page`.** Study notes and exam schemas contain chains of `§§` and otherwise produce permanent noise.
+4. **With several norms, the first one after `→` governs.** Lower-ranking ones are annotated inline and must not trigger the finding.
 
 **Warnings:**
 - [ ] **Orphan pages** — Wiki pages with `type: wiki-page` that are not linked by any other page
@@ -691,6 +701,7 @@ After writing:
 
 **Info:**
 - [ ] **Evidence without locator** — Page carries `quellen:` and contains `[!recht]` callouts, none of which has a `Beleg:` line. Not an error (statements resting on the norm text need none), but an indication of unchecked secondary citations.
+- [ ] **Non-canonical rank label** — rank and category agree, but the wording departs from the canonical one (`EU-Verordnung` instead of `EU-Sekundärrecht — Verordnung`). **Not an error — synonyms, not false statements.** Report separately from the two error classes: in the reference corpus some 40 variants stood against more than 600 correct callouts, and in a combined list they bury the real errors. Clarifying suffixes after a dash (`Verfassungsrecht — BVerfG-Grundsatzurteil`) are **permitted**; check the part **before** the suffix.
 - [ ] **Workflow drift** — `type: wiki-workflow` pages that are referenced by no wiki page, no skill, and no `AGENTS.md`/`CLAUDE.md`.
 - [ ] **Data gaps** — Wiki pages with fewer than 2 sources in the `quellen:` frontmatter (topics with thin coverage)
 - [ ] **Missing cross-links** — Pages on the same topic without mutual linking (recognizable by matching `thema:` fields)

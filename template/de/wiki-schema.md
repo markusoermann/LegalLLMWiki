@@ -674,6 +674,16 @@ Nach dem Schreiben:
 **Fehler:**
 - [ ] **Broken Wikilinks** — `[[Seite]]`-Verweise auf nicht existierende Dateien. **Beim Parsen das echte Linkziel isolieren**, bevor gegen Dateien geprüft wird: Alias nach `|` *und* nach escaptem `\|` (Pflicht-Escaping in Markdown-Tabellen!) abtrennen, `#`-Sprungmarken abtrennen, Pfad auf letztes Segment reduzieren. Sonst entstehen Fehlalarme bei Tabellen-Links wie `[[Antrag X\|Alias]]` und Anker-Links wie `[[Seite#Abschnitt]]`. **Unicode-Normalisierung beachten:** macOS legt Dateinamen auf APFS/iCloud in **NFD** ab (`ü` = `u` + Kombinationszeichen), Markdown-Dateien enthalten dagegen **NFC**. Ein naiver Stringvergleich meldet deshalb *jede* Seite mit Umlaut im Dateinamen als broken. Vor dem Vergleich beide Seiten mit `unicodedata.normalize("NFC", …)` normalisieren. (Lauf vom 2026-09-23: 3 von 4 verbliebenen Treffern waren Fehlalarme dieser Art, u.a. `[[LG München I 26 O 869-26 (Google AI Overview)]]` und `[[Anchoring Bias (KI-gestützte Entscheidungen)]]`.) Ebenso eine etwaige `.md`-Endung im Linkziel abschneiden (`[[00 Kontext/Grundannahmen.md]]`), sonst entsteht derselbe Fehlalarm. **Quellen-Wikilinks ausnehmen:** Links der Form `[[@citekey]]` im Abschnitt *Quellen* verweisen auf den Zotero-Eintrag und **nicht** auf eine Vault-Datei. Es gibt bewusst keine `@citekey.md`-Dateien. Da praktisch jede Wiki-Seite einen solchen Link führt, erzeugt ein Check ohne diese Ausnahme mehr Fehlalarme als der gesamte Bestand Seiten hat. Linkziele, die mit `@` beginnen, deshalb überspringen.
 - [ ] **Index-Konsistenz** — Einträge in `index.md` ohne zugehörige Datei (und umgekehrt: Dateien mit `type: wiki-page` die nicht in `index.md` stehen)
+- [ ] **Gericht als Normkategorie** — `[!recht]`-Callout, dessen Klammer ein Gericht oder eine Instanz nennt statt einer Normkategorie (`(BGH)`, `(OLG)`, `(VG)`, `(OGH Österreich)`, `(EuGH-Urteil)`). Erkennung: Klammerinhalt beginnt mit einem Gerichtskürzel. **In aller Regel stimmt dann auch die Rang-Zahl nicht**, weil sie dem Spruchkörper statt der Norm folgt — beide Befunde zusammen melden.
+- [ ] **Rang-Zahl widerspricht der Leitnorm** — die Zahl passt nicht zu der Norm, die hinter `→` (ersatzweise hinter `·`) steht. Zuordnung: EU-VO → 2 · EU-RL → 3 · AEUV/EUV/GRCh → 1 · GG → 4 · Bundesgesetz, Staatsvertrag, völkerrechtlicher Vertrag → 5 · Landesrecht → 6.
+
+> **Warum unter *Fehler* und nicht unter *Warnung*.** Der Rang ist ein **Klassifikationsfeld in kontrolliertem Vokabular**, kein Kommentar. Ein falscher Wert behauptet etwas, das nicht stimmt, und macht das Feld für Abfragen unbrauchbar — dieselbe Defektklasse wie ein Index-Eintrag ohne Datei. Im Referenzbestand standen rund 110 solcher Callouts teils monatelang unbemerkt, weil sie nicht als Fehler geführt wurden.
+
+**Vier Fallen bei der Umsetzung** — jede davon hat im Referenzlauf zugeschlagen:
+1. **Nicht dem Etikett vertrauen, sondern der Leitnorm.** Drei Callouts trugen `(EU-Sekundärrecht)`, meinten aber eine Richtlinie — also Rang 3, nicht 2. Ein Lauf, der nur das Etikett auf die Rang-Zahl abbildet, erzeugt neue Fehler.
+2. **`Rechtsverordnung` enthält `Verordnung`.** Ein naiver Treffer auf `verordnung` stuft nationale Rechtsverordnungen als EU-Verordnung ein. Vor der EU-Prüfung ausschließen.
+3. **Nur `type: wiki-page` prüfen.** Lernnotizen und Klausurschemata enthalten `§§`-Ketten und erzeugen sonst Dauerrauschen.
+4. **Bei mehreren Normen zählt die erste nach `→`.** Nachrangige werden inline annotiert und dürfen den Befund nicht auslösen.
 
 **Warnungen:**
 - [ ] **Orphan-Seiten** — Wiki-Seiten mit `type: wiki-page` die von keiner anderen Seite verlinkt werden
@@ -687,6 +697,7 @@ Nach dem Schreiben:
 
 **Info:**
 - [ ] **Beleg ohne Locator** — Seite führt `quellen:` und enthält `[!recht]`-Callouts, von denen keiner eine `Beleg:`-Zeile trägt. Kein Fehler (normtextgestützte Aussagen brauchen keine), aber ein Hinweis auf ungeprüfte Sekundärzitate.
+- [ ] **Nicht-kanonisches Rangetikett** — Rang-Zahl und Kategorie stimmen überein, die Bezeichnung weicht aber von der kanonischen ab (`EU-Verordnung` statt `EU-Sekundärrecht — Verordnung`). **Kein Fehler — Synonyme, keine Falschaussagen.** Getrennt von den beiden Fehlerklassen melden: Im Referenzbestand standen rund 40 Varianten gegen über 600 korrekte Callouts; in einer gemeinsamen Liste verdecken sie die echten Fehler. Präzisierende Zusätze nach Bindestrich (`Verfassungsrecht — BVerfG-Grundsatzurteil`) sind **zulässig**; geprüft wird der Teil **vor** dem Zusatz.
 - [ ] **Workflow-Drift** — `type: wiki-workflow`-Seiten, die von keiner Wiki-Seite, keinem Skill und keiner `AGENTS.md`/`CLAUDE.md` referenziert werden.
 - [ ] **Data gaps** — Wiki-Seiten mit weniger als 2 Quellen im `quellen:`-Frontmatter (Themen mit dünner Abdeckung)
 - [ ] **Fehlende Cross-Links** — Seiten zum gleichen Thema ohne gegenseitige Verlinkung (erkennbar durch übereinstimmende `thema:`-Felder)
