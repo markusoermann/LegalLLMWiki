@@ -95,6 +95,13 @@ Leitnormen (Artikel/Paragraphen) und Grundsatzentscheidungen erhalten eigene Ank
 ### Rechtshierarchie-Annotation
 Rechtlich fundierte Aussagen werden mit einem `[!recht]`-Callout annotiert (steht *unter* der Aussage). Format: `⚖️ Rang [N] ([Normkategorie]) · [Gericht/Norm] → [Referenz]`. Rang folgt der Norm, nicht dem Gericht (6-stufige Hierarchietabelle in `wiki-schema.md`). Nur bei konkreten Normen/Entscheidungen setzen — nicht bei allgemeinen Literaturmeinungen.
 
+**Drei Regeln, an denen Bestände erfahrungsgemäß am häufigsten scheitern:**
+- **Nie das Gericht in die Klammer.** Dort steht die Normkategorie. Das gilt auch, wenn ein nationales Gericht Unionsrecht anwendet: Ein BGH-Urteil zu Art. 82 DSGVO ist **Rang 2**, nicht Rang 5 — und ein OGH-Urteil zur DSGVO ebenso.
+- **Völkerrecht wird über seinen innerstaatlichen Rang geführt.** Vertrag mit Zustimmungsgesetz (Art. 59 Abs. 2 GG) → **Rang 5**; allgemeine Regeln (Art. 25 GG) → Rang 5 mit Vermerk des Zwischenrangs. Bei der **EMRK** ist der Görgülü-Vermerk (BVerfGE 111, 307: Auslegungsleitlinie für die Grundrechte) **Pflicht**.
+- **Nicht-bindende Instrumente bekommen keinen Rang** (UN-GA-Resolutionen, OECD-Empfehlungen, Policy-Papiere) — und in der Regel auch keinen `[!recht]`-Callout; sie werden mit normalem Inline-Locator belegt.
+
+Kanonische Normkategorie je Rang: 1 `EU-Primärrecht` · 2 `EU-Sekundärrecht — Verordnung` · 3 `EU-Richtlinie` · 4 `Verfassungsrecht` · 5 `Bundesgesetz` / `Staatsvertrag der Länder` / `Völkerrechtlicher Vertrag` · 6 `Landesgesetz`.
+
 ### Wiki-MCP-Server
 Das Wiki lässt sich zusätzlich als lokaler MCP-Server einbinden: read-only, Kommunikation über stdio, kein Netzwerk-Port und kein Zugriff von außen. Sieben Tools:
 

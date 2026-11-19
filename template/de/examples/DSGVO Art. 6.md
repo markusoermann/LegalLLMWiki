@@ -24,7 +24,7 @@ resource: "http://data.europa.eu/eli/reg/2016/679/oj"
 
 Art. 6 DSGVO regelt die Rechtmäßigkeit der Verarbeitung personenbezogener Daten nach dem **Verbotsprinzip mit Erlaubnisvorbehalt**: Jede Verarbeitung ist untersagt, sofern sie sich nicht auf einen der sechs Erlaubnistatbestände des Abs. 1 stützen lässt. Als **Erlaubnisnorm** (`normtyp: Erlaubnis`) ist sie Anknüpfungspunkt fast jeder datenschutzrechtlichen Prüfung.
 
-> [!recht] ⚖️ Rang 2 (EU-Verordnung) · DSGVO Art. 6
+> [!recht] ⚖️ Rang 2 (EU-Sekundärrecht — Verordnung) · DSGVO Art. 6
 > Direkt anwendbares EU-Sekundärrecht; in Kraft seit 24.05.2016, anwendbar ab 25.05.2018 (Geltung ≠ Wirksamkeit, s. Frontmatter `in_kraft`/`wirksam_ab`).
 
 ## Absätze / Tatbestandsmerkmale

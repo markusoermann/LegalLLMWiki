@@ -23,7 +23,7 @@ resource: "https://eur-lex.europa.eu/legal-content/DE/TXT/?uri=CELEX:62021CJ0300
 
 Der Schadensersatzanspruch nach Art. 82 DSGVO setzt **drei kumulative Voraussetzungen** voraus (Verstoß, Schaden, Kausalität); ein bloßer Verstoß genügt nicht, zugleich gibt es **keine de-minimis-Schwelle** für immaterielle Schäden.
 
-> [!recht] ⚖️ Rang 2 (EU-Verordnung) · EuGH, Urt. v. 04.05.2023, Rs. C-300/21 → DSGVO Art. 82 Abs. 1
+> [!recht] ⚖️ Rang 2 (EU-Sekundärrecht — Verordnung) · EuGH, Urt. v. 04.05.2023, Rs. C-300/21 → DSGVO Art. 82 Abs. 1
 > Bindungswirkung: faktisch (Leitwirkung der EuGH-Auslegung im nationalen Kontext; keine förmliche Gesetzeskraft i.S.d. § 31 Abs. 2 BVerfGG).
 
 ## Tragende Erwägungen

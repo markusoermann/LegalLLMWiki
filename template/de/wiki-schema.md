@@ -164,7 +164,7 @@ Aussagen in Wiki-Seiten, die sich direkt auf eine Rechtsnorm oder Gerichtsentsch
 Beispiele:
 
 ```
-> [!recht] ⚖️ Rang 2 (EU-Verordnung) · DSA Art. 33 Abs. 1
+> [!recht] ⚖️ Rang 2 (EU-Sekundärrecht — Verordnung) · DSA Art. 33 Abs. 1
 > Direkt anwendbares EU-Sekundärrecht; verbindlich seit 17.02.2023.
 
 > [!recht] ⚖️ Rang 4 (Verfassungsrecht) · BVerfGE 65, 1 → Art. 2 Abs. 1 GG
@@ -186,6 +186,48 @@ Beispiele:
 
 Der Rang folgt der Norm, nicht dem Gericht. Ein BVerfG-Urteil zu Art. 5 GG ist Rang 4; ein EuGH-Urteil zur DSGVO ist Rang 2.
 
+**Das gilt auch für nationale Gerichte, die Unionsrecht anwenden.** Ein BGH-Urteil zu Art. 82 DSGVO ist **Rang 2**, nicht Rang 5 — der BGH wendet hier eine EU-Verordnung an, und maßgeblich ist die Norm. Das ist in der Praxis die mit Abstand häufigste Fehlerquelle: Im Referenzbestand mussten bei einem Audit rund 110 von 640 Callouts korrigiert werden, weit überwiegend nach diesem einen Muster. Wer das Wiki neu aufsetzt, sollte die Regel früh durchsetzen — nachträglich ist es ein Großlauf.
+
+**Kontrolliertes Vokabular der Normkategorie.** In die Klammer gehört die Normkategorie, nie ein Gericht und nie eine Instanz. Kanonisch ist je Rang genau eine Bezeichnung:
+
+| Rang | Normkategorie (kanonisch) |
+|---|---|
+| 1 | `EU-Primärrecht` |
+| 2 | `EU-Sekundärrecht — Verordnung` |
+| 3 | `EU-Richtlinie` |
+| 4 | `Verfassungsrecht` |
+| 5 | `Bundesgesetz` / `Staatsvertrag der Länder` / `Völkerrechtlicher Vertrag` |
+| 6 | `Landesgesetz` |
+
+Ohne festes Vokabular driften die Etiketten auseinander — im Referenzbestand entstanden rund 60 Varianten für sechs Ränge. Sie sind nicht falsch, machen das Feld aber unauswertbar.
+
+Zitiert ein Callout Normen verschiedenen Ranges, bestimmt die **Leitnorm der belegten Aussage** den Rang; die nachrangigen werden im selben Callout inline annotiert (Muster: `… → TDDDG § 25 Abs. 1; DSGVO Art. 82 Abs. 1 (Rang 2)`).
+
+### Völkerrecht: Führung über den innerstaatlichen Rang
+
+Die Tabelle bildet die **innerstaatliche Geltungsordnung** ab. Völkerrecht hat darin keinen eigenen Rang, weil es innerstaatliche Wirkung erst durch das nationale Recht erlangt. Es wird deshalb **über seinen innerstaatlichen Rang** geführt — nicht über seine völkerrechtliche Bedeutung.
+
+| Fall | Rang | Grund |
+|---|---|---|
+| Völkerrechtlicher Vertrag mit Zustimmungsgesetz (Art. 59 Abs. 2 GG) — EMRK, Genfer Abkommen, UN-Charta | **5** | Rang eines einfachen Bundesgesetzes |
+| Allgemeine Regeln des Völkerrechts (Art. 25 GG) — Gewohnheitsrecht, allgemeine Rechtsgrundsätze | **5** + Vermerk | Gehen den Gesetzen vor, stehen aber unter der Verfassung. Diesen **Zwischenrang kann die Skala nicht abbilden**; deshalb Rang 5 mit dem Zusatz `Art. 25 GG: Vorrang vor einfachem Gesetzesrecht` |
+| Nicht-bindende Instrumente — Resolutionen der UN-Generalversammlung, OECD-Empfehlungen, Policy-Papiere | **kein Rang** | Kein Rechtsakt. `[!recht]`-Callouts sind konkreten Normen und Entscheidungen vorbehalten; solche Aussagen werden mit einem normalen Inline-Locator belegt |
+
+**Maßgabe für die EMRK.** Formal Rang 5, aber nach BVerfGE 111, 307 (Görgülü) sind EMRK und EGMR-Rechtsprechung **Auslegungsleitlinie** für Inhalt und Reichweite der Grundrechte (Völkerrechtsfreundlichkeit des Grundgesetzes). Die Rangangabe allein unterzeichnet die tatsächliche Wirkung; sie ist deshalb **immer** um diesen Vermerk zu ergänzen:
+
+```
+> [!recht] ⚖️ Rang 5 (Völkerrechtlicher Vertrag — EMRK) · EMRK Art. 10
+> Rang eines einfachen Bundesgesetzes (Art. 59 Abs. 2 GG); zugleich Auslegungsleitlinie für die Grundrechte des GG (BVerfGE 111, 307 Görgülü).
+```
+
+Kanonische Etiketten: `Völkerrechtlicher Vertrag` · `Völkerrechtlicher Vertrag — EMRK` · `Völkerrecht — allgemeine Regel (Art. 25 GG)`.
+
+**Warum kein eigener Rang 7.** Ein zusätzlicher Rang würde suggerieren, Völkerrecht stehe *neben* der innerstaatlichen Ordnung. Es steht aber *in* ihr — je nach Transformationsweg an unterschiedlicher Stelle. Die Tabelle bleibt deshalb sechsstufig; was sie nicht ausdrücken kann, gehört in die Kommentarzeile. **Die Rangzahl ist eine Ordnungsangabe, kein Ersatz für die Begründung.**
+
+### Ausländisches Recht und ausländische Gerichte
+
+Entscheidungen ausländischer Gerichte erhalten **keinen Rang nach dieser Tabelle** — sie ordnet das eigene und das europäische Recht. Wendet ein ausländisches Gericht jedoch *Unionsrecht* an (z.B. der österreichische OGH die DSGVO), folgt der Rang wie immer der **Norm**: Die DSGVO ist Rang 2, unabhängig davon, welches Gericht sie anwendet. Das Gericht gehört hinter den Mittelpunkt, nicht in die Klammer.
+
 > **Hinweis:** Diese Hierarchie ist EU-/deutschlandspezifisch. Für andere Jurisdiktionen müssen die Normkategorien und Ränge entsprechend angepasst werden.
 
 ### Wann annotieren
@@ -204,7 +246,7 @@ Das Feld `quellen:` belegt eine Seite als Ganzes. Das reicht nicht aus, um eine 
 Der `[!recht]`-Callout erhält eine optionale, aber erwünschte `Beleg:`-Zeile. Sie steht direkt unter der Titelzeile, vor dem Kurzkommentar:
 
 ```
-> [!recht] ⚖️ Rang 2 (EU-Verordnung) · DSGVO Art. 6 Abs. 1 lit. f
+> [!recht] ⚖️ Rang 2 (EU-Sekundärrecht — Verordnung) · DSGVO Art. 6 Abs. 1 lit. f
 > Beleg: @citekey S. 142 Rn. 18
 > Direkt anwendbares EU-Sekundärrecht; verbindlich seit 25.05.2018.
 ```
@@ -438,7 +480,7 @@ Präzisierte oder revidierte Gerichtsentscheidung:
 In Kraft, aber noch nicht anwendbar (Geltung ≠ Wirksamkeit):
 
 ```
-> [!recht] ⚖️ Rang 2 (EU-Verordnung) · EU AI Act Art. 5
+> [!recht] ⚖️ Rang 2 (EU-Sekundärrecht — Verordnung) · EU AI Act Art. 5
 > In Kraft seit 01.08.2024; Verbote anwendbar ab 02.02.2025.
 ```
 
@@ -639,7 +681,7 @@ Nach dem Schreiben:
 - [ ] **Missing pages** — Begriffe die in mehreren Seiten per `[[Wikilink]]` referenziert werden, aber keine eigene Datei haben
 - [ ] **Norm ohne Knoten** — Normen in `normen:`-Frontmatter, die in ≥3 Seiten vorkommen, aber keine eigene Normknoten-Seite haben
 - [ ] **Urteil ohne Knoten** — Urteile in `urteile:`-Frontmatter, die in ≥3 Seiten vorkommen, aber keine eigene Leitentscheidungs-Seite haben
-- [ ] **Frontmatter-Drift** — Seite mit `[!recht]`-Callout zu einer Norm/Entscheidung, die nicht im `normen:`/`urteile:`-Frontmatter steht
+- [ ] **Frontmatter-Drift** — Seite mit `[!recht]`-Callout zu einer Norm/Entscheidung, die nicht im `normen:`/`urteile:`-Frontmatter steht. **Bereichszitate ausnehmen:** Verweise der Form `§§ 30 ff.` oder `Art. 9–15` lassen sich nicht auf einen einzelnen normalisierten Norm-String abbilden und gehören nicht ins `normen:`-Feld — sie bleiben im Fließtext. Geprüft wird nur auf Einzelnormen. **Ausnahme Bereichsknoten:** Existiert für einen Normbereich ein eigener Knoten, trägt *diese* Seite ihren Bereich selbstverständlich im `normen:`-Feld — das ist ihre Identität, kein Zitat; zitierende Seiten verweisen dann mit exakt derselben Schreibweise (Halbgeviertstrich, nicht Bindestrich), sonst trifft der Verweis ins Leere.
 - [ ] **Unverifiziert** — Seiten mit `type: wiki-page` und nicht-leerem `quellen:`, die kein `verifiziert:`-Feld führen und deren `updated:` nach dem `[EINFÜHRUNGSDATUM]` liegt. Trage dort das Datum ein, an dem du den Verifikations-Pass eingeführt hast; ältere Seiten sind vom Bestandsschutz erfasst und werden nicht gemeldet.
 - [ ] **Offener Belegbefund** — Seiten mit `[!unbelegt]`-Callout, dessen Prüfdatum mehr als 30 Tage zurückliegt. Ein `[!unbelegt]` ist ein offener Vorgang, kein Dauerzustand.
 

@@ -95,6 +95,13 @@ Leading norms (articles/sections) and landmark decisions get their own anchor pa
 ### Legal hierarchy annotation
 Legally grounded statements are annotated with a `[!recht]` callout (placed *below* the statement). Format: `⚖️ Rank [N] ([norm category]) · [court/norm] → [reference]`. The rank follows the norm, not the court (6-level hierarchy table in `wiki-schema.md`). Set this only for concrete norms/decisions — not for general scholarly opinions.
 
+**Three rules that corpora most often get wrong in practice:**
+- **Never put the court in the parentheses.** The norm category goes there. This holds even where a national court applies Union law: a Federal Court of Justice judgment on Art. 82 GDPR is **rank 2**, not rank 5 — and so is an Austrian Supreme Court judgment on the GDPR.
+- **International law is ranked by its domestic rank.** Treaty with an act of approval (Art. 59(2) Basic Law) → **rank 5**; general rules (Art. 25 Basic Law) → rank 5 with a note on the intermediate rank. For the **ECHR** the Görgülü note (BVerfGE 111, 307: interpretive guideline for fundamental rights) is **mandatory**.
+- **Non-binding instruments get no rank** (UN General Assembly resolutions, OECD recommendations, policy papers) — and as a rule no `[!recht]` callout either; support them with an ordinary inline locator.
+
+Canonical norm category per rank: 1 `EU-Primärrecht` · 2 `EU-Sekundärrecht — Verordnung` · 3 `EU-Richtlinie` · 4 `Verfassungsrecht` · 5 `Bundesgesetz` / `Staatsvertrag der Länder` / `Völkerrechtlicher Vertrag` · 6 `Landesgesetz`.
+
 ### Wiki MCP server
 The wiki can additionally be exposed as a local MCP server: read-only, communication over stdio, no network port and no outside access. Seven tools:
 

@@ -28,6 +28,10 @@ The rank follows the **norm**, not the court:
 | 5 | Federal statute / interstate treaty |
 | 6 | State statute / ordinance |
 
+The parentheses hold the **norm category**, never a court. This holds even where a national court applies Union law — a Federal Court of Justice judgment on Art. 82 GDPR is rank 2, not rank 5. It is the single most common source of error; enforcing the rule early saves a large retrofit.
+
+**International law** gets no rank of its own but is ranked by its domestic rank: treaty with an act of approval → rank 5; general rules (Art. 25 Basic Law) → rank 5 with a note on the intermediate rank; non-binding instruments (UN General Assembly resolutions, OECD recommendations) → no rank and no `[!recht]` callout. For the ECHR the Görgülü note is mandatory. Details in `wiki-schema.md`.
+
 > **Note:** This six-level hierarchy reflects EU and German law. It must be adapted for other jurisdictions — define your own norm categories and ranks.
 
 ## `[!recht]` Callouts

@@ -28,6 +28,10 @@ Rang folgt der **Norm**, nicht dem Gericht:
 | 5 | Bundesgesetz / Staatsvertrag |
 | 6 | Landesgesetz / Rechtsverordnung |
 
+In die Klammer gehört die **Normkategorie**, nie ein Gericht. Das gilt auch, wenn ein nationales Gericht Unionsrecht anwendet — ein BGH-Urteil zu Art. 82 DSGVO ist Rang 2, nicht Rang 5. Das ist die häufigste Fehlerquelle überhaupt; die Regel früh durchsetzen spart einen Großlauf.
+
+**Völkerrecht** bekommt keinen eigenen Rang, sondern wird über seinen innerstaatlichen geführt: Vertrag mit Zustimmungsgesetz → Rang 5; allgemeine Regeln (Art. 25 GG) → Rang 5 mit Vermerk des Zwischenrangs; nicht-bindende Instrumente (UN-GA-Resolutionen, OECD-Empfehlungen) → kein Rang und kein `[!recht]`-Callout. Bei der EMRK ist der Görgülü-Vermerk Pflicht. Details in `wiki-schema.md`.
+
 > **Hinweis:** Diese 6-stufige Hierarchie bildet das EU- und deutsche Recht ab. Für andere Jurisdiktionen muss sie angepasst werden — eigene Normkategorien und Ränge definieren.
 
 ## `[!recht]`-Callouts
