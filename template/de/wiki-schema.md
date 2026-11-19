@@ -140,6 +140,8 @@ Weil nichts hinzugefügt wird, ist das Anlegen von `relationen:` ein **mechanisc
 - Struktur: Definition · Absätze/Tatbestandsmerkmale (mit Wikilinks zu Konzeptseiten) · Leitentscheidungen · Verhältnis zu anderen Normen
 - Zweck: Anker-Knoten — Konzeptseiten verlinken hierauf; Backlinks ersetzen die SPARQL-Abfrage des KG-Konzepts
 - Abgrenzung zur Gesetz-Entität: `DSGVO.md` beschreibt die Verordnung als Ganzes; `DSGVO Art. 6.md` ist der granulare Normknoten und verlinkt auf die Gesetz-Seite
+- **Gesetz-Entitäten sind ebenfalls Anker-Seiten** (Entscheidung Markus, 2026-11-19): Sie tragen `rang:` und `behandelt:` wie die granularen Normknoten. Der Rang folgt dem Rechtsakt als Ganzem — EU-Verordnung 2, EU-Richtlinie 3, Bundesgesetz und Staatsvertrag der Länder 5. `resource_element:` bleibt dort **leer**: Die Seite behandelt den Akt, nicht ein Element darin.
+- **Was trotz `wiki-category: entitaet` keinen Rang bekommt:** Personen, Institutionen (auch Gerichte und Behörden), technische Spezifikationen — und vor allem **nicht-bindende Instrumente**. Leitlinien, Codes of Practice, Positionspapiere, Pressekodex, UN-GA-Resolutionen und ausländisches Recht stehen nicht in der Rangtabelle; diese ordnet deutsches und europäisches Recht. Im Bestandslauf vom 2026-11-19 trafen von 45 rangloser Entitäts-Seiten nur **8** die Voraussetzung.
 
 ### Leitentscheidungs-Seite
 - Spezialform der Entitäts-Seite für eine Grundsatzentscheidung
