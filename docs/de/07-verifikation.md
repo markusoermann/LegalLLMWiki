@@ -1,6 +1,6 @@
 # 07 · Verifikation, Belege & Benchmark
 
-`lint wiki` prüft **Struktur**: tote Links, verwaiste Seiten, fehlende Knoten, Frontmatter-Drift. Es prüft nicht, ob ein Satz von der Quelle gedeckt ist, die unter ihm steht. Genau diese Lücke schließt der **Verifikations-Pass**.
+`lint wiki` prüft **Struktur**: tote Links, verwaiste Seiten, fehlende Knoten, Frontmatter-Drift, Rangfehler in `[!recht]`-Callouts. Es prüft nicht, ob ein Satz von der Quelle gedeckt ist, die unter ihm steht. Genau diese Lücke schließt der **Verifikations-Pass**.
 
 ## Die Belegschicht
 

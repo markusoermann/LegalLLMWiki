@@ -1,6 +1,6 @@
 # 07 · Verification, Citations & Benchmark
 
-`lint wiki` checks **structure**: broken links, orphans, missing nodes, frontmatter drift. It does not check whether a sentence is actually carried by the source cited beneath it. That gap is what the **verification pass** closes.
+`lint wiki` checks **structure**: broken links, orphans, missing nodes, frontmatter drift, rank errors in `[!recht]` callouts. It does not check whether a sentence is actually carried by the source cited beneath it. That gap is what the **verification pass** closes.
 
 ## The citation layer
 
