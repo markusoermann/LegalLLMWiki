@@ -24,7 +24,7 @@ resource: "http://data.europa.eu/eli/reg/2016/679/oj"
 
 Art. 6 GDPR governs the lawfulness of processing personal data following the **principle of prohibition subject to permission**: any processing is prohibited unless it can be based on one of the six grounds for lawful processing in para. 1. As a **permission norm** (`normtyp: Erlaubnis`), it is the anchor point of almost every data protection assessment.
 
-> [!recht] ⚖️ Rang 2 (EU-Verordnung) · DSGVO Art. 6
+> [!recht] ⚖️ Rang 2 (EU-Sekundärrecht — Verordnung) · DSGVO Art. 6
 > Directly applicable EU secondary law; in force since 24 May 2016, applicable from 25 May 2018 (validity ≠ efficacy, see frontmatter `in_kraft`/`wirksam_ab`).
 
 ## Paragraphs / Constituent Elements

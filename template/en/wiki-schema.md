@@ -164,7 +164,7 @@ Statements on wiki pages that rest directly on a legal norm or court decision ar
 Examples:
 
 ```
-> [!recht] ⚖️ Rang 2 (EU-Verordnung) · DSA Art. 33 Abs. 1
+> [!recht] ⚖️ Rang 2 (EU-Sekundärrecht — Verordnung) · DSA Art. 33 Abs. 1
 > Direkt anwendbares EU-Sekundärrecht; verbindlich seit 17.02.2023.
 
 > [!recht] ⚖️ Rang 4 (Verfassungsrecht) · BVerfGE 65, 1 → Art. 2 Abs. 1 GG
@@ -186,6 +186,48 @@ Examples:
 
 The rank follows the norm, not the court. A BVerfG judgment on Art. 5 GG is rank 4; a CJEU judgment on the DSGVO is rank 2.
 
+**This also holds for national courts applying Union law.** A Federal Court of Justice judgment on Art. 82 GDPR is **rank 2**, not rank 5 — the court is applying an EU regulation, and the norm is what governs. In practice this is by far the most common source of error: in the reference corpus an audit had to correct roughly 110 of 640 callouts, the great majority of them following this single pattern. Enforce the rule early; retrofitting it is a large run.
+
+**Controlled vocabulary for the norm category.** The parentheses hold the norm category — never a court, never an instance. Exactly one label is canonical per rank:
+
+| Rank | Norm category (canonical) |
+|---|---|
+| 1 | `EU-Primärrecht` (EU primary law) |
+| 2 | `EU-Sekundärrecht — Verordnung` (regulation) |
+| 3 | `EU-Richtlinie` (directive) |
+| 4 | `Verfassungsrecht` (constitutional law) |
+| 5 | `Bundesgesetz` / `Staatsvertrag der Länder` / `Völkerrechtlicher Vertrag` (federal statute / interstate treaty / international treaty) |
+| 6 | `Landesgesetz` (state statute) |
+
+Without a fixed vocabulary the labels drift apart — the reference corpus accumulated some 60 variants for six ranks. They are not wrong, but they make the field unusable for queries.
+
+Where a callout cites norms of different ranks, the **lead norm of the statement being supported** determines the rank; lower-ranking ones are annotated inline in the same callout (pattern: `… → TDDDG § 25 Abs. 1; DSGVO Art. 82 Abs. 1 (Rang 2)`).
+
+### International law: ranked by its domestic rank
+
+The table maps the **domestic order of validity**. International law has no rank of its own in it, because it acquires domestic effect only through national law. It is therefore ranked by its **domestic rank** — not by its significance in international law.
+
+| Case | Rank | Reason |
+|---|---|---|
+| Treaty with an act of approval (Art. 59(2) Basic Law) — ECHR, Geneva Conventions, UN Charter | **5** | Rank of an ordinary federal statute |
+| General rules of international law (Art. 25 Basic Law) — customary law, general principles | **5** + note | They take precedence over statutes but rank below the constitution. The scale **cannot express this intermediate rank**; hence rank 5 plus the explicit note `Art. 25 GG: Vorrang vor einfachem Gesetzesrecht` |
+| Non-binding instruments — UN General Assembly resolutions, OECD recommendations, policy papers | **no rank** | Not a legal act. `[!recht]` callouts are reserved for concrete norms and decisions; such statements take an ordinary inline locator instead |
+
+**The ECHR proviso.** Formally rank 5, but under BVerfGE 111, 307 (Görgülü) the ECHR and the Strasbourg case law serve as an **interpretive guideline** for the content and scope of fundamental rights (the Basic Law's openness to international law). The rank alone understates the actual effect, so it **must always** be accompanied by that note:
+
+```
+> [!recht] ⚖️ Rang 5 (Völkerrechtlicher Vertrag — EMRK) · EMRK Art. 10
+> Rang eines einfachen Bundesgesetzes (Art. 59 Abs. 2 GG); zugleich Auslegungsleitlinie für die Grundrechte des GG (BVerfGE 111, 307 Görgülü).
+```
+
+Canonical labels: `Völkerrechtlicher Vertrag` · `Völkerrechtlicher Vertrag — EMRK` · `Völkerrecht — allgemeine Regel (Art. 25 GG)`.
+
+**Why not a seventh rank.** An extra rank would suggest that international law sits *alongside* the domestic order. It sits *inside* it — at different places depending on how it was transformed. The table therefore stays at six ranks; what it cannot express belongs in the callout's comment line. **The rank is an ordering device, not a substitute for the reasoning.**
+
+### Foreign law and foreign courts
+
+Decisions of foreign courts receive **no rank under this table** — it orders domestic and European law. Where a foreign court applies *Union law*, however (e.g. the Austrian Supreme Court applying the GDPR), the rank follows the **norm** as always: the GDPR is rank 2, whichever court applies it. The court belongs after the middle dot, not inside the parentheses.
+
 > **Note:** This hierarchy is EU/German-specific. For other jurisdictions, the norm categories and ranks must be adapted accordingly.
 
 ### When to Annotate
@@ -204,7 +246,7 @@ The `quellen:` field substantiates a page as a whole. That is not enough to chec
 The `[!recht]` callout gains an optional but desirable `Beleg:` line ("Beleg" = evidence). It sits directly below the title line, before the short comment:
 
 ```
-> [!recht] ⚖️ Rang 2 (EU-Verordnung) · DSGVO Art. 6 Abs. 1 lit. f
+> [!recht] ⚖️ Rang 2 (EU-Sekundärrecht — Verordnung) · DSGVO Art. 6 Abs. 1 lit. f
 > Beleg: @citekey S. 142 Rn. 18
 > Direkt anwendbares EU-Sekundärrecht; verbindlich seit 25.05.2018.
 ```
@@ -440,7 +482,7 @@ Refined or revised court decision:
 In force but not yet applicable (validity ≠ efficacy):
 
 ```
-> [!recht] ⚖️ Rang 2 (EU-Verordnung) · EU AI Act Art. 5
+> [!recht] ⚖️ Rang 2 (EU-Sekundärrecht — Verordnung) · EU AI Act Art. 5
 > In Kraft seit 01.08.2024; Verbote anwendbar ab 02.02.2025.
 ```
 
@@ -643,7 +685,7 @@ After writing:
 - [ ] **Missing pages** — Terms referenced in several pages via `[[Wikilink]]` but lacking their own file
 - [ ] **Norm without node** — Norms in `normen:` frontmatter that occur in ≥3 pages but have no dedicated norm-node page
 - [ ] **Judgment without node** — Judgments in `urteile:` frontmatter that occur in ≥3 pages but have no dedicated leading-decision page
-- [ ] **Frontmatter drift** — Page with a `[!recht]` callout on a norm/decision that is not in the `normen:`/`urteile:` frontmatter
+- [ ] **Frontmatter drift** — Page with a `[!recht]` callout on a norm/decision that is not in the `normen:`/`urteile:` frontmatter. **Exclude range citations:** references such as `§§ 30 ff.` or `Art. 9–15` cannot be mapped to a single normalised norm string and do not belong in `normen:` — they stay in the body text. Only single norms are checked. **Exception for range nodes:** where a node exists for a range of provisions, *that* page naturally carries its range in `normen:` — that is its identity, not a citation; citing pages must then use exactly the same spelling (en dash, not hyphen), or the reference misses.
 - [ ] **Unverified** — Pages with `type: wiki-page` and a non-empty `quellen:` that carry no `verifiziert:` field and whose `updated:` is later than `[INTRODUCTION-DATE]`. Enter there the date on which you introduced the verification pass; older pages are grandfathered in and are not reported.
 - [ ] **Open evidence finding** — Pages with an `[!unbelegt]` callout whose check date is more than 30 days old. An `[!unbelegt]` is an open item, not a permanent state.
 
