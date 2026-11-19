@@ -119,7 +119,7 @@ Weil nichts hinzugefügt wird, ist das Anlegen von `relationen:` ein **mechanisc
 >
 > Hinzu kommt die Bestandslage: Das Portal liefert ausschließlich die **in Kraft stehende Fassung** (ältere → HTTP 404), es gibt keine Rückauflösung Anker → Element, und **aufgehobene Gesetze fehlen ganz** (TMG: 0 Treffer). `resource_element:` ist deshalb ein **datierter Zeiger auf die abgerufene Fassung**. Wer ihn als novellenfeste Identität liest, baut auf eine Eigenschaft, die die Quelle heute ausdrücklich nicht zusagt.
 >
-> Für EU-Recht gilt der Vorbehalt analog aus anderem Grund: Die Anker-Form `art_N` folgt der ELI-Konvention, **EUR-Lex ist aus der Arbeitsumgebung aber nicht maschinell erreichbar** (HTTP 202, JS-Challenge — s. `tools/README.md`). Die Auflösung ist daher nicht gegengeprüft.
+> Für EU-Recht ist die Ankerform **gegengeprüft** (2026-11-19): Die konsolidierte Fassung trägt 198 `art_*`-IDs, `art_9` und `art_22` lösen also auf. EUR-Lex-HTML bleibt maschinell unerreichbar (HTTP 202, JS-Challenge), **Cellar liefert den konsolidierten Volltext aber aus** — Manifestations-URI über SPARQL, dann `<manifestation>/DOC_2` mit `Accept: application/xhtml+xml`. Offen ist dort allein die Zuordnung Sprache → Manifestation; die geprüfte Fassung war die estnische.
 
 ## Seiten-Typen
 

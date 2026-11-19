@@ -119,7 +119,7 @@ Because nothing is added, creating `relationen:` is a **mechanical pass without 
 >
 > Add to this the corpus situation: the portal serves **only the version currently in force** (older ones → HTTP 404), there is no reverse lookup from anchor to element, and **repealed laws are absent entirely** (TMG: 0 hits). `resource_element:` is therefore a **dated pointer to the version retrieved**. Reading it as an amendment-proof identity builds on a property the source expressly does not promise.
 >
-> For EU law the same caveat applies for a different reason: the anchor form `art_N` follows the ELI convention, but **EUR-Lex is not machine-reachable from the working environment** (HTTP 202, JS challenge — see `tools/README.md`). The resolution is therefore unverified.
+> For EU law the anchor form is **verified** (2026-11-19): the consolidated version carries 198 `art_*` ids, so `art_9` and `art_22` do resolve. EUR-Lex HTML remains machine-unreachable (HTTP 202, JS challenge), but **Cellar does serve the consolidated full text** — manifestation URI via SPARQL, then `<manifestation>/DOC_2` with `Accept: application/xhtml+xml`. What is still open there is only the language-to-manifestation mapping; the version checked was Estonian.
 
 ## Page Types
 
