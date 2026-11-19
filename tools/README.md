@@ -74,7 +74,30 @@ CELEX) — unbeschränkte Prädikatssuchen laufen in den Timeout. Und sie verifi
 **vorhandene** ECLI; sie findet keine fehlende. Die Richtung Aktenzeichen → ECLI bleibt
 unscharf und darf nicht automatisiert werden.
 
-Für deutsche Entscheidungen ist das Gegenstück `testphase.rechtsinformationen.bund.de/v1/rechtsprechung?ecli=…`.
+Für deutsche Entscheidungen ist das Gegenstück `testphase.rechtsinformationen.bund.de/v1/rechtsprechung`.
+Dort trägt **nicht nur `ecli`**, sondern auch die Kombination **`fileNumber` + `court`**:
+
+```bash
+curl -s -G "https://testphase.rechtsinformationen.bund.de/v1/rechtsprechung" \
+  --data-urlencode "fileNumber=VI ZR 277/22" --data-urlencode "size=5"
+# → ECLI:DE:BGH:2023:121223BVIZR277.22.0
+```
+
+Das korrigiert eine ältere Einschätzung: Die Richtung Aktenzeichen → Entscheidung galt als
+unbrauchbar, weil `searchTerm="1 BvR 209/83"` 468 Treffer lieferte. Das ist ein Befund über
+`searchTerm`, nicht über die API — der dedizierte `fileNumber`-Filter trifft punktgenau.
+Am 2026-11-19 über 45 Fundstellen aus dem Bestand geprüft: 20 bestätigt, 0 Fehltreffer.
+
+**Die Trefferquote ist selbst ein Befund und muss so gelesen werden.** Bestätigt wurden
+ausschließlich Bundesgerichte (BGH, BVerfG, BVerwG, BAG, BFH), nicht getroffen ausschließlich
+Instanzgerichte (OLG, LG, AG, VG). Der Bestand des Portals ist bundesgerichtszentriert und
+beginnt etwa bei 2010. Ein Nulltreffer ist deshalb `nicht prüfbar`, **niemals** `erfunden` —
+wer das verwechselt, erzeugt aus einer Bestandsgrenze eine Falschbeschuldigung gegen den
+eigenen Bestand. Und weiterhin gilt: Aus einem Nulltreffer darf keine ECLI erschlossen werden.
+
+Vorsicht bei der Auswertung: `fileNumber` matcht auch quer über Gerichtsbarkeiten. „6 S 21/21"
+traf ein BSG-Verfahren, „15 W 13/26" ein BPatG-Verfahren. Das Gericht des Treffers ist deshalb
+gegen das zitierte Gericht abzugleichen, sonst zählt man Zufallstreffer als Bestätigung.
 Dessen Bestand beginnt etwa bei 2010: Lüth (1958), Spiegel (1966) und Volkszählung (1983)
 liefern null Treffer. Das ist ein Befund über den Bestand, **nicht über die ECLI** — solche
 Fälle gehören als `nicht prüfbar` geführt, nicht als Fehler.
