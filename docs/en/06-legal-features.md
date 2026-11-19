@@ -13,7 +13,24 @@ rechtsgebiet:  # ["Datenschutzrecht", …]
 rang:          # 1–6 (nur Norm-/Urteilsknoten)
 ecli:          # nur Leitentscheidungen (verifiziert)
 resource:      # stabile Asset-URI: ELI (Normen) / ECLI-Resolver (Urteile) / DOI
+resource_element: # element anchor inside the act: art_9 (EU) / art-z22 (DE federal)
+behandelt:     # anchor pages only: what the page IS ABOUT (exactly one value)
+relationen:    # anchor pages only: typed edges as a projection of the prose
+ausser_kraft:  # norm nodes only: date of repeal
 ```
+
+**`behandelt:` separates node from citation.** `normen:` records which norms a page *mentions* — "DSGVO Art. 22" appears on 13 pages that way. `behandelt:` records which page *is the node*: exactly one.
+
+**`relationen:` makes the edge queryable.** The relation vocabulary previously existed only as a bold verb in the prose — readable, but not queryable. `relationen:` mirrors it into the frontmatter:
+```yaml
+relationen:
+  - typ: verdrängt
+    ziel: "NetzDG § 3"
+    seit: 2024-02-17
+```
+The prose stays authoritative; the field adds **nothing**. Negations ("overlaid, but *not* superseded") produce no edge, and nothing is inferred. Because nothing is added, creating it is a **mechanical pass without the lifting duty**.
+
+**`resource_element:` delivers element precision — not amendment-proofing.** `resource:` names the act, `resource_element:` the element within it. Without the anchor, `DSGVO Art. 9` and `DSGVO Art. 22` carry the same URI. But the promise stops there: LegalDocML.de 1.9 expressly calls the `eId` "not an identifier stable across expressions", and when GUIDs are preserved is "not yet conclusively defined". The anchor is a **dated pointer**, not a durable identity.
 Normalize norm strings consistently (`<Statute> Art./§ <N>`), otherwise backlinks/queries fragment.
 
 ## Legal Hierarchy (6 ranks)

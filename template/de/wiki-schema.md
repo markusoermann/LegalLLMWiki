@@ -1,6 +1,6 @@
 ---
 type: wiki-schema
-updated: 2026-09-23
+updated: 2026-11-19
 ---
 
 # Wiki Schema
@@ -45,6 +45,11 @@ wirksam_ab:        # nur Normknoten: Datum der Anwendbarkeit/Wirksamkeit (Beginn
 ecli:              # nur bei Leitentscheidungs-Seiten: ECLI-Identifikator
 bindungswirkung:   # nur Leitentscheidungen: Gesetzeskraft | faktisch (s.u.)
 resource:          # optional: stabile URI des zugrunde liegenden Rechts-Assets (ELI/ECLI/DOI)
+resource_element:  # optional: Elementanker innerhalb des Rechtsakts (EU: art_9 · Bund: eId art-z22)
+behandelt:         # nur Anker-Seiten: die Norm/Entscheidung, von der die Seite HANDELT (genau ein Wert)
+relationen:        # nur Anker-Seiten: maschinenlesbare Projektion der typisierten Links (s.u.)
+ausser_kraft:      # nur Normknoten: Außerkrafttreten, YYYY-MM-DD
+rechtsakte_sonstige: # Behördenentscheidungen/Positionspapiere, die KEINE Urteile sind
 ```
 
 **Normalisierung:** Norm-Strings einheitlich als `<Gesetz> Art./§ <N> Abs. <N> lit. <x>` (Gesetz zuerst), damit Backlinks und Abfragen nicht zersplittern. ECLI-Werte niemals erfinden — nur verifizierte Identifikatoren; sonst nur Fundstelle führen.
@@ -78,6 +83,43 @@ Nur auf Normknoten-Seiten. **Kombinierbar als Liste** (z.B. `[Verbot, Erlaubnis]
 **`in_kraft:` / `wirksam_ab:` (Inkrafttreten vs. Anwendbarkeit).** Das LKIF-`time-modification`-Modul trennt `In_Force_Interval` (formaler Geltungsbeginn) von `Efficacy_Interval` (tatsächlicher Beginn der Rechtsfolgen). Beide fallen oft auseinander: die DSGVO war ab 24.05.2016 *in Kraft*, aber erst ab 25.05.2018 *anwendbar*. `in_kraft:` = Inkrafttreten, `wirksam_ab:` = Anwendbarkeit/Wirksamkeit. Nur setzen, wenn die Daten divergieren oder rechtlich relevant sind; bei Gleichlauf genügt `in_kraft:` (s. Abschnitt „Geltung: Inkrafttreten vs. Wirksamkeit").
 
 **`bindungswirkung:` (Bindungswirkung von Leitentscheidungen).** LKIF unterscheidet `Mandatory_Precedent` von `Persuasive_Precedent`. Für deutsche Verhältnisse: **Gesetzeskraft** = förmliche Bindung (BVerfG-Entscheidungen nach § 31 Abs. 1 BVerfGG, teils mit Gesetzeskraft nach § 31 Abs. 2 BVerfGG); **faktisch** = keine förmliche Bindung, aber Leitwirkung (sonstige Obergerichtsentscheidungen, EuGH-Auslegung im nationalen Kontext). Nur auf Leitentscheidungs-Seiten. Der Wert ist unabhängig vom `rang:` — der folgt der Norm, nicht der Bindungswirkung des Urteils.
+
+### Identitäts- und Kantenfelder (Phase 6)
+
+```yaml
+behandelt:          # Anker-Seiten: die Norm/Entscheidung, von der die Seite HANDELT
+resource_element:   # Anker-Seiten: Elementanker innerhalb des Rechtsakts
+ausser_kraft:       # Normknoten: Außerkrafttreten, YYYY-MM-DD
+relationen:         # Anker-Seiten: maschinenlesbare Projektion der typisierten Links
+  - typ: verdrängt
+    ziel: "NetzDG § 3"
+    seit: 2024-02-17
+```
+
+**`behandelt:` (represents vs. refers-to).** `normen:`/`urteile:` sind **Zitatlisten** — sie sagen, welche Normen eine Seite *erwähnt*. `behandelt:` sagt, wovon die Seite *handelt*. Eine Anker-Seite trägt **genau einen** `behandelt:`-Wert (ihre Identität); Konzeptseiten tragen das Feld nicht. Damit wird die Abfrage „Welche Seite *ist* der Knoten zu DSGVO Art. 22?" von „Welche Seiten *zitieren* Art. 22?" (29 Treffer) trennbar.
+
+**`relationen:` (Kantenschicht).** Maschinenlesbare **Projektion** der im Fließtext ausgedrückten typisierten Beziehungen. Der Fließtext bleibt maßgeblich; das Feld fügt **keine** Aussage hinzu. Daraus folgen drei Regeln:
+- `typ:` stammt **ausschließlich** aus dem kontrollierten Relationsvokabular (s.o.). Richtungsangaben werden als eigener Typ geführt (`verdrängt` ≠ `verdrängt von`).
+- Es wird **nur projiziert, was der Satz sagt.** Verneinungen („überlagert, aber *nicht* verdrängt") erzeugen **keine** Kante. Nichts wird erschlossen.
+- `seit:`/`bis:` nur, wenn der Fließtext das Datum nennt.
+
+Weil nichts hinzugefügt wird, ist das Anlegen von `relationen:` ein **mechanischer Lauf ohne Hebepflicht** (Entscheidung Markus, 2026-11-19): `updated:` bleibt unberührt, kein Verifikations-Pass.
+
+**`resource_element:` (Elementanker).** `resource:` bezeichnet den **Rechtsakt**, `resource_element:` das **Element** darin — RuMLs Trennung von Texteintrag und Anker (Kap. 4.12). Konventionen:
+- **EU-Recht:** Artikelanker zum ELI, Form `#art_9`.
+- **Bundesrecht (konsolidiert):** `eId` aus LegalDocML.de, Form `art-z22`, **mit Fassungsangabe** — die `eId` ist aus der Paragraphenzählung abgeleitet und wandert bei Umnummerierung mit.
+- Wo `resource:` bereits elementgenau ist (`gesetze-im-internet.de/urhg/__50.html`, `gesetze-bayern.de/…/MStV-93`, Entscheidungs-URLs), bleibt `resource_element:` **leer** — der Anker steckt schon im URI.
+
+> [!warning] Was `resource_element:` NICHT leistet
+> Der Anker macht die Seite **elementgenau**, nicht **novellenfest**. Beides wird leicht verwechselt.
+>
+> Die Spezifikation LegalDocML.de 1.9 (BMI, Kap. 7.1) sagt zur `eId`: „**kein über verschiedene Expressions hinweg stabiler Identifikator**, da sich der Wert des Attributs bei strukturellen Änderungen des Dokuments ebenfalls verändert." Die `GUID` wäre der stabile Gegenpart — aber dieselbe Spezifikation schränkt ein: „In der aktuellen Fassung von LegalDocML.de ist **noch nicht abschließend definiert, wann neue GUIDs zu vergeben bzw. wann GUIDs unverändert zu erhalten sind.**" Gegenprobe an den amtlichen Testfixtures (Vereinsgesetz, zwei Fassungen): von 97 gemeinsamen `eId` trugen **6 eine abweichende GUID**. Die öffentliche RIS-API exponiert die GUID zudem **gar nicht** — adressiert wird über `eId`.
+>
+> Stabil dokumentiert ist allein die **Work-GUID** (`work.FRBRalias`): „wird einmalig vergeben und bleibt über alle Fassungen hinweg stabil." Sie identifiziert den Rechtsakt, nicht den Paragrafen — löst das Problem also nicht.
+>
+> Hinzu kommt die Bestandslage: Das Portal liefert ausschließlich die **in Kraft stehende Fassung** (ältere → HTTP 404), es gibt keine Rückauflösung Anker → Element, und **aufgehobene Gesetze fehlen ganz** (TMG: 0 Treffer). `resource_element:` ist deshalb ein **datierter Zeiger auf die abgerufene Fassung**. Wer ihn als novellenfeste Identität liest, baut auf eine Eigenschaft, die die Quelle heute ausdrücklich nicht zusagt.
+>
+> Für EU-Recht gilt der Vorbehalt analog aus anderem Grund: Die Anker-Form `art_N` folgt der ELI-Konvention, **EUR-Lex ist aus der Arbeitsumgebung aber nicht maschinell erreichbar** (HTTP 202, JS-Challenge — s. `tools/README.md`). Die Auflösung ist daher nicht gegengeprüft.
 
 ## Seiten-Typen
 
