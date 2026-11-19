@@ -140,6 +140,8 @@ Because nothing is added, creating `relationen:` is a **mechanical pass without 
 - Structure: Definition · Paragraphs/elements of the offence (with wikilinks to concept pages) · Leading decisions · Relationship to other norms
 - Purpose: anchor node — concept pages link here; backlinks replace the SPARQL query of the KG approach
 - Distinction from the law entity: `DSGVO.md` describes the regulation as a whole; `DSGVO Art. 6.md` is the granular norm node and links to the law page
+- **Law entities are anchor pages too** (decision 2026-11-19): they carry `rang:` and `behandelt:` just like the granular norm nodes. The rank follows the act as a whole — EU regulation 2, EU directive 3, federal act and inter-state treaty 5. `resource_element:` stays **empty** there: the page is about the act, not about an element inside it.
+- **What gets no rank despite `wiki-category: entitaet`:** persons, institutions (including courts and authorities), technical specifications — and above all **non-binding instruments**. Guidelines, codes of practice, position papers, press codes, UN GA resolutions and foreign law do not sit in the rank table, which orders German and EU law. In the 2026-11-19 pass over the corpus, only **8** of 45 rank-less entity pages met the condition.
 
 ### Leading-Decision Page
 - A special form of the entity page for a landmark decision
