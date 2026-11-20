@@ -745,6 +745,14 @@ Nach dem Schreiben:
 
 **Info:**
 - [ ] **Beleg ohne Locator** — Seite führt `quellen:` und enthält `[!recht]`-Callouts, von denen keiner eine `Beleg:`-Zeile trägt. Kein Fehler (normtextgestützte Aussagen brauchen keine), aber ein Hinweis auf ungeprüfte Sekundärzitate.
+- [ ] **Callout ohne Normangabe** — `[!recht]`-Callout, der weder nach dem Mittelpunkt noch nach dem Pfeil eine **konkrete Norm** nennt (Artikel/Paragraph, Verordnungs- oder Richtliniennummer). **Das ist die Lücke, durch die der Google-Spain-Fehler jahrelang gerutscht ist:** Ein Callout, der nur eine Entscheidung nennt, hat für die Rangprüfung keinen Anknüpfungspunkt — `rang_check.py` kann ihn weder bestätigen noch widerlegen. Erhebung vom 2026-11-20: **20 von 642 Callouts (3,1 %) auf 16 Seiten.** Vier Untertypen, die **unterschiedliche** Behandlung verlangen:
+  1. **Entscheidung ohne Norm** (~11) — die angewandte Norm ergänzen (`· BVerfGE 7, 198 (Lüth) → GG Art. 5 Abs. 1`).
+  2. **Gesetz ohne Stellenangabe** (~4) — Artikel/Paragraph nachtragen statt nur den Rechtsakt zu nennen.
+  3. **Literaturmeinung** (1: Alexy, *Theorie der Grundrechte*) — hier gehört **gar kein** `[!recht]`-Callout hin; die Regel „nicht bei allgemeinen Literaturmeinungen" greift. Entfernen, nicht ergänzen.
+  4. **Entwurf ohne Geltung** (1: KritisV-Referentenentwurf) — Entwürfe haben keinen Rang; Callout entfernen oder als Vorhaben kennzeichnen.
+
+  **Warum nur Info und nicht Warnung:** Der Befund sagt nichts darüber, ob die Aussage falsch ist — nur, dass sie maschinell nicht prüfbar ist. Die Behandlung verlangt in zwei der vier Untertypen das **Entfernen** des Callouts; ein automatischer Lauf wäre hier schädlich.
+
 - [ ] **Nicht-kanonisches Rangetikett** — Rang-Zahl und Kategorie stimmen überein, die Bezeichnung weicht aber von der kanonischen ab (`EU-Verordnung` statt `EU-Sekundärrecht — Verordnung`). **Kein Fehler — Synonyme, keine Falschaussagen.** Getrennt von den beiden Fehlerklassen melden: Im Referenzbestand standen rund 40 Varianten gegen über 600 korrekte Callouts; in einer gemeinsamen Liste verdecken sie die echten Fehler. Präzisierende Zusätze nach Bindestrich (`Verfassungsrecht — BVerfG-Grundsatzurteil`) sind **zulässig**; geprüft wird der Teil **vor** dem Zusatz.
 - [ ] **Workflow-Drift** — `type: wiki-workflow`-Seiten, die von keiner Wiki-Seite, keinem Skill und keiner `AGENTS.md`/`CLAUDE.md` referenziert werden.
 - [ ] **Data gaps** — Wiki-Seiten mit weniger als 2 Quellen im `quellen:`-Frontmatter (Themen mit dünner Abdeckung)
