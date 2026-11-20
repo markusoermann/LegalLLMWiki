@@ -146,19 +146,53 @@ def seiten(wurzel):
             yield os.path.relpath(voll, wurzel), text
 
 
+# Check D: Nennt der Callout ueberhaupt eine konkrete Norm?
+#
+# FALLE, in die drei Anlaeufe dieser Erhebung nacheinander getappt sind:
+#   (1) Nur die [!recht]-Zeile lesen. Die Normangabe steht oft auf der
+#       Fortsetzungszeile - mehrzeilige Callouts vollstaendig erfassen.
+#   (2) Zeilen mitzaehlen, die bloss ueber [!recht] schreiben (Schema-Doku).
+#   (3) "nach dem Pfeil ODER davor" als `after or seg` kodieren. Steht nach
+#       dem Pfeil irgendetwas, wird das Segment davor nie geprueft - dadurch
+#       galt "UMV Art. 9 -> LG Berlin II" als normlos.
+# Erstlauf mit (1)-(3): 76 Befunde. Nach Korrektur: 20. Der Unterschied war
+# vollstaendig Werkzeugfehler, nicht Bestand.
+NORM_ANGABE = re.compile(
+    r"(Art\.?\s*\d|Arts\.\s*\d|\u00a7{1,2}\s*\d"
+    r"|VO\s*\(E[UG]\)\s*\d|RL\s*\d{2,4}/\d"
+    r"|(?:Richtlinie|Verordnung)\s*\(?\s*E[UG]\)?\s*\d)")
+
+
+def nennt_norm(rest):
+    """rest = alles nach der Rang-Klammer, inkl. Mittelpunkt- und Pfeilteil."""
+    return bool(NORM_ANGABE.search(rest))
+
+
+
 def main():
     if not os.path.isdir(WIKI):
         sys.exit("Wiki-Ordner nicht gefunden: %s\nAufruf: python3 rang_check.py [WIKI-ROOT]" % WIKI)
 
-    a, b, c = [], [], collections.Counter()
+    a, b, c, d = [], [], collections.Counter(), []
     gesamt = 0
     for rel, text in seiten(WIKI):
-        for nr, zeile in enumerate(text.split("\n"), 1):
+        zeilen = text.split("\n")
+        for nr, zeile in enumerate(zeilen, 1):
             m = CALLOUT.search(zeile)
             if not m:
                 continue
             gesamt += 1
             rang, kat, rest = int(m.group(1)), m.group(2).strip(), m.group(3)
+            # Fortsetzungszeilen nur fuer Check D sammeln, NICHT fuer B.
+            # B bestimmt die Leitnorm bewusst aus dem Segment nach dem
+            # Mittelpunkt DER RANG-ZEILE; wer die Fortsetzung einbezieht,
+            # verschiebt die Leitnorm und erzeugt Phantom-Fehler (beim Bau
+            # dieses Checks sprang B dadurch von 0 auf 3).
+            rest_voll = rest
+            k = nr  # nr ist 1-basiert -> zeilen[nr] ist die naechste Zeile
+            while k < len(zeilen) and zeilen[k].lstrip().startswith(">"):
+                rest_voll += " " + zeilen[k].lstrip().lstrip(">").strip()
+                k += 1
 
             if COURT_ANY.search(basis(kat)):
                 a.append((rel, nr, kat))
@@ -167,6 +201,8 @@ def main():
             if soll and soll != rang:
                 b.append((rel, nr, rang, soll, leitnorm_segment(rest).strip()[:58]))
                 continue
+            if not nennt_norm(rest_voll):
+                d.append((rel, nr, rest_voll.strip()[:70]))
             if not ist_kanonisch(rang, kat):
                 c[(rang, kat)] += 1
 
@@ -187,18 +223,25 @@ def main():
         print("   %3dx  Rang %d (%s)   kanonisch: %s"
               % (n, rang, kat, " / ".join(KANON.get(rang, ["-"]))))
 
+    print("\nINFO D  Callout ohne Normangabe: %d" % len(d))
+    for rel, nr, seg in d:
+        print("   %s:%d  %s" % (rel, nr, seg))
+
     print("\n" + "=" * 78)
     print("ZUSAMMENFASSUNG")
     print("=" * 78)
     print("   A Gericht als Normkategorie : %d  (Fehler)" % len(a))
     print("   B Rang widerspricht Leitnorm: %d  (Fehler)" % len(b))
     print("   C Etikettvariante           : %d  (Info)" % sum(c.values()))
-    print("\n   Was dieses Werkzeug NICHT prueft: ob der Rang sachlich richtig")
-    print("   zugeordnet ist, wenn der Callout gar keine Norm nennt. Ein Callout")
-    print("   wie '· EuGH C-131/12 (Google Spain)' ohne Normangabe entgeht der")
-    print("   Pruefung - im Bestand stand dort jahrelang Rang 2, obwohl das")
-    print("   Urteil zur Richtlinie 95/46/EG erging und damit Rang 3 ist.")
-    print("   Callouts ohne Normangabe sind deshalb von Hand zu sichten.")
+    print("   D Callout ohne Normangabe   : %d  (Info)" % len(d))
+    print("\n   Check D macht die alte blinde Stelle sichtbar, behebt sie aber")
+    print("   nicht: Nennt ein Callout keine Norm, kann A und B ihn weder")
+    print("   bestaetigen noch widerlegen. So stand '· EuGH C-131/12 (Google")
+    print("   Spain)' jahrelang auf Rang 2, obwohl das Urteil zur Richtlinie")
+    print("   95/46/EG erging und damit Rang 3 ist.")
+    print("   D-Befunde sind von Hand zu sichten - in zwei von vier Untertypen")
+    print("   (Literaturmeinung, Entwurf) ist der Callout zu ENTFERNEN, nicht")
+    print("   um eine Norm zu ergaenzen. Ein automatischer Lauf schadet hier.")
 
 
 if __name__ == "__main__":

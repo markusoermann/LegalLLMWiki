@@ -749,6 +749,14 @@ After writing:
 
 **Info:**
 - [ ] **Evidence without locator** — Page carries `quellen:` and contains `[!recht]` callouts, none of which has a `Beleg:` line. Not an error (statements resting on the norm text need none), but an indication of unchecked secondary citations.
+- [ ] **Callout without a norm reference** — a `[!recht]` callout that names no **concrete norm** (article/section, regulation or directive number), neither after the middot nor after the arrow. **This is the gap the Google Spain error slipped through for years:** a callout naming only a decision gives the rank check nothing to anchor on — `rang_check.py` can neither confirm nor refute it. Survey of 2026-11-20: **20 of 642 callouts (3.1 %) across 16 pages.** Four sub-types requiring **different** treatment:
+  1. **Decision without a norm** (~11) — add the norm applied (`· BVerfGE 7, 198 (Lüth) → GG Art. 5 Abs. 1`).
+  2. **Act without a pinpoint** (~4) — add the article/section instead of naming only the act.
+  3. **Scholarly opinion** (1: Alexy, *Theorie der Grundrechte*) — no `[!recht]` callout belongs here at all; the rule "not for general scholarly opinions" applies. Remove, do not supplement.
+  4. **Draft without force** (1: a ministerial draft regulation) — drafts have no rank; remove the callout or mark it as a proposal.
+
+  **Why info and not warning:** the finding says nothing about whether the statement is wrong — only that it cannot be checked mechanically. Two of the four sub-types call for **removing** the callout; an automated pass would do harm here.
+
 - [ ] **Non-canonical rank label** — rank and category agree, but the wording departs from the canonical one (`EU-Verordnung` instead of `EU-Sekundärrecht — Verordnung`). **Not an error — synonyms, not false statements.** Report separately from the two error classes: in the reference corpus some 40 variants stood against more than 600 correct callouts, and in a combined list they bury the real errors. Clarifying suffixes after a dash (`Verfassungsrecht — BVerfG-Grundsatzurteil`) are **permitted**; check the part **before** the suffix.
 - [ ] **Workflow drift** — `type: wiki-workflow` pages that are referenced by no wiki page, no skill, and no `AGENTS.md`/`CLAUDE.md`.
 - [ ] **Data gaps** — Wiki pages with fewer than 2 sources in the `quellen:` frontmatter (topics with thin coverage)
