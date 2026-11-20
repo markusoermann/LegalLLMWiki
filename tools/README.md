@@ -102,6 +102,33 @@ Am 2026-11-19 gegen den Bestand getestet: **10 von 10 EuGH-ECLI bestätigt**, CE
 und Entscheidungsdatum stimmten durchweg mit der Knotenbezeichnung überein. Das schließt
 die Lücke, die für EuGH-Entscheidungen bestand, seit EUR-Lex nicht mehr erreichbar ist.
 
+**Volltext einer EuGH-Entscheidung, in einer bestimmten Sprache** (gelöst 2026-11-20):
+
+```sparql
+PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
+SELECT ?m WHERE {
+  ?w cdm:resource_legal_id_celex '62023CJ0416'^^xsd:string .
+  ?e cdm:expression_belongs_to_work ?w ; cdm:lang ?l .
+  FILTER(STR(?l) = 'http://publications.europa.eu/resource/authority/language/DEU')
+  ?m cdm:manifestation_manifests_expression ?e ; cdm:manifestation_type ?t .
+  FILTER(STR(?t) = 'xhtml')
+}
+```
+Danach `<manifestation>/DOC_1` mit `Accept: application/xhtml+xml`.
+
+**Drei Stolpersteine, an denen zwei Anläufe gescheitert sind:**
+1. Das Sprachprädikat heißt **`cdm:lang`**, nicht `cdm:expression_uses_language`. Letzteres
+   liefert null Treffer, **ohne zu scheitern** — der naheliegende Fehlschluss ist dann,
+   Cellar könne keine Sprachauswahl.
+2. `cdm:manifestation_type 'xhtml'` als getyptes Literal matcht nicht zuverlässig;
+   `FILTER(STR(?t)='xhtml')` schon.
+3. Der Text liegt unter `<manifestation>/DOC_1` **oder** `/DOC_2`. Die Manifestations-URI
+   selbst liefert nur RDF-Metadaten, nicht den Text.
+
+Ohne Sprachfilter bekommt man eine beliebige der rund 25 Fassungen — im Testlauf war es
+Irisch. Für Zahlen-, Tenor- und Randnummernprüfung genügt jede Fassung; für wörtliche
+Zitate nicht.
+
 Zwei Einschränkungen: Die Abfrage braucht einen **gebundenen Gegenstand** (ECLI oder
 CELEX) — unbeschränkte Prädikatssuchen laufen in den Timeout. Und sie verifiziert eine
 **vorhandene** ECLI; sie findet keine fehlende. Die Richtung Aktenzeichen → ECLI bleibt
