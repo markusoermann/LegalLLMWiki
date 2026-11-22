@@ -106,10 +106,11 @@ die Lücke, die für EuGH-Entscheidungen bestand, seit EUR-Lex nicht mehr erreic
 
 ```sparql
 PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
+PREFIX cmr: <http://publications.europa.eu/ontology/cdm/cmr#>
 SELECT ?m WHERE {
   ?w cdm:resource_legal_id_celex '62023CJ0416'^^xsd:string .
-  ?e cdm:expression_belongs_to_work ?w ; cdm:lang ?l .
-  FILTER(STR(?l) = 'http://publications.europa.eu/resource/authority/language/DEU')
+  ?e cdm:expression_belongs_to_work ?w ; cmr:lang ?l .
+  FILTER(STR(?l) = 'deu')
   ?m cdm:manifestation_manifests_expression ?e ; cdm:manifestation_type ?t .
   FILTER(STR(?t) = 'xhtml')
 }
@@ -117,9 +118,13 @@ SELECT ?m WHERE {
 Danach `<manifestation>/DOC_1` mit `Accept: application/xhtml+xml`.
 
 **Drei Stolpersteine, an denen zwei Anläufe gescheitert sind:**
-1. Das Sprachprädikat heißt **`cdm:lang`**, nicht `cdm:expression_uses_language`. Letzteres
-   liefert null Treffer, **ohne zu scheitern** — der naheliegende Fehlschluss ist dann,
-   Cellar könne keine Sprachauswahl.
+1. Das Sprachprädikat liegt im Namensraum **`cdm/cmr#`**, nicht in `cdm#`, und heißt dort
+   `lang` — also `cmr:lang`, nicht `cdm:lang` und nicht `cdm:expression_uses_language`.
+   Sein Wert ist ein **schlichtes Stringliteral** (`'deu'`, daneben `'de'`), **keine
+   Sprach-URI** aus dem Authority-Vokabular. Beide Fehlformen liefern null Treffer,
+   **ohne zu scheitern** — der naheliegende Fehlschluss ist dann, Cellar könne keine
+   Sprachauswahl. (Diese Korrektur am 2026-11-22: Die erste hier dokumentierte Fassung
+   nannte `cdm:lang` mit URI-Filter und funktionierte deshalb nicht.)
 2. `cdm:manifestation_type 'xhtml'` als getyptes Literal matcht nicht zuverlässig;
    `FILTER(STR(?t)='xhtml')` schon.
 3. Der Text liegt unter `<manifestation>/DOC_1` **oder** `/DOC_2`. Die Manifestations-URI
