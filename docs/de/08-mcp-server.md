@@ -86,4 +86,4 @@ Der Index wird beim Start vollständig aufgebaut und vor jedem Tool-Aufruf per m
 - **Auffrischung über mtime.** Dateien, deren Änderungszeit nicht fortgeschrieben wird, bleiben unbemerkt.
 
 ## Weiter
-Vollständige Server-Dokumentation: `mcp/wiki-mcp/README.md`.
+Vollständige Server-Dokumentation: `mcp/wiki-mcp/README.de.md`.

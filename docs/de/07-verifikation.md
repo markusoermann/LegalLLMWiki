@@ -72,11 +72,11 @@ Daraus zwei Regeln:
 
 **Nicht verifizierbares wird entfernt, nicht ersetzt.** Ließ sich ein bezweifeltes Datum aus der Arbeitsumgebung nicht klären, wird die Angabe gestrichen, nicht gegen eine zweite ungeprüfte ausgetauscht. Ein Aktenzeichen identifiziert eine Entscheidung auch ohne Datum.
 
-Das ist dieselbe Disziplin, die für die mechanischen Prüfwerkzeuge gilt (siehe `tools/README.md`). Beim Verifikations-Pass wiegt sie schwerer, weil sein Befund autoritativ formuliert ist und zur Löschung auffordert, während ein Skript nur eine Liste ausgibt.
+Das ist dieselbe Disziplin, die für die mechanischen Prüfwerkzeuge gilt (siehe `tools/README.de.md`). Beim Verifikations-Pass wiegt sie schwerer, weil sein Befund autoritativ formuliert ist und zur Löschung auffordert, während ein Skript nur eine Liste ausgibt.
 
 ## Wo die Fehler tatsächlich sitzen
 
-Ein Belegprüfungslauf über zwölf rechtsdichte Seiten (2026-11-19 bis 22, 43 Korrekturen, 1 Hard-Fail) hat eine Verteilung gezeigt, die für die Gestaltung des Verfahrens wichtiger ist als die Zahl der Befunde: **Keine einzige Rechtsaussage war im Kern falsch. Falsch waren durchgehend die Zuschreibungen.**
+Ein Belegprüfungslauf über ein Dutzend rechtsdichter Seiten hat eine Verteilung gezeigt, die für die Gestaltung des Verfahrens wichtiger ist als die Zahl der Befunde: **Keine einzige Rechtsaussage war im Kern falsch. Falsch waren durchgehend die Zuschreibungen.**
 
 | Fehlerklasse | Beispiel aus dem Lauf |
 |---|---|

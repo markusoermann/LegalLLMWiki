@@ -28,7 +28,7 @@ cp -R skills/wiki-query skills/wiki-verify skills/zotero-skill skills/quellenche
 Claude loads the skill metadata automatically and activates them on matching triggers.
 
 ### Gemini CLI (native via skill activation)
-Gemini CLI supports skills through skill activation; place the folders at the skill location Gemini expects (see `docs/04-agenten-einrichtung.md`). The `SKILL.md` description controls activation.
+Gemini CLI supports skills through skill activation; place the folders at the skill location Gemini expects (see `docs/en/04-agent-setup.md`). The `SKILL.md` description controls activation.
 
 ### Codex / OpenCode (as prompt/command or reference)
 These agents have no native skill engine. Two ways:

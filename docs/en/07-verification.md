@@ -76,7 +76,7 @@ This is the same discipline that applies to the mechanical check scripts (see `t
 
 ## Where the errors actually sit
 
-An evidence-check campaign across twelve legally dense pages (2026-11-19 to 22; 43 corrections, 1 hard fail) produced a distribution that matters more for designing the procedure than the number of findings: **not a single legal proposition was wrong at its core. What was wrong, consistently, were the attributions.**
+An evidence-check campaign across a dozen legally dense pages produced a distribution that matters more for designing the procedure than the number of findings: **not a single legal proposition was wrong at its core. What was wrong, consistently, were the attributions.**
 
 | Error class | Example from the campaign |
 |---|---|

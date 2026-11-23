@@ -185,7 +185,7 @@ curl -s -X POST http://127.0.0.1:23120/mcp \
 ### Common MCP Patterns
 
 **Full ingest of a citekey:**
-1. `search_library(q: "oermann2023")` → get `itemKey`
+1. `search_library(q: "smith2023")` → get `itemKey`
 2. `get_item_details(itemKey)` → metadata + abstract + attachment list
 3. `get_content(itemKey, mode: "complete")` → full text (check attachment presence first)
 4. `get_annotations(itemKey)` → highlights

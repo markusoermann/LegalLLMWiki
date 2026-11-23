@@ -1,3 +1,5 @@
+[🇬🇧 English](README.md) · **🇩🇪 Deutsch**
+
 # Skills
 
 Fünf Capabilities für das LegalLLMWiki. Ein „Skill" ist im Kern eine `SKILL.md`-Anleitung (+ optionale Skripte) — die Substanz ist agent-agnostisch, nur die Einbindung unterscheidet sich pro Agent.
@@ -24,7 +26,7 @@ cp -R skills/wiki-query skills/wiki-verify skills/zotero-skill skills/quellenche
 Claude lädt die Skill-Metadaten automatisch und aktiviert sie bei passenden Triggern.
 
 ### Gemini CLI (nativ via Skill-Aktivierung)
-Gemini CLI unterstützt Skills über die Skill-Aktivierung; lege die Ordner am von Gemini erwarteten Skill-Ort ab (siehe `docs/04-agenten-einrichtung.md`). Die `SKILL.md`-Beschreibung steuert die Aktivierung.
+Gemini CLI unterstützt Skills über die Skill-Aktivierung; lege die Ordner am von Gemini erwarteten Skill-Ort ab (siehe `docs/de/04-agenten-einrichtung.md`). Die `SKILL.md`-Beschreibung steuert die Aktivierung.
 
 ### Codex / OpenCode (als Prompt/Command bzw. Referenz)
 Diese Agenten haben keine native Skill-Engine. Zwei Wege:

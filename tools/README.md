@@ -1,102 +1,139 @@
+**🇬🇧 English** · [🇩🇪 Deutsch](README.de.md)
+
 # tools
 
-Mechanische Prüfwerkzeuge für das LLMWiki. Kein LLM, keine Abhängigkeiten außer der
-Python-Standardbibliothek, Laufzeit im Sekundenbereich. Sie prüfen Dinge, die ein
-Sprachmodell nicht zuverlässig prüft, und sind billig genug für den Dauerbetrieb.
+Mechanical check scripts for the LLM wiki. No LLM, no dependencies beyond the Python
+standard library, runtime in the order of seconds. They check things a language model
+does not check reliably, and they are cheap enough to run continuously.
 
-**Warum getrennt vom Verifikations-Pass:** Der Verifikations-Pass prüft *Belegtheit*
-gegen die Literaturverwaltung. Er erfasst nur Seiten mit Quellenangaben. Normknoten
-führen definitionsgemäß `quellen: []` und fallen durch sein Raster. Für sie treten
-diese Werkzeuge an seine Stelle: der Abgleich gegen die amtliche Fassung, wo es eine
-maschinenlesbare gibt, und der Abgleich der Zeitachse, wo es sie nicht gibt.
+**Why they are separate from the verification pass:** the verification pass checks
+*evidential support* against the reference manager. It only covers pages that cite
+sources. Norm nodes carry `quellen: []` by definition and slip through its net. For
+those, these tools take its place: comparison against the official version where a
+machine-readable one exists, and comparison of the time axis where it does not.
 
-| Werkzeug | Prüft | Netz |
+| Tool | Checks | Network |
 |---|---|---|
-| `wiki_integrity_check.py` | citekeys gegen Zotero, **tatsächlich extrahierbarer** Volltext, ECLI-Syntax, Normen ohne Knoten | lokale Zotero-API |
-| `knoten_check.py` | `resource:`-URIs auflösbar, Alter des `rechtsstand:`, fehlende Anker-Felder | ja |
-| `normtext_check.py` | Normknoten gegen die amtliche konsolidierte Fassung: Wegfall, Fassungsangabe | ja |
-| `staffelung_check.py` | `in_kraft:` gegen `wirksam_ab:`: gestaffelte Anwendbarkeit, überschrittene Stufen | **nein** |
-| `rang_check.py` | `[!recht]`-Callouts: Gericht als Normkategorie, Rang gegen Leitnorm, Etikettvarianten, Callouts ohne Normangabe, **Datum gegen ECLI** | **nein** |
+| `wiki_integrity_check.py` | citekeys against Zotero, **actually extractable** full text, ECLI syntax, norms without a node | local Zotero API |
+| `knoten_check.py` | `resource:` URIs resolvable, age of `rechtsstand:`, missing anchor fields | yes |
+| `normtext_check.py` | norm nodes against the official consolidated text: repeal, version marker | yes |
+| `staffelung_check.py` | `in_kraft:` against `wirksam_ab:`: staggered applicability, stages passed | **no** |
+| `rang_check.py` | `[!recht]` callouts: court used as norm category, rank against the governing norm, label variants, callouts without a norm reference, **date against ECLI** | **no** |
 
-## Aufruf
+## Invocation
 
 ```bash
-python3 tools/wiki_integrity_check.py /pfad/zum/vault/WIKI-ORDNER
-python3 tools/knoten_check.py         /pfad/zum/vault/WIKI-ORDNER
-python3 tools/normtext_check.py       /pfad/zum/vault/WIKI-ORDNER
-python3 tools/staffelung_check.py     /pfad/zum/vault/WIKI-ORDNER
-python3 tools/staffelung_check.py     /pfad/zum/vault/WIKI-ORDNER --datum=2027-08-02
-python3 tools/rang_check.py           /pfad/zum/vault/WIKI-ORDNER
+python3 tools/wiki_integrity_check.py /path/to/vault/WIKI-FOLDER
+python3 tools/knoten_check.py         /path/to/vault/WIKI-FOLDER
+python3 tools/normtext_check.py       /path/to/vault/WIKI-FOLDER
+python3 tools/staffelung_check.py     /path/to/vault/WIKI-FOLDER
+python3 tools/staffelung_check.py     /path/to/vault/WIKI-FOLDER --datum=2027-08-02
+python3 tools/rang_check.py           /path/to/vault/WIKI-FOLDER
 ```
 
-`wiki_integrity_check.py` setzt ein laufendes Zotero mit lokaler API auf Port 23119
-voraus. `knoten_check.py` und `normtext_check.py` brauchen Netzzugang.
-`staffelung_check.py` läuft vollständig offline; `--datum` verschiebt das Stichdatum
-und beantwortet damit die Frage, was sich am Tag einer künftigen Staffelstufe ändert.
-`rang_check.py` läuft ebenfalls offline und braucht nichts als die Markdown-Dateien.
+`wiki_integrity_check.py` requires a running Zotero with the local API on port 23119.
+`knoten_check.py` and `normtext_check.py` need network access. `staffelung_check.py`
+runs entirely offline; `--datum` shifts the reference date and thereby answers the
+question of what changes on the day a future stage becomes applicable. `rang_check.py`
+also runs offline and needs nothing but the Markdown files.
 
-## Check E: Datum gegen ECLI — klein, aber exakt
+## Check E: date against ECLI — small, but exact
 
-Die deutsche ECLI traegt das Entscheidungsdatum im dritten Segment: `ECLI:DE:BGH:2020:`**`270720`**`UVIZR405.18.0` = 27.07.2020; beim BVerfG mit Praefix und umgekehrter Reihenfolge, `rs`**`20191106`** = 06.11.2019. Steht im selben Callout ein abweichendes Datum, ist eines von beiden falsch — **ohne jeden Quellenabruf feststellbar.**
+The German ECLI carries the decision date in its third segment:
+`ECLI:DE:BGH:2020:`**`270720`**`UVIZR405.18.0` = 27 July 2020; for the Federal
+Constitutional Court with a prefix and reversed order, `rs`**`20191106`** =
+6 November 2019. If the same callout states a different date, one of the two is wrong —
+**and that is detectable without retrieving anything.**
 
-Der Check fand genau einen Fehler, und zwar einen echten: BGH VI ZR 405/18 stand an drei Stellen einer Seite mit dem 28.07.2020 statt dem 27.07.2020.
+On its first run against a grown corpus the check found exactly one error, and a real
+one: a Federal Court of Justice judgment appeared in three places on the same page with
+a date shifted by one day.
 
-**Reichweite ehrlich beziffert.** Von 630 `[!recht]`-Callouts im Bestand tragen **29** eine deutsche ECLI; alle 29 tragen auch ein Datum und werden geprueft. Weitere **149** nennen ein Datum ohne ECLI — dort traegt der Check nichts bei, solange die ECLI fehlt. Das ist zugleich die lohnendste Stelle fuer einen Nachtrag: Jede ergaenzte ECLI verwandelt eine ungeprueft behauptete Datumsangabe in eine maschinell pruefbare.
+**Reach, stated honestly.** The check only bites where a date **and** a German ECLI sit
+in the same callout — in practice a small minority. Far more often a date appears
+without an ECLI; there the check contributes nothing. That is also the most rewarding
+place to add something: every ECLI supplied turns an unchecked assertion about a date
+into a machine-checkable one.
 
-**Warum E ein Fehler und nicht Info ist.** Anders als bei Check D gibt es keine Auslegungsfrage: Die beiden Angaben widersprechen sich, und beide stehen in derselben Zeile. Welche davon stimmt, entscheidet der Check nicht — er meldet nur, dass sie nicht zusammenpassen.
+**Why E is an error and not info.** Unlike check D there is no question of
+interpretation: the two statements contradict each other, and both stand on the same
+line. Which of them is right is not for the check to decide — it only reports that they
+do not match.
 
-**Der Check wurde gegen bekannte Faelle geprueft, bevor sein Nullbefund geglaubt wurde** (5 Datumsformate aus BGH, BAG, BVerfG korrekt erkannt; Negativprobe mit der echten Abweichung schlaegt an). Ein kaputter Check meldet dasselbe wie ein sauberer Bestand — diese Verwechslung hat beim Bau von Check D drei Anlaeufe gekostet.
+**The check was tested against known cases before its null result was believed**
+(5 date formats from BGH, BAG and BVerfG correctly recognised; a negative control with a
+real discrepancy fires). A broken check reports the same thing as a clean corpus — that
+confusion cost three attempts while building check D.
 
-## Warum es keine Pruefsumme gibt
+## Why there is no checksum
 
-Die naheliegende Erweiterung waere ein Hash ueber den Normtext, der `rechtsstand:`
-von einer Zusage in eine Pruefung verwandelt (so RuML 1.0.0 Kap. 4.12 mit SHA3-256
-ueber die kanonisierte Form). **Am 2026-11-19 geprueft und verworfen.**
+The obvious extension would be a hash over the norm text that turns `rechtsstand:` from
+a promise into a check (as in RuML 1.0.0 ch. 4.12, SHA3-256 over the canonicalised
+form). **Examined and rejected.**
 
-Der Grund ist `normtext_check.py` selbst: Es prueft die deutschen Normknoten gegen die
-amtliche konsolidierte Fassung und erkennt Wegfall **paragraphengenau**. Ein Hash fuegt
-dort allein die Erkennung von *Aenderungen* statt *Wegfall* hinzu — zu wenig fuer den
-Preis aus Kanonisierungsregel, Erheblichkeitsdefinition und Dauerrauschen. Ein Hash sagt,
-*dass* sich etwas geaendert hat, nicht *ob es erheblich ist*; redaktionelle Korrektur und
-Tatbestandsaenderung erzeugen denselben Befund.
+The reason is `normtext_check.py` itself: it checks German norm nodes against the
+official consolidated version and detects repeal **down to the individual section**. A
+hash would add only the detection of *changes* rather than *repeal* — too little for the
+price of a canonicalisation rule, a materiality definition and permanent noise. A hash
+says *that* something changed, not *whether it matters*; an editorial correction and a
+change to the elements of an offence produce the same result.
 
-**Zwei Begruendungen, die unterwegs auftauchten und beide nicht tragen** — hier notiert,
-damit sie beim naechsten Anlauf nicht erneut als Argument erscheinen:
+**Two justifications that came up along the way and neither of which holds** — recorded
+here so they do not reappear as arguments next time:
 
-- *"Erst wenn LegalDocML.de die GUID-Erhaltung verbindlich regelt."* Verwechselt zwei
-  Dinge. Die GUID leistet Identitaet ueber Fassungen hinweg, ein Hash leistet
-  Aenderungserkennung. Loest der Anker nach einer Umnummerierung nicht mehr auf, **ist das
-  das Signal** — "an dieser Norm hat sich strukturell etwas geaendert" —, nicht sein Ausfall.
-- *"EU-Normtext ist maschinell nicht erreichbar."* Gilt fuer EUR-Lex-HTML (HTTP 202,
-  JS-Challenge), nicht fuer Cellar: `<manifestation>/DOC_2` mit
-  `Accept: application/xhtml+xml` liefert die konsolidierte Fassung mit 198 `art_*`-IDs.
-  Der Zugriff war nie der Engpass.
+- *"Only once LegalDocML.de makes GUID preservation binding."* This conflates two
+  things. The GUID provides identity across versions; a hash provides change detection.
+  If the anchor no longer resolves after a renumbering, **that is the signal** — "something
+  structural changed about this norm" — not a failure of it.
+- *"EU norm text is not machine-reachable."* True of EUR-Lex HTML (HTTP 202, JS
+  challenge), not of Cellar: `<manifestation>/DOC_2` with
+  `Accept: application/xhtml+xml` delivers the consolidated version with 198 `art_*`
+  ids. Access was never the bottleneck.
 
-**Dokumentierte Restluecke.** `normtext_check.py` deckt **EU-Recht nicht ab** und konnte es
-nie — es beruht auf dem `(weggefallen)`-Marker, den EU-Recht nicht kennt. Fuer EU-Normknoten
-bleibt Aenderungserkennung damit **quellengetrieben**: Sie greift, wenn eine
-Aenderungsverordnung in der Literaturverwaltung landet und ingested wird. Das hat am
-2026-11-18 funktioniert (Digital-Omnibus-Verordnung, rund 70 Aenderungen am AI Act), haengt
-aber daran, dass die Quelle ankommt. Versagt dieser Pfad einmal, ist dieser Abschnitt der
-Ort, an dem nachzusehen waere.
+**A documented remaining gap.** `normtext_check.py` **does not cover EU law** and never
+could — it relies on the `(weggefallen)` marker, which EU law does not use. For EU norm
+nodes, change detection therefore remains **source-driven**: it works when an amending
+regulation lands in the reference manager and gets ingested. That has worked in practice
+— an amending regulation with some 70 interventions in the AI Act was caught this way —
+but it depends on the source arriving. If that path ever fails, this section is where to
+look.
 
-## Warum Geltung und Wirksamkeit ein eigenes Werkzeug brauchen
+## Why validity and applicability need a tool of their own
 
-`normtext_check.py` funktioniert, weil `gesetze-im-internet.de` aufgehobene
-Vorschriften **paragraphengenau** als „(weggefallen)" markiert. Für EU-Recht existiert
-kein vergleichbares Signal. Drei Zugänge wurden geprüft, alle drei scheiden aus:
+`normtext_check.py` works because `gesetze-im-internet.de` marks repealed provisions
+**section by section** as "(weggefallen)". For EU law no comparable signal exists. Three
+routes were examined; all three are ruled out:
 
-| Zugang | Ergebnis |
+| Route | Result |
 |---|---|
-| EUR-Lex HTML (auch über ELI und LexUriServ) | HTTP 202, JS-Challenge — die Statuszeile „No longer in force" ist maschinell nicht erreichbar |
-| Cellar REST, `Accept: application/rdf+xml` | HTTP 200, aber ohne Geltungsprädikat im ausgelieferten Rumpf |
-| Cellar SPARQL-Endpunkt | erreichbar, indexiert für **Rechtsakte** aber nur **konsolidierte** CELEX (`02016R0679-20160504`); Basis-Akte liefern null Treffer, damit kein `in-force`, kein `end-of-validity`. **Für Rechtsprechung gilt das nicht** — s. Abschnitt unten |
+| EUR-Lex HTML (including via ELI and LexUriServ) | HTTP 202, JS challenge — the status line "No longer in force" is not machine-reachable |
+| Cellar REST, `Accept: application/rdf+xml` | HTTP 200, but no validity predicate in the body delivered |
+| Cellar SPARQL endpoint | reachable, but for **legal acts** it indexes only **consolidated** CELEX numbers (`02016R0679-20160504`); base acts return nothing, hence no `in-force` and no `end-of-validity`. **This does not hold for case law** — see the section below |
 
-### Für Rechtsprechung trägt Cellar doch
+On top of that comes a granularity mismatch: anchor pages sit at article level, validity
+status in EU law at act level. A dozen article nodes collapse into a single answer,
+which almost always reads "still in force".
 
-Der Negativbefund oben war zu breit formuliert. Er gilt für **Rechtsakte** — dort
-indexiert Cellar nur konsolidierte Fassungen. Für **Rechtsprechung** liefert derselbe
-Endpunkt das Prädikat `cdm:case-law_ecli` und damit eine belastbare ECLI-Verifikation:
+What matters more, though, is that EU law fails differently anyway. Regulations are
+rarely repealed — they apply **in stages**. The EU AI Act becomes applicable in four
+steps (2 Feb 2025 prohibitions, 2 Aug 2025 GPAI, 2 Aug 2026 high risk, 2 Aug 2027
+Annex I). When a stage is passed, the meaning of a page changes without a single
+character of the norm text changing: what was correctly phrased in the future tense
+yesterday is wrong today. No network comparison in the world notices this, because
+nothing changed that could be compared. It is checkable only against your own time
+axis — and that sits in the front matter.
+
+## Checking citations: existence and identity
+
+The routes below do **not** check evidential support. They check whether the cited
+decision exists and is the right one. The two must be kept strictly apart: that the
+decision exists says nothing about whether it supports the statement.
+
+### For case law Cellar does deliver
+
+The negative finding above was stated too broadly. It holds for **legal acts**, where
+Cellar indexes only consolidated versions. For **case law** the same endpoint provides
+the predicate `cdm:case-law_ecli` and with it a dependable ECLI verification:
 
 ```bash
 curl -s -G "https://publications.europa.eu/webapi/rdf/sparql" \
@@ -110,11 +147,11 @@ curl -s -G "https://publications.europa.eu/webapi/rdf/sparql" \
 # → 62021CJ0634, 2023-12-07  (C-634/21 SCHUFA)
 ```
 
-Gegen einen bestehenden Bestand erprobt: CELEX-Nummer und Entscheidungsdatum ließen sich
-durchweg gegen die Knotenbezeichnung halten. Das schließt die Lücke, die für
-EuGH-Entscheidungen bestand, seit EUR-Lex nicht mehr erreichbar ist.
+Tried against an existing corpus: CELEX number and decision date could be held against
+the node designation throughout. That closes the gap that had existed for Court of
+Justice decisions ever since EUR-Lex became unreachable.
 
-**Volltext einer EuGH-Entscheidung, in einer bestimmten Sprache** (gelöst 2026-11-20):
+**Full text of a Court of Justice decision, in a particular language:**
 
 ```sparql
 PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
@@ -127,32 +164,35 @@ SELECT ?m WHERE {
   FILTER(STR(?t) = 'xhtml')
 }
 ```
-Danach `<manifestation>/DOC_1` mit `Accept: application/xhtml+xml`.
+Then fetch `<manifestation>/DOC_1` with `Accept: application/xhtml+xml`.
 
-**Drei Stolpersteine, an denen zwei Anläufe gescheitert sind:**
-1. Das Sprachprädikat liegt im Namensraum **`cdm/cmr#`**, nicht in `cdm#`, und heißt dort
-   `lang` — also `cmr:lang`, nicht `cdm:lang` und nicht `cdm:expression_uses_language`.
-   Sein Wert ist ein **schlichtes Stringliteral** (`'deu'`, daneben `'de'`), **keine
-   Sprach-URI** aus dem Authority-Vokabular. Beide Fehlformen liefern null Treffer,
-   **ohne zu scheitern** — der naheliegende Fehlschluss ist dann, Cellar könne keine
-   Sprachauswahl. (Diese Korrektur am 2026-11-22: Die erste hier dokumentierte Fassung
-   nannte `cdm:lang` mit URI-Filter und funktionierte deshalb nicht.)
-2. `cdm:manifestation_type 'xhtml'` als getyptes Literal matcht nicht zuverlässig;
-   `FILTER(STR(?t)='xhtml')` schon.
-3. Der Text liegt unter `<manifestation>/DOC_1` **oder** `/DOC_2`. Die Manifestations-URI
-   selbst liefert nur RDF-Metadaten, nicht den Text.
+**Three stumbling blocks that defeated two earlier attempts:**
+1. The language predicate lives in the namespace **`cdm/cmr#`**, not in `cdm#`, and is
+   called `lang` there — so `cmr:lang`, not `cdm:lang` and not
+   `cdm:expression_uses_language`. Its value is a **plain string literal** (`'deu'`,
+   alongside `'de'`), **not a language URI** from the authority vocabulary. Both wrong
+   forms return nothing **without failing** — the tempting conclusion is then that
+   Cellar cannot select by language. (The first version documented here named
+   `cdm:lang` with a URI filter and therefore did not work.)
+2. `cdm:manifestation_type 'xhtml'` as a typed literal does not match reliably;
+   `FILTER(STR(?t)='xhtml')` does.
+3. The text sits under `<manifestation>/DOC_1` **or** `/DOC_2`. The manifestation URI
+   itself returns only RDF metadata, not the text.
 
-Ohne Sprachfilter bekommt man eine beliebige der rund 25 Fassungen — im Testlauf war es
-Irisch. Für Zahlen-, Tenor- und Randnummernprüfung genügt jede Fassung; für wörtliche
-Zitate nicht.
+Without a language filter you get an arbitrary one of the roughly 25 versions — in a
+test run it was Irish. For checking figures, the operative part and paragraph numbers
+any version will do; for verbatim quotation it will not.
 
-Zwei Einschränkungen: Die Abfrage braucht einen **gebundenen Gegenstand** (ECLI oder
-CELEX) — unbeschränkte Prädikatssuchen laufen in den Timeout. Und sie verifiziert eine
-**vorhandene** ECLI; sie findet keine fehlende. Die Richtung Aktenzeichen → ECLI bleibt
-unscharf und darf nicht automatisiert werden.
+Two limitations: the query needs a **bound subject** (ECLI or CELEX) — unbounded
+predicate searches run into the timeout. And it verifies an **existing** ECLI; it does
+not find a missing one. The direction case number → ECLI remains fuzzy and must not be
+automated.
 
-Für deutsche Entscheidungen ist das Gegenstück `testphase.rechtsinformationen.bund.de/v1/rechtsprechung`.
-Dort trägt **nicht nur `ecli`**, sondern auch die Kombination **`fileNumber` + `court`**:
+### German decisions via the federal case-law API
+
+The counterpart for German decisions is
+`testphase.rechtsinformationen.bund.de/v1/rechtsprechung`. There **not only `ecli`**
+works, but also the combination **`fileNumber` + `court`**:
 
 ```bash
 curl -s -G "https://testphase.rechtsinformationen.bund.de/v1/rechtsprechung" \
@@ -160,31 +200,33 @@ curl -s -G "https://testphase.rechtsinformationen.bund.de/v1/rechtsprechung" \
 # → ECLI:DE:BGH:2023:121223BVIZR277.22.0
 ```
 
-Das korrigiert eine ältere Einschätzung: Die Richtung Aktenzeichen → Entscheidung galt als
-unbrauchbar, weil `searchTerm="1 BvR 209/83"` 468 Treffer lieferte. Das ist ein Befund über
-`searchTerm`, nicht über die API — der dedizierte `fileNumber`-Filter trifft punktgenau.
-Über mehrere Dutzend Fundstellen erprobt, ohne Fehltreffer.
+This corrects an earlier assessment: the direction case number → decision was thought
+unusable because `searchTerm="1 BvR 209/83"` returned 468 hits. That is a finding about
+`searchTerm`, not about the API — the dedicated `fileNumber` filter hits precisely.
+Tried across several dozen citations without a false hit.
 
-**Die Trefferquote ist selbst ein Befund und muss so gelesen werden.** Bestätigt wurden
-ausschließlich Bundesgerichte (BGH, BVerfG, BVerwG, BAG, BFH), nicht getroffen ausschließlich
-Instanzgerichte (OLG, LG, AG, VG). Der Bestand des Portals ist bundesgerichtszentriert und
-beginnt etwa bei 2010. Ein Nulltreffer ist deshalb `nicht prüfbar`, **niemals** `erfunden` —
-wer das verwechselt, erzeugt aus einer Bestandsgrenze eine Falschbeschuldigung gegen den
-eigenen Bestand. Und weiterhin gilt: Aus einem Nulltreffer darf keine ECLI erschlossen werden.
+**The hit rate is itself a finding and must be read as one.** What was confirmed were
+exclusively federal courts (BGH, BVerfG, BVerwG, BAG, BFH); what was missed were
+exclusively lower courts (OLG, LG, AG, VG). The portal's holdings are centred on the
+federal courts and begin around 2010. A null result is therefore `not checkable`,
+**never** `fabricated` — confusing the two turns a limit of the holdings into a false
+accusation against your own corpus. And it still holds: no ECLI may be inferred from a
+null result.
 
-Vorsicht bei der Auswertung: `fileNumber` matcht auch quer über Gerichtsbarkeiten. „6 S 21/21"
-traf ein BSG-Verfahren, „15 W 13/26" ein BPatG-Verfahren. Das Gericht des Treffers ist deshalb
-gegen das zitierte Gericht abzugleichen, sonst zählt man Zufallstreffer als Bestätigung.
-Dessen Bestand beginnt etwa bei 2010: Lüth (1958), Spiegel (1966) und Volkszählung (1983)
-liefern null Treffer. Das ist ein Befund über den Bestand, **nicht über die ECLI** — solche
-Fälle gehören als `nicht prüfbar` geführt, nicht als Fehler.
+Take care when evaluating: `fileNumber` also matches across jurisdictions. "6 S 21/21"
+hit a Federal Social Court case, "15 W 13/26" a Federal Patent Court case. The court of
+the hit must therefore be compared against the court cited, otherwise you count
+coincidental matches as confirmations. The holdings begin around 2010: Lüth (1958),
+Spiegel (1966) and the Census judgment (1983) return nothing. That is a finding about
+the holdings, **not about the ECLI** — such cases belong in `not checkable`, not among
+the errors.
 
-### Wenn das Aktenzeichen nicht zum Gegenstand passt
+### When the case number does not fit the subject matter
 
-`searchTerm` ist für die Richtung Aktenzeichen → Entscheidung unbrauchbar (s.o., 468 Treffer),
-für die **umgekehrte** Richtung aber das schärfste Werkzeug. Trägt ein Abschnitt ein
-Aktenzeichen, unter dem eine ganz andere Sache liegt, findet man die tatsächlich gemeinte
-Entscheidung über ihren Gegenstand:
+`searchTerm` is unusable for the direction case number → decision (see above, 468 hits),
+but for the **reverse** direction it is the sharpest tool available. If a section carries
+a case number under which an entirely different matter sits, the decision actually meant
+can be found via its subject matter:
 
 ```bash
 curl -s -G "https://testphase.rechtsinformationen.bund.de/v1/rechtsprechung" \
@@ -194,129 +236,114 @@ curl -s -G "https://testphase.rechtsinformationen.bund.de/v1/rechtsprechung" \
 #   abgeschlossenen Disziplinarverfahrens", ECLI:DE:BVerwG:2020:131020U2C41.18.0
 ```
 
-**Der Senat ist dabei ein kostenloser Zusatztest.** `judicialBody` im Treffer gegen den
-Gegenstand halten: Ein presserechtlicher Auskunftsanspruch gegen einen Beamten gehört zum
-Beamtensenat, nicht zum Senat für Informationsfreiheitsrecht. Passt der Senat nicht zur
-Sache, stimmt das Aktenzeichen nicht — das fällt auf, ohne eine Abfrage zu kosten.
+**The senate is a free extra test.** Hold `judicialBody` in the hit against the subject
+matter: a press claim to information about a civil servant belongs to the civil-service
+senate, not to the senate for freedom-of-information law. If the senate does not fit the
+matter, the case number is wrong — and that shows up without costing a query.
 
-**Die Notation der Aktenzeichen ist kein stabiles Merkmal.** Die API nimmt BVerwG-Aktenzeichen
-mal mit Punkt, mal mit Schrägstrich: `6 C 10/21` trifft, `6 C 10.21` liefert null — bei
-derselben Entscheidung, deren ECLI im Bestand steht. In anderen Fällen ist es umgekehrt.
-Jede Abfrage ist deshalb **in beiden Formen** zu stellen, bevor ein Nulltreffer gezählt wird.
-Sonst meldet man den eigenen Abfragefehler als Befund über den Bestand.
+**The notation of case numbers is not a stable feature.** The API takes Federal
+Administrative Court case numbers sometimes with a dot, sometimes with a slash:
+`6 C 10/21` hits, `6 C 10.21` returns nothing — for the same decision, whose ECLI is in
+the holdings. In other cases it is the other way round. Every query must therefore be
+made **in both forms** before a null result is counted. Otherwise you report your own
+query error as a finding about the corpus.
 
-### Verbundene Rechtssachen liegen in Cellar nur unter der Leitsache
+### Joined cases sit in Cellar only under the lead case
 
-Das zweite, dritte, vierte Aktenzeichen eines verbundenen Verfahrens liefert null Treffer,
-obwohl das Urteil existiert. Nachweisbar über den Titel der Leitsache, der die Verbindung
-ausdrücklich nennt — `cdm:expression_title` endet dann auf „Verbundene Rechtssachen C-339/20
-und C-397/20." Wer die Gegenprobe auslässt, meldet ein verbundenes Verfahren als erfunden.
+The second, third, fourth case number of joined proceedings returns nothing even though
+the judgment exists. This is demonstrable via the title of the lead case, which names
+the joinder explicitly — `cdm:expression_title` then ends with "Verbundene Rechtssachen
+C-339/20 und C-397/20." Skip that control and you report joined proceedings as
+fabricated.
 
-### DFR Bern für historische BVerfG-Entscheidungen
+### DFR Bern for historical Federal Constitutional Court decisions
 
-`https://www.servat.unibe.ch/dfr/bvVVVPPP.html` — Band und Seite jeweils dreistellig
-aufgefüllt (BVerfGE 7, 377 → `bv007377.html`). Volltext samt Leitsätzen und
-Entscheidungsnamen. Damit sind BVerfGE-Bandzitate zweifach prüfbar: Band und Seite über den
-HTTP-Status, die Kurzbezeichnung gegen den Entscheidungsnamen im Titel — „BVerfGE 7, 29" ist
-*Pressedelikte*, nicht Lüth (das ist 7, 198). Die Rechtsprechungs-API des Bundes beginnt etwa
-bei 2010 und erfasst solche Entscheidungen nicht; DFR schließt diese Lücke.
+`https://www.servat.unibe.ch/dfr/bvVVVPPP.html` — volume and page each zero-padded to
+three digits (BVerfGE 7, 377 → `bv007377.html`). Full text including headnotes and the
+name of the decision. This makes BVerfGE volume citations checkable twice over: volume
+and page via the HTTP status, the short name against the decision name in the title —
+"BVerfGE 7, 29" is *Pressedelikte*, not Lüth (that is 7, 198). The federal case-law API
+begins around 2010 and does not cover such decisions; DFR closes that gap.
 
-### Die häufigste Ursache für „nicht prüfbar" ist die eigene Notation
+### The commonest cause of "not checkable" is your own notation
 
-Einträge wie „LG Köln 4.000 EUR (KW47 2022)" oder „BGH NJW 2018, 2324" nennen **kein
-Aktenzeichen** und sind deshalb prinzipiell unprüfbar — nicht wegen der Quelle, sondern wegen
-der eigenen Schreibweise. Sie entstehen typischerweise bei Newsletter-Ingests, die nur
-Kalenderwoche oder Zeitschriftenfundstelle liefern. Wer die Prüfquote heben will, setzt hier
-an und nicht bei den Werkzeugen: Ein Aktenzeichen beim Ingest zu beschaffen ist billiger, als
-es später zu rekonstruieren.
+Entries such as "LG Köln 4.000 EUR (KW47 2022)" or "BGH NJW 2018, 2324" name **no case
+number** and are therefore unverifiable in principle — not because of the source but
+because of how you wrote them down. They typically arise from newsletter ingests that
+supply only a calendar week or a journal reference. If you want to raise the check rate,
+start here and not with the tools: obtaining a case number during ingest is cheaper than
+reconstructing one later.
 
-Hinzu kommt ein Granularitätsbruch: Ankerseiten liegen auf Artikelebene, der
-Geltungsstatus im EU-Recht auf Aktebene. Ein Dutzend Artikelknoten kollabiert zu einer
-einzigen Auskunft, die fast immer „gilt noch" lautet.
+## Adapting to your own situation
 
-Entscheidend ist aber, dass EU-Recht ohnehin anders scheitert. Verordnungen werden
-selten aufgehoben — sie gelten **gestaffelt**. Der EU AI Act wird in vier Stufen
-anwendbar (02.02.2025 Verbote, 02.08.2025 GPAI, 02.08.2026 Hochrisiko, 02.08.2027
-Anhang I). Beim Überschreiten einer Stufe ändert sich der Aussagegehalt einer Seite,
-ohne dass sich am Normtext ein Zeichen ändert: Was gestern im Futur richtig formuliert
-war, ist heute falsch. Kein Netzabgleich der Welt bemerkt das, weil sich nichts
-geändert hat, das man abgleichen könnte. Prüfbar ist es nur gegen die eigene
-Zeitachse — und die steht im Frontmatter.
+- **`EXCLUDE`** in all of them: folders inside the wiki folder that are not part of the wiki.
+- **`GESETZE`** in `normtext_check.py`: mapping of statute abbreviations to portal slugs.
+  The table shipped applies to German federal law on `gesetze-im-internet.de`. EU law,
+  interstate treaties and convention law are not held there and are skipped. For other
+  jurisdictions this table and the `BASIS` URL must be replaced.
+- **`SAGT_KUENFTIG`** and **`IST_URTEIL`** in `staffelung_check.py`: both patterns are
+  **language-bound**. `SAGT_KUENFTIG` detects from German phrasing whether a page
+  presents itself as future law; `IST_URTEIL` recognises decision nodes by German and
+  European court abbreviations and case-number formats. Anyone writing in another
+  language or jurisdiction must replace both — otherwise S5 reports every decision as a
+  missing field.
 
-## Anpassung an die eigene Lage
+## Lessons from running them
 
-- **`EXCLUDE`** in allen vieren: Ordner innerhalb des Wiki-Ordners, die nicht zum Wiki gehören.
-- **`GESETZE`** in `normtext_check.py`: Zuordnung von Gesetzeskürzeln zu Portal-Slugs.
-  Die mitgelieferte Tabelle gilt für deutsches Bundesrecht auf `gesetze-im-internet.de`.
-  EU-Recht, Staatsverträge und Konventionsrecht liegen dort nicht und werden übersprungen.
-  Für andere Rechtsordnungen ist diese Tabelle samt `BASIS`-URL zu ersetzen.
-- **`SAGT_KUENFTIG`** und **`IST_URTEIL`** in `staffelung_check.py`: beide Muster sind
-  **sprachgebunden**. `SAGT_KUENFTIG` erkennt an deutschen Formulierungen, ob eine Seite
-  sich selbst als künftiges Recht ausweist; `IST_URTEIL` erkennt Entscheidungsknoten an
-  deutschen und europäischen Gerichtskürzeln und Aktenzeichenformaten. Wer in einer
-  anderen Sprache oder Rechtsordnung schreibt, muss beide ersetzen — sonst meldet S5
-  sämtliche Entscheidungen als Feldlücke.
+Six points that save time when rebuilding this:
 
-## Erfahrungen aus dem Betrieb
+1. **Every finding needs a control before it leads to an action.** On first use every
+   tool produced false alarms: an ECLI pattern that allowed only capitals for court
+   abbreviations and therefore flagged every German ECLI; a citekey pattern that broke
+   at the full stop; a URL check by HEAD that reported official servers as dead when
+   they answer GET with 200. All three causes are commented in the code.
+2. **Exempt the history.** `log.md` and `index.md` must not be touched by correction
+   runs. A log records what happened at the time and is not smoothed over afterwards.
+3. **Resolve HTML entities before comparing.** `gesetze-im-internet.de` delivers `§` as
+   `&#167;`; a pattern matching `§` finds nothing there.
+4. **Do not identify decision nodes by the `ecli:` field.** Tempting, but wrong: a large
+   share of decision nodes carry no ECLI — older BVerfGE citations, BGH case numbers,
+   lower courts. On the first run `staffelung_check.py` therefore reported eleven
+   judgments as missing norm fields. Detection additionally needs a pattern for court
+   abbreviations and case numbers.
+5. **A PDF attachment is not yet full text.** The obvious check for whether a source can
+   be verified asks for a PDF or HTML attachment. It fails as soon as the PDF is a scan
+   without an OCR layer: the file is there but yields zero characters. In practice this
+   affected five cited sources, among them the only supporting source of an entire core
+   section, and the verifier correctly reported "not checkable" there while the integrity
+   check listed the same source as supplied. The check must therefore run `pdftotext`
+   against the file. Conversely: an empty full-text cache in the reference manager does
+   **not** prove that the text layer is missing — it may simply never have been built.
+   Here too, only looking into the file separates the two cases.
 
-Sechs Punkte, die beim Nachbau Zeit sparen:
+   The scan case is mechanically fixable: `ocrmypdf --language deu --skip-text <pdf>
+   <pdf-new>`. The tool therefore reports the affected sources as a class of their own
+   instead of mixing them with sources that have no attachment, because the one kind can
+   be opened up in minutes and the other not at all.
+6. **A guard with a frozen reference date is no guard.** The other tools may carry a
+   fixed date because they check against an external source. This one checks against the
+   calendar: it takes `date.today()`, otherwise it would never notice a stage being
+   passed. Before adopting it, run it with `--datum` set beyond the next stage — a check
+   that never fires looks exactly like one that works.
 
-1. **Jeder Befund braucht eine Gegenprobe, bevor er zu einer Handlung führt.** Beim
-   ersten Einsatz produzierte jedes Werkzeug Fehlalarme: ein ECLI-Muster, das für
-   Gerichtskürzel nur Großbuchstaben zuließ und damit jede deutsche ECLI traf; ein
-   citekey-Muster, das am Punkt abbrach; eine URL-Prüfung per HEAD, die amtliche Server
-   als tot meldete, die auf GET mit 200 antworten. Alle drei Ursachen sind im Code
-   kommentiert.
-2. **Historie ausnehmen.** `log.md` und `index.md` dürfen von Korrekturläufen nicht
-   erfasst werden. Ein Protokoll hält fest, was damals geschah, und wird nicht
-   nachträglich geglättet.
-3. **HTML-Entities vor dem Vergleich auflösen.** `gesetze-im-internet.de` liefert `§`
-   als `&#167;`; ein Muster auf `§` findet dort nichts.
-4. **Entscheidungsknoten nicht am `ecli:`-Feld erkennen.** Naheliegend, aber falsch: ein
-   großer Teil der Entscheidungsknoten führt kein ECLI — ältere BVerfGE-Zitate, BGH-
-   Aktenzeichen, Instanzgerichte. Beim ersten Lauf meldete `staffelung_check.py` deshalb
-   elf Urteile als fehlende Normfelder. Die Erkennung braucht zusätzlich ein Muster auf
-   Gerichtskürzel und Aktenzeichen.
-5. **Ein PDF-Attachment ist noch kein Volltext.** Die naheliegende Prüfung, ob eine
-   Quelle belegprüfbar ist, fragt nach einem PDF- oder HTML-Attachment. Sie geht fehl,
-   sobald das PDF ein Scan ohne OCR-Ebene ist: Die Datei liegt vor, liefert aber null
-   Zeichen. Im Betrieb betraf das fünf zitierte Quellen, darunter die einzige tragende
-   Quelle eines ganzen Kernabschnitts, und der Verifier meldete dort folgerichtig
-   „nicht prüfbar", während der Integritäts-Check dieselbe Quelle als versorgt führte.
-   Die Prüfung muss deshalb `pdftotext` gegen die Datei laufen lassen. Umgekehrt gilt:
-   Ein leerer Volltext-Cache der Literaturverwaltung beweist **nicht**, dass die
-   Textebene fehlt — er kann schlicht nicht aufgebaut worden sein. Auch hier trennt
-   erst der Blick in die Datei die beiden Fälle.
+## What they cannot do
 
-   Behebbar ist der Scan-Fall mechanisch: `ocrmypdf --language deu --skip-text <pdf>
-   <pdf-neu>`. Das Werkzeug weist die betroffenen Quellen deshalb als eigene Klasse
-   aus, statt sie mit den Quellen ohne Attachment zu vermengen, denn die einen lassen
-   sich in Minuten erschließen und die anderen gar nicht.
-6. **Ein Wächter mit eingefrorenem Stichdatum ist keiner.** Die anderen Werkzeuge dürfen
-   ein festes Datum tragen, weil sie gegen eine externe Quelle prüfen. Dieses prüft gegen
-   den Kalender: Es nimmt `date.today()`, sonst bemerkt es das Überschreiten einer Stufe
-   nie. Vor der Übernahme empfiehlt sich ein Lauf mit `--datum` auf ein Datum jenseits der
-   nächsten Stufe — ein Prüfwerkzeug, das nie auslöst, sieht von einem funktionierenden
-   nicht zu unterscheiden aus.
+`wiki_integrity_check.py` requires `pdftotext` (Poppler) for the full-text check and
+expects the attachment store under `~/Zotero/storage`. If either is missing, the check
+falls back to the old attachment heuristic instead of producing false findings.
 
-## Was sie nicht können
+None of the tools checks whether a statement is substantively correct.
+`normtext_check.py` detects that a norm has been repealed, not whether the
+interpretation on the page is right. `staffelung_check.py` checks the time axis against
+your own front-matter entries — if a `wirksam_ab:` was wrong to begin with, it will
+confirm that error without contradiction. It reports inconsistency, not incorrectness.
 
-`wiki_integrity_check.py` setzt für die Volltextprüfung `pdftotext` (Poppler) voraus
-und erwartet den Attachment-Speicher unter `~/Zotero/storage`. Fehlt eines von beidem,
-fällt die Prüfung auf die alte Attachment-Heuristik zurück, statt falsche Befunde zu
-erzeugen.
+`rang_check.py` can only check a callout that **names a norm**. Where only a decision
+stands there (`· EuGH C-131/12 (Google Spain)`), it has nothing to anchor on and stays
+silent. In the reference corpus exactly that spot carried rank 2 for years, although the
+judgment was handed down on Directive 95/46/EC and is therefore rank 3. Callouts without
+a norm reference remain manual work — the tool narrows the surface to be checked, it
+does not replace it.
 
-Keines der Werkzeuge prüft, ob eine Aussage inhaltlich zutrifft. `normtext_check.py`
-erkennt, dass eine Norm weggefallen ist, nicht ob die Auslegung auf der Seite stimmt.
-`staffelung_check.py` prüft die Zeitachse gegen die eigenen Frontmatter-Angaben — ist
-ein `wirksam_ab:` von vornherein falsch eingetragen, bestätigt er diesen Fehler
-widerspruchsfrei. Er meldet Unstimmigkeit, nicht Unrichtigkeit.
-
-`rang_check.py` kann einen Callout nur prüfen, wenn er eine **Norm nennt**. Steht dort
-allein eine Entscheidung (`· EuGH C-131/12 (Google Spain)`), fehlt ihm der Anknüpfungs-
-punkt und er schweigt. Im Referenzbestand stand genau dort jahrelang Rang 2, obwohl das
-Urteil zur Richtlinie 95/46/EG erging und damit Rang 3 ist. Callouts ohne Normangabe
-bleiben Handarbeit — das Werkzeug verengt die Prüffläche, es ersetzt sie nicht.
-
-Die Grenze ist dieselbe wie beim Verifikations-Pass: geprüft wird Belegtheit und
-Aktualität, nicht Richtigkeit.
+The limit is the same as for the verification pass: what gets checked is evidential
+support and currency, not correctness.

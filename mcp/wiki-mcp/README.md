@@ -1,59 +1,55 @@
-# wiki-mcp — Read-only MCP-Server für das Obsidian-Wiki
+**🇬🇧 English** · [🇩🇪 Deutsch](README.de.md)
 
-## Zweck
+# wiki-mcp — read-only MCP server for the Obsidian wiki
 
-`wiki-mcp` macht ein Obsidian-Markdown-Wiki für einen MCP-Client (Claude Code,
-Claude Desktop) strukturiert zugänglich — nicht als Dateibaum, sondern als
-Wissensgraph: Volltextsuche, Seitenabruf, Normknoten mit ihren Fundstellen,
-Backlinks sowie zwei Pflege-Berichte (unverifizierte Seiten, veralteter
-Rechtsstand).
+## Purpose
 
-Der Server ist bewusst klein: eine einzige Datei, ausschließlich
-Python-Standardbibliothek, kein MCP-SDK. Das MCP-Protokoll (JSON-RPC 2.0) ist
-direkt implementiert. Lauffähig unter Python 3.9 — also mit dem
-System-Python von macOS (`/usr/bin/python3`).
+`wiki-mcp` makes an Obsidian Markdown wiki accessible to an MCP client (Claude Code,
+Claude Desktop) in a structured way — not as a file tree but as a knowledge graph:
+full-text search, page retrieval, norm nodes with the pages citing them, backlinks, plus
+two maintenance reports (unverified pages, outdated legal currency).
 
-## Sicherheitsmodell
+The server is deliberately small: a single file, Python standard library only, no MCP
+SDK. The MCP protocol (JSON-RPC 2.0) is implemented directly. It runs on Python 3.9 —
+that is, with the system Python shipped with macOS (`/usr/bin/python3`).
 
-**stdio statt Netzwerk.** Der Server kommuniziert über newline-getrenntes JSON
-auf `stdin`/`stdout`. Er öffnet keinen Port, bindet keine Adresse und
-importiert keine Netzwerkmodule. Von Dritten ist er nicht erreichbar, weil es
-nichts gibt, womit man sich verbinden könnte — der Prozess existiert nur als
-Kindprozess des MCP-Clients auf demselben Rechner und stirbt mit ihm.
+## Security model
 
-**Read-only by design.** Es gibt bewusst kein Schreib-Tool. Der Server
-schreibt, verschiebt und löscht keine Datei. Die einzige Dateisystemoperation
-ist das Lesen von `.md`-Dateien. Ein fehlgeleitetes Modell kann über diesen
-Server keinen Vault beschädigen.
+**stdio instead of network.** The server communicates via newline-delimited JSON on
+`stdin`/`stdout`. It opens no port, binds no address and imports no networking modules.
+Third parties cannot reach it because there is nothing to connect to — the process
+exists only as a child process of the MCP client on the same machine and dies with it.
 
-**Pfad-Härtung.** Jeder Pfadparameter wird mit `os.path.realpath` gegen den
-Wiki-Root aufgelöst. Absolute Pfade, Tilde-Pfade, `..`-Segmente und Symlinks,
-die aus dem Root herausführen, werden mit einer Fehlermeldung abgewiesen,
-bevor irgendetwas gelesen wird.
+**Read-only by design.** There is deliberately no write tool. The server writes, moves
+and deletes no file. Its only filesystem operation is reading `.md` files. A misguided
+model cannot damage a vault through this server.
 
-**Keine Ausgabe nach stdout außer Protokoll.** Diagnosemeldungen gehen
-ausschließlich nach `stderr`. Ein versehentliches `print` würde den
-JSON-RPC-Strom zerstören; der Code vermeidet das konsequent.
+**Path hardening.** Every path parameter is resolved against the wiki root with
+`os.path.realpath`. Absolute paths, tilde paths, `..` segments and symlinks leading out
+of the root are rejected with an error message before anything is read.
+
+**No output to stdout except the protocol.** Diagnostic messages go exclusively to
+`stderr`. An accidental `print` would destroy the JSON-RPC stream; the code avoids this
+consistently.
 
 ## Installation
 
-Keine. Es gibt keine Abhängigkeiten, kein `pip install`, keine virtuelle
-Umgebung. Vorausgesetzt wird lediglich ein Python ab Version 3.9 — auf macOS
-genügt das mitgelieferte `/usr/bin/python3`.
+None. There are no dependencies, no `pip install`, no virtual environment. All that is
+required is Python 3.9 or later — on macOS the bundled `/usr/bin/python3` is enough.
 
-Manueller Probelauf:
+Manual trial run:
 
 ```bash
-python3 server.py --wiki-root "/PFAD/ZU/DEINEM/VAULT/[WIKI-ORDNER]" \
-    --exclude "[NICHT-WIKI-ORDNER]"
+python3 server.py --wiki-root "/PATH/TO/YOUR/VAULT/[WIKI-FOLDER]" \
+    --exclude "[NON-WIKI-FOLDER]"
 ```
 
-Der Server wartet dann auf JSON-RPC-Zeilen auf stdin. Im Normalbetrieb startet
-ihn der MCP-Client.
+The server then waits for JSON-RPC lines on stdin. In normal operation the MCP client
+starts it.
 
-## Konfiguration
+## Configuration
 
-In der `.mcp.json` des Vaults (oder in der Client-Konfiguration):
+In the vault's `.mcp.json` (or in the client configuration):
 
 ```json
 {
@@ -61,88 +57,80 @@ In der `.mcp.json` des Vaults (oder in der Client-Konfiguration):
     "wiki": {
       "command": "python3",
       "args": [
-        "/PFAD/ZU/DEINEM/VAULT/.wiki-mcp/server.py",
+        "/PATH/TO/YOUR/VAULT/.wiki-mcp/server.py",
         "--wiki-root",
-        "/PFAD/ZU/DEINEM/VAULT/[WIKI-ORDNER]",
+        "/PATH/TO/YOUR/VAULT/[WIKI-FOLDER]",
         "--exclude",
-        "[NICHT-WIKI-ORDNER]"
+        "[NON-WIKI-FOLDER]"
       ]
     }
   }
 }
 ```
 
-`--exclude` ist mehrfach angebbar und meint Ordnernamen, nicht Pfade.
-Verzeichnisse, die mit `.` beginnen (etwa `.obsidian`), werden ohnehin immer
-übersprungen.
+`--exclude` may be given more than once and refers to folder names, not paths.
+Directories beginning with `.` (such as `.obsidian`) are always skipped anyway.
 
-## Die 7 Tools
+## The 7 tools
 
-| Tool | Parameter | Ergebnis |
+| Tool | Parameters | Result |
 |---|---|---|
 | `wiki_info` | – | `version`, `wiki_root`, `pages_total`, `by_type`, `by_wiki_category`, `folders`, `indexed_at` |
-| `search_wiki` | `query` (Pflicht), `limit` (Standard 20), `regex` (Standard `false`), `folder` (optional) | Trefferdateien mit je bis zu drei Fundzeilen (`line_no`, `text`, auf 300 Zeichen gekürzt) |
-| `get_page` | `path` (Pflicht) | `path`, `title`, `frontmatter`, `content` |
-| `get_norm` | `norm` (Pflicht) | `node_page` (Normknoten-Seite) und `citing_pages` (alle Seiten mit der Norm im `normen:`-Frontmatter) |
-| `get_backlinks` | `page` (Pflicht) | alle Seiten mit einem Wikilink auf die Seite, je bis zu zwei Kontextzeilen |
-| `list_unverified` | `limit` (Standard 50) | Seiten mit Quellen, aber ohne `verifiziert:`, sowie Seiten mit offenem `[!unbelegt]`-Befund, je mit `reason` |
-| `list_stale` | `days` (Standard 365), `limit` (Standard 50) | Seiten mit `rechtsstand:` älter als `days`, absteigend nach `age_days` |
+| `search_wiki` | `query` (required), `limit` (default 20), `regex` (default `false`), `folder` (optional) | matching files with up to three matching lines each (`line_no`, `text`, truncated to 300 characters) |
+| `get_page` | `path` (required) | `path`, `title`, `frontmatter`, `content` |
+| `get_norm` | `norm` (required) | `node_page` (the norm-node page) and `citing_pages` (all pages carrying the norm in their `normen:` front matter) |
+| `get_backlinks` | `page` (required) | all pages with a wikilink to the page, up to two context lines each |
+| `list_unverified` | `limit` (default 50) | pages with sources but without `verifiziert:`, plus pages with an open `[!unbelegt]` finding, each with a `reason` |
+| `list_stale` | `days` (default 365), `limit` (default 50) | pages whose `rechtsstand:` is older than `days`, descending by `age_days` |
 
-Erläuterungen:
+Notes:
 
-- **Suche.** Ohne `regex` wird `query` als Literal gesucht; ein `|` trennt
-  mehrere Literale als ODER (`"Einwilligung|Consent"`). Mit `regex: true`
-  wird `query` als regulärer Ausdruck ausgewertet. In beiden Fällen
-  case-insensitiv. `folder` begrenzt die Suche auf einen Unterordner
-  (relativ zum Wiki-Root).
-- **Seitenabruf.** `path` ist relativ zum Wiki-Root, die Endung `.md` ist
-  optional. Schlägt der Pfad fehl, wird wie bei einem Obsidian-Wikilink über
-  den Dateinamen aufgelöst; bei Mehrdeutigkeit liefert das Tool die
-  Kandidatenliste statt einer willkürlichen Auswahl.
-- **Normen.** Der Abgleich normalisiert Whitespace und ignoriert
-  Groß-/Kleinschreibung. `"DSGVO Art. 6"` findet auch Einträge wie
-  `"DSGVO Art. 6 Abs. 1 lit. f"`.
-- **Backlinks.** Erkannt werden `[[Name]]`, `[[Name|Alias]]`, das in
-  Tabellen nötige `[[Name\|Alias]]`, `[[Name#Abschnitt]]` und
-  `[[Ordner/Name]]`.
+- **Search.** Without `regex`, `query` is searched as a literal; a `|` separates several
+  literals as OR (`"Einwilligung|Consent"`). With `regex: true`, `query` is evaluated as
+  a regular expression. Both are case-insensitive. `folder` restricts the search to a
+  subfolder (relative to the wiki root).
+- **Page retrieval.** `path` is relative to the wiki root; the `.md` extension is
+  optional. If the path fails, resolution falls back to the file name as with an
+  Obsidian wikilink; where this is ambiguous the tool returns the list of candidates
+  rather than an arbitrary choice.
+- **Norms.** Matching normalises whitespace and ignores case. `"DSGVO Art. 6"` also
+  finds entries such as `"DSGVO Art. 6 Abs. 1 lit. f"`.
+- **Backlinks.** Recognised are `[[Name]]`, `[[Name|Alias]]`, the `[[Name\|Alias]]`
+  form required inside tables, `[[Name#Section]]` and `[[Folder/Name]]`.
 
-Alle Tools antworten mit einem JSON-Dokument im Textfeld der MCP-Antwort
-(`ensure_ascii=False`, eingerückt).
+All tools answer with a JSON document in the text field of the MCP response
+(`ensure_ascii=False`, indented).
 
-## Mehrgeräte-Betrieb
+## Multi-device operation
 
-Code und Vault liegen in einem synchronisierten Ordner (iCloud, Dropbox,
-Syncthing). Synchronisiert wird nur die Datei `server.py` samt Vault — nicht
-der laufende Dienst. Auf jedem Gerät startet der lokale MCP-Client seine
-eigene Instanz gegen die lokale Kopie des Vaults. Es gibt keinen gemeinsamen
-Server, keine Sitzung über Netz und nichts, was zwischen Geräten geteilt
-würde. Fällt ein Gerät aus, betrifft das die anderen nicht.
+Code and vault live in a synchronised folder (iCloud, Dropbox, Syncthing). What is
+synchronised is only the file `server.py` together with the vault — not the running
+service. On each device the local MCP client starts its own instance against the local
+copy of the vault. There is no shared server, no session over the network and nothing
+shared between devices. If one device fails, the others are unaffected.
 
-Kanonisch ist die Fassung im Repository (`mcp/wiki-mcp/server.py`). Die
-Vault-Kopie unter `.wiki-mcp/server.py` wird mit `sync.sh` aktualisiert:
+The canonical version is the one in the repository (`mcp/wiki-mcp/server.py`). The vault
+copy under `.wiki-mcp/server.py` is updated with `sync.sh`:
 
 ```bash
-bash sync.sh "/Pfad/zum/Vault"
+bash sync.sh "/path/to/vault"
 ```
 
-Das Skript legt das Zielverzeichnis an, vergleicht vorher die
-`WIKI_MCP_VERSION` beider Stände und meldet eine Abweichung, bevor es kopiert.
+The script creates the target directory, compares the `WIKI_MCP_VERSION` of both
+versions beforehand and reports a discrepancy before copying.
 
-## Grenzen
+## Limits
 
-- **Kein Schreibzugriff.** Änderungen am Wiki erfolgen weiterhin über den
-  Dateizugriff des Clients, nicht über diesen Server. Das ist Absicht.
-- **Index im Speicher.** Alle Seiten werden beim Start vollständig eingelesen.
-  Bei einigen hundert Dateien ist das unmerklich; bei sehr großen Vaults
-  (zehntausende Dateien) wäre ein persistenter Index sinnvoller.
-- **Auffrischung über mtime.** Vor jedem Tool-Aufruf wird der Baum
-  durchlaufen und geänderte, neue oder gelöschte Dateien werden nachgeführt.
-  Das ist für iCloud-Vaults nötig, kostet aber pro Aufruf einen Verzeichnis-
-  Scan. Dateien, deren Änderungszeit nicht fortgeschrieben wird, bleiben
-  unbemerkt.
-- **Einfacher YAML-Parser.** Unterstützt werden `key: wert`, `key: [a, b]`
-  und mehrzeilige Listen mit `  - wert`. Verschachtelte Strukturen, Anker
-  und Blockskalare werden ignoriert — für das Frontmatter-Schema dieses Wikis
-  genügt das, ein vollständiger YAML-Parser ist es nicht.
-- **Ordnerausschluss nach Namen.** `--exclude` vergleicht Ordnernamen auf
-  jeder Ebene, nicht Pfade.
+- **No write access.** Changes to the wiki still happen through the client's file
+  access, not through this server. That is intentional.
+- **In-memory index.** All pages are read in full at startup. With a few hundred files
+  this is imperceptible; for very large vaults (tens of thousands of files) a persistent
+  index would make more sense.
+- **Refresh via mtime.** Before every tool call the tree is walked and changed, new or
+  deleted files are picked up. This is necessary for iCloud vaults but costs a directory
+  scan per call. Files whose modification time is not updated go unnoticed.
+- **Simple YAML parser.** Supported are `key: value`, `key: [a, b]` and multi-line lists
+  with `  - value`. Nested structures, anchors and block scalars are ignored — enough for
+  this wiki's front-matter schema, but it is not a full YAML parser.
+- **Folder exclusion by name.** `--exclude` compares folder names at every level, not
+  paths.

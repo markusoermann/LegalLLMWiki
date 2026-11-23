@@ -183,7 +183,7 @@ def nennt_norm(rest):
 # mit JJJJMMTT (BVerfG). Stimmt das Datum im selben Callout nicht ueberein,
 # ist eines von beiden falsch - der Befund ist exakt, ohne Quellenabruf.
 #
-# Im Lauf vom 2026-11-19 fand genau dieser Abgleich einen echten Fehler:
+# Genau dieser Abgleich hat im Betrieb einen echten Fehler gefunden:
 # BGH VI ZR 405/18 stand mit 28.07.2020 statt 27.07.2020 im Bestand, an
 # drei Stellen einer Seite.
 ECLI_DE = re.compile(r"ECLI:DE:[A-Za-z]+:(\d{4}):([A-Za-z]{0,2})(\d{6,8})")
