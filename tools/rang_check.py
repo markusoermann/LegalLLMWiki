@@ -160,7 +160,12 @@ def seiten(wurzel):
 NORM_ANGABE = re.compile(
     r"(Art\.?\s*\d|Arts\.\s*\d|\u00a7{1,2}\s*\d"
     r"|VO\s*\(E[UG]\)\s*\d|RL\s*\d{2,4}/\d"
-    r"|(?:Richtlinie|Verordnung)\s*\(?\s*E[UG]\)?\s*\d)")
+    r"|(?:Richtlinie|Verordnung)\s*\(?\s*E[UG]\)?\s*\d"
+    # Richtlinien werden auch mit eingeschobenem (EU) zitiert:
+    #   "CER-RL (EU) 2022/2557", "NIS2-RL (EU) 2022/2555".
+    # Ohne diese Alternative meldete Check D sie als normlos - zwei
+    # Fehlalarme, gefunden beim Durchsehen der Befundliste, nicht vom Check.
+    r"|RL\s*\(E[UG]\)\s*\d{4}/\d)")
 
 
 def nennt_norm(rest):
