@@ -247,6 +247,33 @@ Without a fixed vocabulary the labels drift apart — the reference corpus accum
 
 Where a callout cites norms of different ranks, the **lead norm of the statement being supported** determines the rank; lower-ranking ones are annotated inline in the same callout (pattern: `… → TDDDG § 25 Abs. 1; DSGVO Art. 82 Abs. 1 (Rang 2)`).
 
+### Four rulings on edge cases (decisions of 2026-11-23)
+
+**1. Internal administrative law gets no rank, but does get a callout.** Rules of procedure, administrative circulars and ministerial orders (e.g. § 44(4) GGO) bind authorities, not citizens. The six-tier table orders **external law**; it has no slot for internal law. Form:
+
+```
+> [!recht] ⚖️ Ohne Rang (Verwaltungsinnenrecht) · GGO § 44 Abs. 4
+> Binds the ministries, no external effect — sits outside the hierarchy of norms.
+```
+
+**2. Drafts get their own callout, not a rank.** A ministerial draft is not yet law. Instead of assigning a rank, state its status:
+
+```
+> [!recht] ⚖️ Ohne Rang (Vorhaben) · KritisV draft regulation, as of May 2026
+> Not yet in force. A rank arises only upon promulgation.
+```
+
+**Federal statutory instruments (Rechtsverordnungen) are rank 5.** The table previously had no slot for them; rank 6 is taken by Land law. An instrument based on a federal act shares the rank of its enabling provision. Canonical label: `Bundesrechtsverordnung`.
+
+**3. Implementing legislation: the rank follows whatever stands after the middot — as always.** If that is the **directive**, it is rank 3; if it is the **German implementing act**, it is rank 5 (`Bundesgesetz`). An implementing act is federal law and does not become a directive by implementing one.
+
+**The reference to the implementation always stays in the callout** — either as a qualifier to the category (`EU-Richtlinie — umgesetzt`) or after the arrow (`→ umgesetzt in UrhG § 44b`). It is the reason the norm reads as it does and must not be dropped.
+
+> [!check] Corpus check of 2026-11-23
+> A count of all 28 callouts with an implementation reference found: in **27** the directive stands after the middot (rank 3, correct); in **one** a court stands there with UrhDaG § 4 after the arrow (rank 5, correct). **The corpus already complied with the rule** — a blanket switch to rank 5, briefly considered, would have falsely declared 27 directives to be federal law. The rule is therefore recorded, not applied.
+
+**4. Court names in the label: forbidden as a category, permitted as a characterisation of the type of decision.** `(BGH)` or `(Bundesgesetz/Landgericht)` is an error — the norm category belongs there. What remains permitted is a qualifier after ` — ` naming the *type* of decision: `(Verfassungsrecht — BVerfG-Grundsatzurteil)`, `(Bundesgesetz — Landgerichtsurteil)`. The line: a court may describe **what kind of decision** this is, never **what rank** it has. Check A therefore continues to inspect only the part before the ` — `.
+
 ### International law: ranked by its domestic rank
 
 The table maps the **domestic order of validity**. International law has no rank of its own in it, because it acquires domestic effect only through national law. It is therefore ranked by its **domestic rank** — not by its significance in international law.

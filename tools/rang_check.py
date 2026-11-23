@@ -53,7 +53,7 @@ KANON = {
     3: ["EU-Richtlinie"],
     4: ["Verfassungsrecht"],
     5: ["Bundesgesetz", "Staatsvertrag der Länder",
-        "Völkerrechtlicher Vertrag", "Völkerrecht — allgemeine Regel"],
+        "Völkerrechtlicher Vertrag", "Völkerrecht — allgemeine Regel", "Bundesrechtsverordnung"],
     6: ["Landesgesetz", "Landesrecht"],
 }
 

@@ -247,6 +247,33 @@ Ohne festes Vokabular driften die Etiketten auseinander — im Referenzbestand e
 
 Zitiert ein Callout Normen verschiedenen Ranges, bestimmt die **Leitnorm der belegten Aussage** den Rang; die nachrangigen werden im selben Callout inline annotiert (Muster: `… → TDDDG § 25 Abs. 1; DSGVO Art. 82 Abs. 1 (Rang 2)`).
 
+### Vier Festlegungen zu Grenzfällen (Entscheidungen Markus, 2026-11-23)
+
+**1. Verwaltungsinnenrecht bekommt keinen Rang, aber einen Callout.** Geschäftsordnungen, Verwaltungsvorschriften und Erlasse (z.B. GGO § 44 Abs. 4) binden Behörden, nicht Bürger. Die sechsstufige Tabelle ordnet **Außenrecht**; für Innenrecht hat sie keinen Platz. Form:
+
+```
+> [!recht] ⚖️ Ohne Rang (Verwaltungsinnenrecht) · GGO § 44 Abs. 4
+> Bindet die Ministerien, keine Außenwirkung — steht außerhalb der Normenhierarchie.
+```
+
+**2. Entwürfe bekommen einen eigenen Callout, keinen Rang.** Ein Referentenentwurf ist noch kein Recht. Statt ihn zu ranggeben, wird sein Status ausgewiesen:
+
+```
+> [!recht] ⚖️ Ohne Rang (Vorhaben) · KritisV-Referentenentwurf BMI, Stand Mai 2026
+> Noch nicht in Kraft. Rang erst mit Verkündung.
+```
+
+**Bundesrechtsverordnungen sind Rang 5.** Die Tabelle führte sie bisher nirgends; Rang 6 ist für Landesrecht belegt. Eine auf Bundesgesetz gestützte Rechtsverordnung teilt den Rang ihrer Ermächtigungsgrundlage. Kanonisches Etikett: `Bundesrechtsverordnung`.
+
+**3. Umsetzungsrecht: Der Rang folgt dem, was nach dem Mittelpunkt steht — wie immer.** Steht dort die **Richtlinie**, ist es Rang 3; steht dort das **deutsche Umsetzungsgesetz**, ist es Rang 5 (`Bundesgesetz`). Ein Umsetzungsgesetz ist Bundesrecht und wird nicht dadurch zur Richtlinie, dass es eine umsetzt.
+
+**Die Referenz auf die Umsetzung bleibt im Callout immer erhalten** — entweder als Zusatz zur Kategorie (`EU-Richtlinie — umgesetzt`) oder hinter dem Pfeil (`→ umgesetzt in UrhG § 44b`). Sie ist der Grund, warum die Norm überhaupt so lautet, und darf nicht wegfallen.
+
+> [!check] Bestandsprüfung vom 2026-11-23
+> Eine Auszählung aller 28 Callouts mit Umsetzungsbezug ergab: In **27** steht die Richtlinie nach dem Mittelpunkt (Rang 3, korrekt), in **einem** ein Gericht mit UrhDaG § 4 hinter dem Pfeil (Rang 5, korrekt). **Der Bestand war bereits regelkonform** — eine zunächst erwogene pauschale Umstellung auf Rang 5 hätte 27 Richtlinien fälschlich zu Bundesrecht erklärt. Die Regel wird deshalb nur festgeschrieben, nicht angewandt.
+
+**4. Gerichtsnamen im Etikett: als Kategorie verboten, als Charakterisierung der Entscheidungsart erlaubt.** `(BGH)` oder `(Bundesgesetz/Landgericht)` ist ein Fehler — dort gehört die Normkategorie hin. Zulässig bleibt ein präzisierender Zusatz nach ` — `, der die *Art* der Entscheidung benennt: `(Verfassungsrecht — BVerfG-Grundsatzurteil)`, `(Bundesgesetz — Landgerichtsurteil)`. Die Grenze: Das Gericht darf beschreiben, **welche Art von Entscheidung** vorliegt, aber nie **welchen Rang** sie hat. Check A prüft deshalb weiterhin nur den Teil vor dem ` — `.
+
 ### Völkerrecht: Führung über den innerstaatlichen Rang
 
 Die Tabelle bildet die **innerstaatliche Geltungsordnung** ab. Völkerrecht hat darin keinen eigenen Rang, weil es innerstaatliche Wirkung erst durch das nationale Recht erlangt. Es wird deshalb **über seinen innerstaatlichen Rang** geführt — nicht über seine völkerrechtliche Bedeutung.
