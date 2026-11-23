@@ -74,6 +74,36 @@ Daraus zwei Regeln:
 
 Das ist dieselbe Disziplin, die für die mechanischen Prüfwerkzeuge gilt (siehe `tools/README.md`). Beim Verifikations-Pass wiegt sie schwerer, weil sein Befund autoritativ formuliert ist und zur Löschung auffordert, während ein Skript nur eine Liste ausgibt.
 
+## Wo die Fehler tatsächlich sitzen
+
+Ein Belegprüfungslauf über zwölf rechtsdichte Seiten (2026-11-19 bis 22, 43 Korrekturen, 1 Hard-Fail) hat eine Verteilung gezeigt, die für die Gestaltung des Verfahrens wichtiger ist als die Zahl der Befunde: **Keine einzige Rechtsaussage war im Kern falsch. Falsch waren durchgehend die Zuschreibungen.**
+
+| Fehlerklasse | Beispiel aus dem Lauf |
+|---|---|
+| **falsche Norm** | Art. 12 Abs. 5 statt Art. 57 Abs. 4 DSGVO; § 6 statt § 2 S. 1 Nr. 5 TMG; § 21 Abs. 3 statt Abs. 2 TDDDG (Verfahrens- statt Sachnorm) |
+| **falsches Gericht** | zwei BVerfG-Beschlüsse dem BGH zugeschrieben, mit falschem Jahr; „OVG Wiesbaden" statt VG |
+| **falscher Fall** | C-205/21 statt C-118/22; ein Mietrechtsfall als Krankenkassen-Fall erzählt |
+| **erfundene Zahlen** | „106 Länder"; „5 Garantien"; zwei statt drei Stufen einer Stufenklage |
+| **Paraphrase als Zitat** | „aufwendiges Abmeldeverfahren" statt „aufwendiges Verfahren der Abwahl" |
+| **bedingt → unbedingt** | „ist gemeinsam Verantwortlicher" statt „nur dann …, wenn"; „schließt aus" statt „nur dann taugliche Adressaten …, wenn" |
+| **unbelegter Superlativ** | „entschied erstmals"; „die erste Entscheidung, die …"; „der bisher wichtigste Anwendungsfall" |
+
+**Was daraus folgt.** Wer nur die juristische Substanz prüft, findet nichts. Die Fehler sitzen an den **Fugen** — dort, wo eine Aussage an eine Fundstelle gebunden wird. Ein Prüfplan sollte deshalb zuerst Normzitat, Gerichtsbezeichnung, Datum, Entscheidungsform und Zitatgrenzen abgleichen, nicht die Argumentation.
+
+**Binnenwidersprüche sind das stärkste und billigste Signal.** Dreimal widersprach eine Seite sich selbst: Fließtext gegen `urteile:`-Frontmatter, Callout gegen den eigenen Sachverhalt, Quellenangabe gegen Urteilsdatum (ein Newsletter vom 7. Februar als Beleg für ein Urteil vom 8. Februar). Jeder dieser Widersprüche war ohne Quellenabruf erkennbar. Ein Lint-Check auf Binnenkonsistenz wäre billiger als jede Volltextprüfung — es gibt ihn noch nicht.
+
+## Fallen der Prüfung selbst
+
+Im selben Lauf entstanden mindestens acht Verdachtsmomente, die sich am Volltext auflösten. Jeder hätte ungeprüft eine **richtige** Aussage zerstört:
+
+- **Zu enge Stichwörter.** „Verschulden" kam 0× vor — die Entscheidung sagte „ob *schuldhaft* gehandelt wurde". „Art. 103 Abs. 1 GG" kam 0× vor — der Text schrieb „Art. 103 Abs. 1 *des Grundgesetzes --GG--*".
+- **Treffer im falschen Kontext.** „erstmals" kam dreimal vor — jedes Mal über die Klägerin, nie über das Gericht.
+- **Mehrere Dokumente zum selben Aktenzeichen.** Eine Suche lieferte die Anhörungsrüge statt der Sachentscheidung, eine andere den Vorlagebeschluss von 2019 statt des Urteils von 2023. Beide Male sah es nach einem Datumsfehler der Seite aus.
+- **Schreibvarianten des Aktenzeichens.** Beim BVerwG führte einmal der Punkt zum Ziel („8 C 3.24"), einmal der Schrägstrich („6 C 12/18"). Es ist stets beides zu probieren.
+- **Leitsätze bilden nicht ab, was eine Entscheidung trägt.** Zwei Aussagen einer Seite standen nicht im amtlichen Leitsatz, wohl aber in den Gründen. Eine Prüfung gegen Leitsätze allein hätte sie verworfen.
+
+**Regel:** Ein Nullbefund ist kein Befund, solange nicht Wortvarianten, Kontext und Dokumentidentität geprüft sind. Und vor jedem Hard-Fail ist zu zeigen, dass die Quelle aktuell ist — sonst wird aus einer Bestandslücke ein Vorwurf.
+
 ## Einführung im laufenden Bestand
 
 Wer den Verifikations-Pass nicht am ersten Tag einführt, steht vor einem Altbestand, der ihn nie durchlaufen hat. Ihn nachträglich vollständig zu prüfen ist teuer: Ein Locator setzt voraus, die Quelle gelesen zu haben — das ist faktisch ein Re-Ingest jeder Seite. Bei einigen hundert Seiten sind das Wochen.

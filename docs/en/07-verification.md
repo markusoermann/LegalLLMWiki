@@ -74,6 +74,36 @@ Two rules follow:
 
 This is the same discipline that applies to the mechanical check scripts (see `tools/README.md`). For the verification pass it weighs more heavily, because its finding is phrased authoritatively and calls for deletion, whereas a script merely prints a list.
 
+## Where the errors actually sit
+
+An evidence-check campaign across twelve legally dense pages (2026-11-19 to 22; 43 corrections, 1 hard fail) produced a distribution that matters more for designing the procedure than the number of findings: **not a single legal proposition was wrong at its core. What was wrong, consistently, were the attributions.**
+
+| Error class | Example from the campaign |
+|---|---|
+| **wrong norm** | Art. 12(5) instead of Art. 57(4) GDPR; § 6 instead of § 2 s. 1 no. 5 TMG; § 21(3) instead of (2) TDDDG (procedural instead of substantive provision) |
+| **wrong court** | two Federal Constitutional Court orders attributed to the Federal Court of Justice, with the wrong year; "Higher Administrative Court Wiesbaden" instead of the Administrative Court |
+| **wrong case** | C-205/21 instead of C-118/22; a tenancy case retold as a health-insurer case |
+| **invented figures** | "106 countries"; "5 safeguards"; two instead of three stages of a staged action |
+| **paraphrase as quotation** | a reworded phrase presented in quotation marks as the court's own |
+| **conditional → unconditional** | "is a joint controller" instead of "only where … if"; "precludes" instead of "are suitable addressees only if" |
+| **unsupported superlative** | "decided for the first time"; "the first decision to …"; "the most important application to date" |
+
+**What follows.** Checking the legal substance finds nothing. The errors sit at the **joints** — where a proposition is bound to a citation. A review plan should therefore first reconcile norm citation, court designation, date, type of decision and quotation boundaries, not the reasoning.
+
+**Internal contradictions are the strongest and cheapest signal.** Three times a page contradicted itself: running text against its own `urteile:` frontmatter, a callout against its own statement of facts, a source citation against the judgment date (a newsletter of 7 February cited for a judgment of 8 February). Every one of these was detectable without retrieving a single source. A lint check for internal consistency would be cheaper than any full-text review — it does not yet exist.
+
+## Traps in the review itself
+
+The same campaign produced at least eight suspicions that dissolved against the full text. Each would, if acted on unchecked, have destroyed a **correct** statement:
+
+- **Search terms too narrow.** "Verschulden" appeared 0 times — the decision said "whether the party acted *culpably*". "Art. 103(1) GG" appeared 0 times — the text wrote out "Art. 103(1) *of the Basic Law --GG--*".
+- **Hits in the wrong context.** "for the first time" appeared three times — each time about the claimant, never about the court.
+- **Several documents under one case number.** One search returned the hearing-complaint order instead of the substantive decision; another the 2019 reference for a preliminary ruling instead of the 2023 judgment. Both times it looked like a dating error on the page.
+- **Notation variants of the case number.** For the Federal Administrative Court, the dot form worked in one case ("8 C 3.24"), the slash form in another ("6 C 12/18"). Always try both.
+- **Headnotes do not capture everything a decision carries.** Two statements on one page were absent from the official headnote but present in the reasons. Checking against headnotes alone would have discarded them.
+
+**Rule:** a null result is not a finding until word variants, context and document identity have been checked. And before any hard fail, show that the source is current — otherwise a gap in the corpus becomes an accusation.
+
 ## Introducing it into an existing stock
 
 If you do not introduce the verification pass on day one, you are left with a legacy stock that never went through it. Checking that stock retroactively is expensive: setting a locator presupposes having read the source, which makes it a re-ingest of every page. At a few hundred pages that is weeks of work.
