@@ -437,6 +437,11 @@ Two boundaries, without which the rule collapses:
 
 - **If lifting exceeds the scope of the edit** — very large legacy pages with many sources — set `updated:` (it is a fact), leave `verifiziert:` **open**, and record in `log.md` which part was checked and which was not. A partially checked state must never be presented as checked: `verifiziert:` refers to the whole page, not to the latest change.
 - **Purely mechanical runs do not trigger lifting.** Fixing a citekey, adding a `resource:` URI or renaming a link touches no statement and does not trigger the duty. Otherwise a single search-and-replace across 40 files would force 40 verification passes.
+- **Adding a norm reference to a `[!recht]` callout is mechanical — on one condition.** The reference adds no statement; it names the norm the existing statement already rests on. This holds only where the norm is readable **from the page itself or from the primary text of the cited decision**. If it can only be supplied from model knowledge, the entry is not a projection but a claim: retrieve it, or leave the finding standing.
+
+  **Why the condition must not quietly drop away.** In three of eight D findings worked through on 2026-11-23 the norm was not merely missing — retrieving it corrected the callout: a CJEU judgment filed as rank 1 (EU primary law) in fact interpreted Art. 3(1) of Directive 2001/29/EC (**rank 3**); a decision carried the wrong short name; a section number taken from the page's own front matter governed an entirely different subject. The shortcut — supplying the norm from memory because the decision is familiar — would in each case have produced a **plausible and wrong** entry, precisely at the spot the lint then treats as checked. A D finding is a research task, not a formatting task.
+
+  **Retrieval routes that held:** CJEU via Cellar (CELEX → `cdm:case-law_interpretes_resource_legal` names the act interpreted; otherwise read the full text and the operative part). Historical Federal Constitutional Court decisions via **DFR Bern** (`servat.unibe.ch/dfr/bvNNNNNN.html`) — full text including headnotes, closing the gap the federal API leaves for older decisions. Statutory texts via `gesetze-im-internet.de`.
 
 ### Entry in `log.md`
 
@@ -783,6 +788,8 @@ After writing:
   4. **Draft without force** (1: a ministerial draft regulation) — drafts have no rank; remove the callout or mark it as a proposal.
 
   **Why info and not warning:** the finding says nothing about whether the statement is wrong — only that it cannot be checked mechanically. Two of the four sub-types call for **removing** the callout; an automated pass would do harm here.
+
+  **Status 2026-11-23: worked through, D = 0.** On the lifting duty when adding a reference, and on the three cases where retrieval corrected the callout, see *Lift on touch*.
 
 - [ ] **Non-canonical rank label** — rank and category agree, but the wording departs from the canonical one (`EU-Verordnung` instead of `EU-Sekundärrecht — Verordnung`). **Not an error — synonyms, not false statements.** Report separately from the two error classes: in the reference corpus some 40 variants stood against more than 600 correct callouts, and in a combined list they bury the real errors. Clarifying suffixes after a dash (`Verfassungsrecht — BVerfG-Grundsatzurteil`) are **permitted**; check the part **before** the suffix.
 - [ ] **Workflow drift** — `type: wiki-workflow` pages that are referenced by no wiki page, no skill, and no `AGENTS.md`/`CLAUDE.md`.

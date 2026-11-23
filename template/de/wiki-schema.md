@@ -435,6 +435,11 @@ Zwei Abgrenzungen, ohne die die Regel kippt:
 
 - **Sprengt das Heben den Rahmen** — sehr umfangreiche Altseiten mit vielen Quellen —, wird `updated:` gesetzt (es ist eine Tatsache), `verifiziert:` bleibt **offen**, und `log.md` hält fest, welcher Teil geprüft wurde und welcher nicht. Ein halb geprüfter Stand darf nie als geprüft ausgewiesen werden: `verifiziert:` bezieht sich auf die ganze Seite, nicht auf die letzte Änderung.
 - **Rein mechanische Läufe heben nicht.** Korrektur eines citekeys, Nachtragen einer `resource:`-URI, Umbenennen eines Links berührt keine Aussage und löst die Hebepflicht nicht aus. Sonst erzwingt eine Suchen-und-Ersetzen-Operation über 40 Dateien 40 Verifikations-Pässe.
+- **Nachtragen einer Normangabe im `[!recht]`-Callout ist mechanisch — unter einer Bedingung.** Die Angabe fügt keine Aussage hinzu, sondern benennt die Norm, auf die sich die vorhandene Aussage ohnehin stützt. Das gilt nur, wenn die Norm **aus der Seite selbst oder aus dem Primärtext der zitierten Entscheidung** ablesbar ist. Lässt sie sich nur aus Modellwissen ergänzen, ist der Eintrag keine Projektion, sondern eine Behauptung: dann beschaffen oder den Befund stehen lassen.
+
+  **Warum die Bedingung nicht wegfallen darf.** In drei von acht abgearbeiteten D-Befunden (2026-11-23) war die Norm nicht bloß zu ergänzen — die Beschaffung korrigierte den Callout: ein als Rang 1 (EU-Primärrecht) geführtes EuGH-Urteil legte tatsächlich Art. 3 Abs. 1 RL 2001/29/EG aus (**Rang 3**); eine Entscheidung trug einen falschen Kurznamen; ein aus dem eigenen Frontmatter übernommener Paragraph regelte einen ganz anderen Gegenstand. Die Abkürzung — die Norm aus dem Gedächtnis ergänzen, weil die Entscheidung bekannt ist — hätte jeweils einen **plausiblen und falschen** Eintrag erzeugt, und zwar an der Stelle, die der Lint anschließend als geprüft behandelt. Ein D-Befund ist ein Rechercheauftrag, kein Formatierungsauftrag.
+
+  **Tragfähige Beschaffungswege:** EuGH über Cellar (CELEX → `cdm:case-law_interpretes_resource_legal` nennt den ausgelegten Rechtsakt; sonst Volltext und Tenor lesen). Historische BVerfG-Entscheidungen über **DFR Bern** (`servat.unibe.ch/dfr/bvNNNNNN.html`) — Volltext samt Leitsätzen, schließt die Lücke der Bund-API für Altentscheidungen. Normtexte über `gesetze-im-internet.de`.
 
 ### Eintrag in `log.md`
 
@@ -779,6 +784,8 @@ Nach dem Schreiben:
   4. **Entwurf ohne Geltung** (1: KritisV-Referentenentwurf) — Entwürfe haben keinen Rang; Callout entfernen oder als Vorhaben kennzeichnen.
 
   **Warum nur Info und nicht Warnung:** Der Befund sagt nichts darüber, ob die Aussage falsch ist — nur, dass sie maschinell nicht prüfbar ist. Die Behandlung verlangt in zwei der vier Untertypen das **Entfernen** des Callouts; ein automatischer Lauf wäre hier schädlich.
+
+  **Stand 2026-11-23: abgearbeitet, D = 0.** Zur Hebepflicht beim Nachtragen und zu den drei Fällen, in denen die Beschaffung den Callout korrigiert hat, s. *Heben beim Anfassen*.
 
 - [ ] **Nicht-kanonisches Rangetikett** — Rang-Zahl und Kategorie stimmen überein, die Bezeichnung weicht aber von der kanonischen ab (`EU-Verordnung` statt `EU-Sekundärrecht — Verordnung`). **Kein Fehler — Synonyme, keine Falschaussagen.** Getrennt von den beiden Fehlerklassen melden: Im Referenzbestand standen rund 40 Varianten gegen über 600 korrekte Callouts; in einer gemeinsamen Liste verdecken sie die echten Fehler. Präzisierende Zusätze nach Bindestrich (`Verfassungsrecht — BVerfG-Grundsatzurteil`) sind **zulässig**; geprüft wird der Teil **vor** dem Zusatz.
 - [ ] **Workflow-Drift** — `type: wiki-workflow`-Seiten, die von keiner Wiki-Seite, keinem Skill und keiner `AGENTS.md`/`CLAUDE.md` referenziert werden.
