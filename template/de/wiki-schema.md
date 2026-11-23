@@ -103,7 +103,7 @@ relationen:         # Anker-Seiten: maschinenlesbare Projektion der typisierten 
 - Es wird **nur projiziert, was der Satz sagt.** Verneinungen („überlagert, aber *nicht* verdrängt") erzeugen **keine** Kante. Nichts wird erschlossen.
 - `seit:`/`bis:` nur, wenn der Fließtext das Datum nennt.
 
-Weil nichts hinzugefügt wird, ist das Anlegen von `relationen:` ein **mechanischer Lauf ohne Hebepflicht** (Entscheidung Markus, 2026-11-19): `updated:` bleibt unberührt, kein Verifikations-Pass.
+Weil nichts hinzugefügt wird, ist das Anlegen von `relationen:` ein **mechanischer Lauf ohne Hebepflicht**: `updated:` bleibt unberührt, kein Verifikations-Pass.
 
 **`resource_element:` (Elementanker).** `resource:` bezeichnet den **Rechtsakt**, `resource_element:` das **Element** darin — RuMLs Trennung von Texteintrag und Anker (Kap. 4.12). Konventionen:
 - **EU-Recht:** Artikelanker zum ELI, Form `#art_9`.
@@ -140,7 +140,7 @@ Weil nichts hinzugefügt wird, ist das Anlegen von `relationen:` ein **mechanisc
 - Struktur: Definition · Absätze/Tatbestandsmerkmale (mit Wikilinks zu Konzeptseiten) · Leitentscheidungen · Verhältnis zu anderen Normen
 - Zweck: Anker-Knoten — Konzeptseiten verlinken hierauf; Backlinks ersetzen die SPARQL-Abfrage des KG-Konzepts
 - Abgrenzung zur Gesetz-Entität: `DSGVO.md` beschreibt die Verordnung als Ganzes; `DSGVO Art. 6.md` ist der granulare Normknoten und verlinkt auf die Gesetz-Seite
-- **Gesetz-Entitäten sind ebenfalls Anker-Seiten** (Entscheidung Markus, 2026-11-19): Sie tragen `rang:` und `behandelt:` wie die granularen Normknoten. Der Rang folgt dem Rechtsakt als Ganzem — EU-Verordnung 2, EU-Richtlinie 3, Bundesgesetz und Staatsvertrag der Länder 5. `resource_element:` bleibt dort **leer**: Die Seite behandelt den Akt, nicht ein Element darin.
+- **Gesetz-Entitäten sind ebenfalls Anker-Seiten**: Sie tragen `rang:` und `behandelt:` wie die granularen Normknoten. Der Rang folgt dem Rechtsakt als Ganzem — EU-Verordnung 2, EU-Richtlinie 3, Bundesgesetz und Staatsvertrag der Länder 5. `resource_element:` bleibt dort **leer**: Die Seite behandelt den Akt, nicht ein Element darin.
 - **Was trotz `wiki-category: entitaet` keinen Rang bekommt:** Personen, Institutionen (auch Gerichte und Behörden), technische Spezifikationen — und vor allem **nicht-bindende Instrumente**. Leitlinien, Codes of Practice, Positionspapiere, Pressekodex, UN-GA-Resolutionen und ausländisches Recht stehen nicht in der Rangtabelle; diese ordnet deutsches und europäisches Recht. Im Bestandslauf vom 2026-11-19 trafen von 45 rangloser Entitäts-Seiten nur **8** die Voraussetzung.
 
 ### Leitentscheidungs-Seite
@@ -247,7 +247,7 @@ Ohne festes Vokabular driften die Etiketten auseinander — im Referenzbestand e
 
 Zitiert ein Callout Normen verschiedenen Ranges, bestimmt die **Leitnorm der belegten Aussage** den Rang; die nachrangigen werden im selben Callout inline annotiert (Muster: `… → TDDDG § 25 Abs. 1; DSGVO Art. 82 Abs. 1 (Rang 2)`).
 
-### Vier Festlegungen zu Grenzfällen (Entscheidungen Markus, 2026-11-23)
+### Vier Festlegungen zu Grenzfällen
 
 **1. Verwaltungsinnenrecht bekommt keinen Rang, aber einen Callout.** Geschäftsordnungen, Verwaltungsvorschriften und Erlasse (z.B. GGO § 44 Abs. 4) binden Behörden, nicht Bürger. Die sechsstufige Tabelle ordnet **Außenrecht**; für Innenrecht hat sie keinen Platz. Form:
 
@@ -269,8 +269,8 @@ Zitiert ein Callout Normen verschiedenen Ranges, bestimmt die **Leitnorm der bel
 
 **Die Referenz auf die Umsetzung bleibt im Callout immer erhalten** — entweder als Zusatz zur Kategorie (`EU-Richtlinie — umgesetzt`) oder hinter dem Pfeil (`→ umgesetzt in UrhG § 44b`). Sie ist der Grund, warum die Norm überhaupt so lautet, und darf nicht wegfallen.
 
-> [!check] Bestandsprüfung vom 2026-11-23
-> Eine Auszählung aller 28 Callouts mit Umsetzungsbezug ergab: In **27** steht die Richtlinie nach dem Mittelpunkt (Rang 3, korrekt), in **einem** ein Gericht mit UrhDaG § 4 hinter dem Pfeil (Rang 5, korrekt). **Der Bestand war bereits regelkonform** — eine zunächst erwogene pauschale Umstellung auf Rang 5 hätte 27 Richtlinien fälschlich zu Bundesrecht erklärt. Die Regel wird deshalb nur festgeschrieben, nicht angewandt.
+> [!warning] Vor einer pauschalen Umstellung auszählen
+> Diese Regel wurde einmal in der Gegenrichtung formuliert — Umsetzungsgesetze seien durchweg als Bundesrecht auf Rang 5 zu führen. Eine Auszählung widerlegte das: In nahezu allen Callouts mit Umsetzungsbezug steht die **Richtlinie** nach dem Mittelpunkt, wo Rang 3 korrekt ist; Rang 5 greift nur dort, wo ein Gericht nach dem Mittelpunkt steht und die Leitnorm hinter dem Pfeil ein Umsetzungsgesetz ist. Eine pauschale Umstellung hätte Richtlinien zu Bundesrecht erklärt. **Die Lehre ist allgemein:** Eine Regel, die aus einem Einzelfall abgeleitet wird, trifft den Bestand nicht zwingend — vor jeder Pauschaländerung auszählen.
 
 **4. Gerichtsnamen im Etikett: als Kategorie verboten, als Charakterisierung der Entscheidungsart erlaubt.** `(BGH)` oder `(Bundesgesetz/Landgericht)` ist ein Fehler — dort gehört die Normkategorie hin. Zulässig bleibt ein präzisierender Zusatz nach ` — `, der die *Art* der Entscheidung benennt: `(Verfassungsrecht — BVerfG-Grundsatzurteil)`, `(Bundesgesetz — Landgerichtsurteil)`. Die Grenze: Das Gericht darf beschreiben, **welche Art von Entscheidung** vorliegt, aber nie **welchen Rang** sie hat. Check A prüft deshalb weiterhin nur den Teil vor dem ` — `.
 
@@ -437,7 +437,7 @@ Zwei Abgrenzungen, ohne die die Regel kippt:
 - **Rein mechanische Läufe heben nicht.** Korrektur eines citekeys, Nachtragen einer `resource:`-URI, Umbenennen eines Links berührt keine Aussage und löst die Hebepflicht nicht aus. Sonst erzwingt eine Suchen-und-Ersetzen-Operation über 40 Dateien 40 Verifikations-Pässe.
 - **Nachtragen einer Normangabe im `[!recht]`-Callout ist mechanisch — unter einer Bedingung.** Die Angabe fügt keine Aussage hinzu, sondern benennt die Norm, auf die sich die vorhandene Aussage ohnehin stützt. Das gilt nur, wenn die Norm **aus der Seite selbst oder aus dem Primärtext der zitierten Entscheidung** ablesbar ist. Lässt sie sich nur aus Modellwissen ergänzen, ist der Eintrag keine Projektion, sondern eine Behauptung: dann beschaffen oder den Befund stehen lassen.
 
-  **Warum die Bedingung nicht wegfallen darf.** In drei von acht abgearbeiteten D-Befunden (2026-11-23) war die Norm nicht bloß zu ergänzen — die Beschaffung korrigierte den Callout: ein als Rang 1 (EU-Primärrecht) geführtes EuGH-Urteil legte tatsächlich Art. 3 Abs. 1 RL 2001/29/EG aus (**Rang 3**); eine Entscheidung trug einen falschen Kurznamen; ein aus dem eigenen Frontmatter übernommener Paragraph regelte einen ganz anderen Gegenstand. Die Abkürzung — die Norm aus dem Gedächtnis ergänzen, weil die Entscheidung bekannt ist — hätte jeweils einen **plausiblen und falschen** Eintrag erzeugt, und zwar an der Stelle, die der Lint anschließend als geprüft behandelt. Ein D-Befund ist ein Rechercheauftrag, kein Formatierungsauftrag.
+  **Warum die Bedingung nicht wegfallen darf.** Wiederholt war die Norm nicht bloß zu ergänzen — die Beschaffung korrigierte den Callout: ein als Rang 1 (EU-Primärrecht) geführtes EuGH-Urteil legte tatsächlich Art. 3 Abs. 1 RL 2001/29/EG aus (**Rang 3**); eine Entscheidung trug einen falschen Kurznamen; ein aus dem eigenen Frontmatter übernommener Paragraph regelte einen ganz anderen Gegenstand. Die Abkürzung — die Norm aus dem Gedächtnis ergänzen, weil die Entscheidung bekannt ist — hätte jeweils einen **plausiblen und falschen** Eintrag erzeugt, und zwar an der Stelle, die der Lint anschließend als geprüft behandelt. Ein D-Befund ist ein Rechercheauftrag, kein Formatierungsauftrag.
 
   **Tragfähige Beschaffungswege:** EuGH über Cellar (CELEX → `cdm:case-law_interpretes_resource_legal` nennt den ausgelegten Rechtsakt; sonst Volltext und Tenor lesen). Historische BVerfG-Entscheidungen über **DFR Bern** (`servat.unibe.ch/dfr/bvNNNNNN.html`) — Volltext samt Leitsätzen, schließt die Lücke der Bund-API für Altentscheidungen. Normtexte über `gesetze-im-internet.de`.
 
@@ -777,15 +777,13 @@ Nach dem Schreiben:
 
 **Info:**
 - [ ] **Beleg ohne Locator** — Seite führt `quellen:` und enthält `[!recht]`-Callouts, von denen keiner eine `Beleg:`-Zeile trägt. Kein Fehler (normtextgestützte Aussagen brauchen keine), aber ein Hinweis auf ungeprüfte Sekundärzitate.
-- [ ] **Callout ohne Normangabe** — `[!recht]`-Callout, der weder nach dem Mittelpunkt noch nach dem Pfeil eine **konkrete Norm** nennt (Artikel/Paragraph, Verordnungs- oder Richtliniennummer). **Das ist die Lücke, durch die der Google-Spain-Fehler jahrelang gerutscht ist:** Ein Callout, der nur eine Entscheidung nennt, hat für die Rangprüfung keinen Anknüpfungspunkt — `rang_check.py` kann ihn weder bestätigen noch widerlegen. Erhebung vom 2026-11-20: **20 von 642 Callouts (3,1 %) auf 16 Seiten.** Vier Untertypen, die **unterschiedliche** Behandlung verlangen:
+- [ ] **Callout ohne Normangabe** — `[!recht]`-Callout, der weder nach dem Mittelpunkt noch nach dem Pfeil eine **konkrete Norm** nennt (Artikel/Paragraph, Verordnungs- oder Richtliniennummer). **Das ist die Lücke, durch die der Google-Spain-Fehler jahrelang gerutscht ist:** Ein Callout, der nur eine Entscheidung nennt, hat für die Rangprüfung keinen Anknüpfungspunkt — `rang_check.py` kann ihn weder bestätigen noch widerlegen. Erfahrungsgemäß betrifft das wenige Prozent der Callouts. Vier Untertypen, die **unterschiedliche** Behandlung verlangen:
   1. **Entscheidung ohne Norm** (~11) — die angewandte Norm ergänzen (`· BVerfGE 7, 198 (Lüth) → GG Art. 5 Abs. 1`).
   2. **Gesetz ohne Stellenangabe** (~4) — Artikel/Paragraph nachtragen statt nur den Rechtsakt zu nennen.
   3. **Literaturmeinung** (1: Alexy, *Theorie der Grundrechte*) — hier gehört **gar kein** `[!recht]`-Callout hin; die Regel „nicht bei allgemeinen Literaturmeinungen" greift. Entfernen, nicht ergänzen.
   4. **Entwurf ohne Geltung** (1: KritisV-Referentenentwurf) — Entwürfe haben keinen Rang; Callout entfernen oder als Vorhaben kennzeichnen.
 
   **Warum nur Info und nicht Warnung:** Der Befund sagt nichts darüber, ob die Aussage falsch ist — nur, dass sie maschinell nicht prüfbar ist. Die Behandlung verlangt in zwei der vier Untertypen das **Entfernen** des Callouts; ein automatischer Lauf wäre hier schädlich.
-
-  **Stand 2026-11-23: abgearbeitet, D = 0.** Zur Hebepflicht beim Nachtragen und zu den drei Fällen, in denen die Beschaffung den Callout korrigiert hat, s. *Heben beim Anfassen*.
 
 - [ ] **Nicht-kanonisches Rangetikett** — Rang-Zahl und Kategorie stimmen überein, die Bezeichnung weicht aber von der kanonischen ab (`EU-Verordnung` statt `EU-Sekundärrecht — Verordnung`). **Kein Fehler — Synonyme, keine Falschaussagen.** Getrennt von den beiden Fehlerklassen melden: Im Referenzbestand standen rund 40 Varianten gegen über 600 korrekte Callouts; in einer gemeinsamen Liste verdecken sie die echten Fehler. Präzisierende Zusätze nach Bindestrich (`Verfassungsrecht — BVerfG-Grundsatzurteil`) sind **zulässig**; geprüft wird der Teil **vor** dem Zusatz.
 - [ ] **Workflow-Drift** — `type: wiki-workflow`-Seiten, die von keiner Wiki-Seite, keinem Skill und keiner `AGENTS.md`/`CLAUDE.md` referenziert werden.

@@ -140,7 +140,7 @@ Because nothing is added, creating `relationen:` is a **mechanical pass without 
 - Structure: Definition · Paragraphs/elements of the offence (with wikilinks to concept pages) · Leading decisions · Relationship to other norms
 - Purpose: anchor node — concept pages link here; backlinks replace the SPARQL query of the KG approach
 - Distinction from the law entity: `DSGVO.md` describes the regulation as a whole; `DSGVO Art. 6.md` is the granular norm node and links to the law page
-- **Law entities are anchor pages too** (decision 2026-11-19): they carry `rang:` and `behandelt:` just like the granular norm nodes. The rank follows the act as a whole — EU regulation 2, EU directive 3, federal act and inter-state treaty 5. `resource_element:` stays **empty** there: the page is about the act, not about an element inside it.
+- **Law entities are anchor pages too**: they carry `rang:` and `behandelt:` just like the granular norm nodes. The rank follows the act as a whole — EU regulation 2, EU directive 3, federal act and inter-state treaty 5. `resource_element:` stays **empty** there: the page is about the act, not about an element inside it.
 - **What gets no rank despite `wiki-category: entitaet`:** persons, institutions (including courts and authorities), technical specifications — and above all **non-binding instruments**. Guidelines, codes of practice, position papers, press codes, UN GA resolutions and foreign law do not sit in the rank table, which orders German and EU law. In the 2026-11-19 pass over the corpus, only **8** of 45 rank-less entity pages met the condition.
 
 ### Leading-Decision Page
@@ -247,7 +247,7 @@ Without a fixed vocabulary the labels drift apart — the reference corpus accum
 
 Where a callout cites norms of different ranks, the **lead norm of the statement being supported** determines the rank; lower-ranking ones are annotated inline in the same callout (pattern: `… → TDDDG § 25 Abs. 1; DSGVO Art. 82 Abs. 1 (Rang 2)`).
 
-### Four rulings on edge cases (decisions of 2026-11-23)
+### Four rulings on edge cases
 
 **1. Internal administrative law gets no rank, but does get a callout.** Rules of procedure, administrative circulars and ministerial orders (e.g. § 44(4) GGO) bind authorities, not citizens. The six-tier table orders **external law**; it has no slot for internal law. Form:
 
@@ -269,8 +269,8 @@ Where a callout cites norms of different ranks, the **lead norm of the statement
 
 **The reference to the implementation always stays in the callout** — either as a qualifier to the category (`EU-Richtlinie — umgesetzt`) or after the arrow (`→ umgesetzt in UrhG § 44b`). It is the reason the norm reads as it does and must not be dropped.
 
-> [!check] Corpus check of 2026-11-23
-> A count of all 28 callouts with an implementation reference found: in **27** the directive stands after the middot (rank 3, correct); in **one** a court stands there with UrhDaG § 4 after the arrow (rank 5, correct). **The corpus already complied with the rule** — a blanket switch to rank 5, briefly considered, would have falsely declared 27 directives to be federal law. The rule is therefore recorded, not applied.
+> [!warning] Count before any blanket change
+> This rule was once formulated the other way round — that implementing acts should throughout be filed as federal law at rank 5. A count refuted it: in nearly every callout with an implementation reference the **directive** stands after the middot, where rank 3 is correct; rank 5 applies only where a court stands after the middot and the governing norm after the arrow is an implementing act. A blanket switch would have declared directives to be federal law. **The lesson is general:** a rule derived from a single case does not necessarily fit the corpus — count before any blanket change.
 
 **4. Court names in the label: forbidden as a category, permitted as a characterisation of the type of decision.** `(BGH)` or `(Bundesgesetz/Landgericht)` is an error — the norm category belongs there. What remains permitted is a qualifier after ` — ` naming the *type* of decision: `(Verfassungsrecht — BVerfG-Grundsatzurteil)`, `(Bundesgesetz — Landgerichtsurteil)`. The line: a court may describe **what kind of decision** this is, never **what rank** it has. Check A therefore continues to inspect only the part before the ` — `.
 
@@ -439,7 +439,7 @@ Two boundaries, without which the rule collapses:
 - **Purely mechanical runs do not trigger lifting.** Fixing a citekey, adding a `resource:` URI or renaming a link touches no statement and does not trigger the duty. Otherwise a single search-and-replace across 40 files would force 40 verification passes.
 - **Adding a norm reference to a `[!recht]` callout is mechanical — on one condition.** The reference adds no statement; it names the norm the existing statement already rests on. This holds only where the norm is readable **from the page itself or from the primary text of the cited decision**. If it can only be supplied from model knowledge, the entry is not a projection but a claim: retrieve it, or leave the finding standing.
 
-  **Why the condition must not quietly drop away.** In three of eight D findings worked through on 2026-11-23 the norm was not merely missing — retrieving it corrected the callout: a CJEU judgment filed as rank 1 (EU primary law) in fact interpreted Art. 3(1) of Directive 2001/29/EC (**rank 3**); a decision carried the wrong short name; a section number taken from the page's own front matter governed an entirely different subject. The shortcut — supplying the norm from memory because the decision is familiar — would in each case have produced a **plausible and wrong** entry, precisely at the spot the lint then treats as checked. A D finding is a research task, not a formatting task.
+  **Why the condition must not quietly drop away.** Repeatedly the norm was not merely missing — retrieving it corrected the callout: a CJEU judgment filed as rank 1 (EU primary law) in fact interpreted Art. 3(1) of Directive 2001/29/EC (**rank 3**); a decision carried the wrong short name; a section number taken from the page's own front matter governed an entirely different subject. The shortcut — supplying the norm from memory because the decision is familiar — would in each case have produced a **plausible and wrong** entry, precisely at the spot the lint then treats as checked. A D finding is a research task, not a formatting task.
 
   **Retrieval routes that held:** CJEU via Cellar (CELEX → `cdm:case-law_interpretes_resource_legal` names the act interpreted; otherwise read the full text and the operative part). Historical Federal Constitutional Court decisions via **DFR Bern** (`servat.unibe.ch/dfr/bvNNNNNN.html`) — full text including headnotes, closing the gap the federal API leaves for older decisions. Statutory texts via `gesetze-im-internet.de`.
 
@@ -781,15 +781,13 @@ After writing:
 
 **Info:**
 - [ ] **Evidence without locator** — Page carries `quellen:` and contains `[!recht]` callouts, none of which has a `Beleg:` line. Not an error (statements resting on the norm text need none), but an indication of unchecked secondary citations.
-- [ ] **Callout without a norm reference** — a `[!recht]` callout that names no **concrete norm** (article/section, regulation or directive number), neither after the middot nor after the arrow. **This is the gap the Google Spain error slipped through for years:** a callout naming only a decision gives the rank check nothing to anchor on — `rang_check.py` can neither confirm nor refute it. Survey of 2026-11-20: **20 of 642 callouts (3.1 %) across 16 pages.** Four sub-types requiring **different** treatment:
+- [ ] **Callout without a norm reference** — a `[!recht]` callout that names no **concrete norm** (article/section, regulation or directive number), neither after the middot nor after the arrow. **This is the gap the Google Spain error slipped through for years:** a callout naming only a decision gives the rank check nothing to anchor on — `rang_check.py` can neither confirm nor refute it. In practice this affects a few per cent of callouts. Four sub-types requiring **different** treatment:
   1. **Decision without a norm** (~11) — add the norm applied (`· BVerfGE 7, 198 (Lüth) → GG Art. 5 Abs. 1`).
   2. **Act without a pinpoint** (~4) — add the article/section instead of naming only the act.
   3. **Scholarly opinion** (1: Alexy, *Theorie der Grundrechte*) — no `[!recht]` callout belongs here at all; the rule "not for general scholarly opinions" applies. Remove, do not supplement.
   4. **Draft without force** (1: a ministerial draft regulation) — drafts have no rank; remove the callout or mark it as a proposal.
 
   **Why info and not warning:** the finding says nothing about whether the statement is wrong — only that it cannot be checked mechanically. Two of the four sub-types call for **removing** the callout; an automated pass would do harm here.
-
-  **Status 2026-11-23: worked through, D = 0.** On the lifting duty when adding a reference, and on the three cases where retrieval corrected the callout, see *Lift on touch*.
 
 - [ ] **Non-canonical rank label** — rank and category agree, but the wording departs from the canonical one (`EU-Verordnung` instead of `EU-Sekundärrecht — Verordnung`). **Not an error — synonyms, not false statements.** Report separately from the two error classes: in the reference corpus some 40 variants stood against more than 600 correct callouts, and in a combined list they bury the real errors. Clarifying suffixes after a dash (`Verfassungsrecht — BVerfG-Grundsatzurteil`) are **permitted**; check the part **before** the suffix.
 - [ ] **Workflow drift** — `type: wiki-workflow` pages that are referenced by no wiki page, no skill, and no `AGENTS.md`/`CLAUDE.md`.

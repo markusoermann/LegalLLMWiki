@@ -80,64 +80,6 @@ Aenderungsverordnung in der Literaturverwaltung landet und ingested wird. Das ha
 aber daran, dass die Quelle ankommt. Versagt dieser Pfad einmal, ist dieser Abschnitt der
 Ort, an dem nachzusehen waere.
 
-### Nachtrag 2026-11-23: Der vollstaendige Fundstellen-Audit und was er ueber die Methode lehrt
-
-282 Fundstellen aus dem Bestand auf **Existenz und Identitaet** geprueft (nicht auf Belegtheit):
-131 bestaetigt, 145 nicht pruefbar, 4 Abweichungen, 2 offen, **0 Hard-Fails**.
-
-**Drei Fallen, die der Lauf selbst gestellt hat.** Jede haette Falschbeschuldigungen gegen den
-eigenen Bestand erzeugt, und jede sah zunaechst wie ein Befund aus:
-
-1. **Verbundene Rechtssachen liegen nur unter der Leitsache.** Fuenf EuGH-Aktenzeichen aus dem
-   Bestand lieferten in Cellar null Treffer: C-397/20, C-683/18, C-64/22, C-190/24, C-238/08.
-   Alle fuenf sind verbunden. Nachweisbar ueber den Titel der Leitsache, der die Verbindung
-   ausdruecklich nennt (`cdm:expression_title` endet auf „Verbundene Rechtssachen C-339/20 und
-   C-397/20."). Ohne diese Gegenprobe: fuenf Hard-Fails, alle falsch.
-
-2. **Die Bund-API nimmt BVerwG-Aktenzeichen in beiden Schreibweisen — aber nicht gleichzeitig.**
-   `6 C 10/21` trifft, `6 C 10.21` liefert null, obwohl die ECLI der Entscheidung im Bestand
-   steht. Beim Mere-Conduit-Fall war es umgekehrt. Die Notation ist deshalb **kein** stabiles
-   Merkmal: Jede Abfrage ist in beiden Formen zu stellen, bevor ein Nulltreffer gezaehlt wird.
-   Sechs der neun Nulltreffer bei Bundesgerichten waren allein dieser Abfragefehler.
-
-3. **`fileNumber` matcht quer ueber Gerichtsbarkeiten.** Vier Instanz-Aktenzeichen trafen BSG-
-   und BPatG-Verfahren. Der Gerichtsabgleich ist Pflicht, sonst zaehlt man Zufallstreffer als
-   Bestaetigung — der Fehler faellt nie auf, weil er in die angenehme Richtung geht.
-
-**Der Weg, der den schwersten Befund gefunden hat, fuehrte nicht ueber das Aktenzeichen.**
-Eine Seite trug einen vollstaendig ausgearbeiteten Abschnitt unter `BVerwG 10 C 2.20`; unter
-dieser Nummer liegt das Urteil vom 26.04.2021 zum *Zugang zu Unterlagen ueber CO2-Emissionen
-von Kraftfahrzeugen*. Beschrieben war ein Presse-Auskunftsanspruch aus einem abgeschlossenen
-Disziplinarverfahren. Gefunden wurde die richtige Entscheidung ueber den **Gegenstand**:
-
-```bash
-curl -s -G "https://testphase.rechtsinformationen.bund.de/v1/rechtsprechung" \
-  --data-urlencode "searchTerm=Auskunftsanspruch Disziplinarverfahren Verfassungsschutz Presse" \
-  --data-urlencode "court=BVerwG" --data-urlencode "size=10"
-# -> 2 C 41/18, 2020-10-13, "Anspruch der Presse auf Auskunft aus den Akten eines
-#    abgeschlossenen Disziplinarverfahrens", ECLI:DE:BVerwG:2020:131020U2C41.18.0
-```
-
-Das Aktenzeichen verriet den Fehler im Nachhinein selbst: Der 10. Senat macht
-Informationsfreiheitsrecht, die Sache gehoert zum **2. Senat**. Der Senatsabgleich ist damit
-ein billiger Zusatztest — er braucht keine Abfrage, nur den Blick auf `judicialBody`.
-Umgekehrt gilt: `searchTerm` ist fuer die Richtung Aktenzeichen -> Entscheidung unbrauchbar
-(468 Treffer), fuer die Richtung Gegenstand -> Entscheidung aber das schaerfste Werkzeug.
-
-**Neu erschlossen: DFR Bern fuer historische BVerfG-Entscheidungen.**
-`https://www.servat.unibe.ch/dfr/bvVVVPPP.html` (Band dreistellig, Seite dreistellig;
-BVerfGE 7, 377 -> `bv007377.html`). Volltext samt Leitsaetzen und Entscheidungsnamen.
-Im Audit **26 von 26** BVerfGE-Bandzitaten aufgeloest, Name jeweils gegen das Label im Bestand
-gehalten — ein Treffer („BVerfGE 7, 29 (Lueth/...)", tatsaechlich *Pressedelikte*; Lueth ist
-7, 198). Das schliesst die Luecke, die die Bund-API fuer Entscheidungen vor etwa 2010 laesst.
-
-**Die hohe Quote „nicht pruefbar" ist zur Haelfte hausgemacht.** 76 der 145 Faelle sind
-Instanzgerichte ausserhalb des Portalbestands — die bekannte Grenze. Aber **40 Eintraege
-nennen gar kein Aktenzeichen** („LG Koeln 4.000 EUR (KW47 2022)", „BGH NJW 2018, 2324").
-Sie stammen aus Newsletter-Ingests, die nur Kalenderwoche und Streitwert nannten, und sind
-unpruefbar, solange sie so notiert bleiben — nicht wegen der Quelle, sondern wegen der eigenen
-Notation. Wer die Pruefquote heben will, setzt hier an, nicht bei den Werkzeugen.
-
 ## Warum Geltung und Wirksamkeit ein eigenes Werkzeug brauchen
 
 `normtext_check.py` funktioniert, weil `gesetze-im-internet.de` aufgehobene
@@ -150,7 +92,7 @@ kein vergleichbares Signal. Drei Zugänge wurden geprüft, alle drei scheiden au
 | Cellar REST, `Accept: application/rdf+xml` | HTTP 200, aber ohne Geltungsprädikat im ausgelieferten Rumpf |
 | Cellar SPARQL-Endpunkt | erreichbar, indexiert für **Rechtsakte** aber nur **konsolidierte** CELEX (`02016R0679-20160504`); Basis-Akte liefern null Treffer, damit kein `in-force`, kein `end-of-validity`. **Für Rechtsprechung gilt das nicht** — s. Abschnitt unten |
 
-### Nachtrag 2026-11-19: Für Rechtsprechung trägt Cellar doch
+### Für Rechtsprechung trägt Cellar doch
 
 Der Negativbefund oben war zu breit formuliert. Er gilt für **Rechtsakte** — dort
 indexiert Cellar nur konsolidierte Fassungen. Für **Rechtsprechung** liefert derselbe
@@ -168,9 +110,9 @@ curl -s -G "https://publications.europa.eu/webapi/rdf/sparql" \
 # → 62021CJ0634, 2023-12-07  (C-634/21 SCHUFA)
 ```
 
-Am 2026-11-19 gegen den Bestand getestet: **10 von 10 EuGH-ECLI bestätigt**, CELEX-Nummer
-und Entscheidungsdatum stimmten durchweg mit der Knotenbezeichnung überein. Das schließt
-die Lücke, die für EuGH-Entscheidungen bestand, seit EUR-Lex nicht mehr erreichbar ist.
+Gegen einen bestehenden Bestand erprobt: CELEX-Nummer und Entscheidungsdatum ließen sich
+durchweg gegen die Knotenbezeichnung halten. Das schließt die Lücke, die für
+EuGH-Entscheidungen bestand, seit EUR-Lex nicht mehr erreichbar ist.
 
 **Volltext einer EuGH-Entscheidung, in einer bestimmten Sprache** (gelöst 2026-11-20):
 
@@ -221,7 +163,7 @@ curl -s -G "https://testphase.rechtsinformationen.bund.de/v1/rechtsprechung" \
 Das korrigiert eine ältere Einschätzung: Die Richtung Aktenzeichen → Entscheidung galt als
 unbrauchbar, weil `searchTerm="1 BvR 209/83"` 468 Treffer lieferte. Das ist ein Befund über
 `searchTerm`, nicht über die API — der dedizierte `fileNumber`-Filter trifft punktgenau.
-Am 2026-11-19 über 45 Fundstellen aus dem Bestand geprüft: 20 bestätigt, 0 Fehltreffer.
+Über mehrere Dutzend Fundstellen erprobt, ohne Fehltreffer.
 
 **Die Trefferquote ist selbst ein Befund und muss so gelesen werden.** Bestätigt wurden
 ausschließlich Bundesgerichte (BGH, BVerfG, BVerwG, BAG, BFH), nicht getroffen ausschließlich
@@ -236,6 +178,57 @@ gegen das zitierte Gericht abzugleichen, sonst zählt man Zufallstreffer als Bes
 Dessen Bestand beginnt etwa bei 2010: Lüth (1958), Spiegel (1966) und Volkszählung (1983)
 liefern null Treffer. Das ist ein Befund über den Bestand, **nicht über die ECLI** — solche
 Fälle gehören als `nicht prüfbar` geführt, nicht als Fehler.
+
+### Wenn das Aktenzeichen nicht zum Gegenstand passt
+
+`searchTerm` ist für die Richtung Aktenzeichen → Entscheidung unbrauchbar (s.o., 468 Treffer),
+für die **umgekehrte** Richtung aber das schärfste Werkzeug. Trägt ein Abschnitt ein
+Aktenzeichen, unter dem eine ganz andere Sache liegt, findet man die tatsächlich gemeinte
+Entscheidung über ihren Gegenstand:
+
+```bash
+curl -s -G "https://testphase.rechtsinformationen.bund.de/v1/rechtsprechung" \
+  --data-urlencode "searchTerm=Auskunftsanspruch Disziplinarverfahren Verfassungsschutz Presse" \
+  --data-urlencode "court=BVerwG" --data-urlencode "size=10"
+# → 2 C 41/18, 2020-10-13, "Anspruch der Presse auf Auskunft aus den Akten eines
+#   abgeschlossenen Disziplinarverfahrens", ECLI:DE:BVerwG:2020:131020U2C41.18.0
+```
+
+**Der Senat ist dabei ein kostenloser Zusatztest.** `judicialBody` im Treffer gegen den
+Gegenstand halten: Ein presserechtlicher Auskunftsanspruch gegen einen Beamten gehört zum
+Beamtensenat, nicht zum Senat für Informationsfreiheitsrecht. Passt der Senat nicht zur
+Sache, stimmt das Aktenzeichen nicht — das fällt auf, ohne eine Abfrage zu kosten.
+
+**Die Notation der Aktenzeichen ist kein stabiles Merkmal.** Die API nimmt BVerwG-Aktenzeichen
+mal mit Punkt, mal mit Schrägstrich: `6 C 10/21` trifft, `6 C 10.21` liefert null — bei
+derselben Entscheidung, deren ECLI im Bestand steht. In anderen Fällen ist es umgekehrt.
+Jede Abfrage ist deshalb **in beiden Formen** zu stellen, bevor ein Nulltreffer gezählt wird.
+Sonst meldet man den eigenen Abfragefehler als Befund über den Bestand.
+
+### Verbundene Rechtssachen liegen in Cellar nur unter der Leitsache
+
+Das zweite, dritte, vierte Aktenzeichen eines verbundenen Verfahrens liefert null Treffer,
+obwohl das Urteil existiert. Nachweisbar über den Titel der Leitsache, der die Verbindung
+ausdrücklich nennt — `cdm:expression_title` endet dann auf „Verbundene Rechtssachen C-339/20
+und C-397/20." Wer die Gegenprobe auslässt, meldet ein verbundenes Verfahren als erfunden.
+
+### DFR Bern für historische BVerfG-Entscheidungen
+
+`https://www.servat.unibe.ch/dfr/bvVVVPPP.html` — Band und Seite jeweils dreistellig
+aufgefüllt (BVerfGE 7, 377 → `bv007377.html`). Volltext samt Leitsätzen und
+Entscheidungsnamen. Damit sind BVerfGE-Bandzitate zweifach prüfbar: Band und Seite über den
+HTTP-Status, die Kurzbezeichnung gegen den Entscheidungsnamen im Titel — „BVerfGE 7, 29" ist
+*Pressedelikte*, nicht Lüth (das ist 7, 198). Die Rechtsprechungs-API des Bundes beginnt etwa
+bei 2010 und erfasst solche Entscheidungen nicht; DFR schließt diese Lücke.
+
+### Die häufigste Ursache für „nicht prüfbar" ist die eigene Notation
+
+Einträge wie „LG Köln 4.000 EUR (KW47 2022)" oder „BGH NJW 2018, 2324" nennen **kein
+Aktenzeichen** und sind deshalb prinzipiell unprüfbar — nicht wegen der Quelle, sondern wegen
+der eigenen Schreibweise. Sie entstehen typischerweise bei Newsletter-Ingests, die nur
+Kalenderwoche oder Zeitschriftenfundstelle liefern. Wer die Prüfquote heben will, setzt hier
+an und nicht bei den Werkzeugen: Ein Aktenzeichen beim Ingest zu beschaffen ist billiger, als
+es später zu rekonstruieren.
 
 Hinzu kommt ein Granularitätsbruch: Ankerseiten liegen auf Artikelebene, der
 Geltungsstatus im EU-Recht auf Aktebene. Ein Dutzend Artikelknoten kollabiert zu einer
