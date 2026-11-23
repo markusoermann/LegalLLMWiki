@@ -16,7 +16,7 @@ maschinenlesbare gibt, und der Abgleich der Zeitachse, wo es sie nicht gibt.
 | `knoten_check.py` | `resource:`-URIs auflösbar, Alter des `rechtsstand:`, fehlende Anker-Felder | ja |
 | `normtext_check.py` | Normknoten gegen die amtliche konsolidierte Fassung: Wegfall, Fassungsangabe | ja |
 | `staffelung_check.py` | `in_kraft:` gegen `wirksam_ab:`: gestaffelte Anwendbarkeit, überschrittene Stufen | **nein** |
-| `rang_check.py` | `[!recht]`-Callouts: Gericht als Normkategorie, Rang gegen Leitnorm, Etikettvarianten | **nein** |
+| `rang_check.py` | `[!recht]`-Callouts: Gericht als Normkategorie, Rang gegen Leitnorm, Etikettvarianten, Callouts ohne Normangabe, **Datum gegen ECLI** | **nein** |
 
 ## Aufruf
 
@@ -34,6 +34,18 @@ voraus. `knoten_check.py` und `normtext_check.py` brauchen Netzzugang.
 `staffelung_check.py` läuft vollständig offline; `--datum` verschiebt das Stichdatum
 und beantwortet damit die Frage, was sich am Tag einer künftigen Staffelstufe ändert.
 `rang_check.py` läuft ebenfalls offline und braucht nichts als die Markdown-Dateien.
+
+## Check E: Datum gegen ECLI — klein, aber exakt
+
+Die deutsche ECLI traegt das Entscheidungsdatum im dritten Segment: `ECLI:DE:BGH:2020:`**`270720`**`UVIZR405.18.0` = 27.07.2020; beim BVerfG mit Praefix und umgekehrter Reihenfolge, `rs`**`20191106`** = 06.11.2019. Steht im selben Callout ein abweichendes Datum, ist eines von beiden falsch — **ohne jeden Quellenabruf feststellbar.**
+
+Der Check fand genau einen Fehler, und zwar einen echten: BGH VI ZR 405/18 stand an drei Stellen einer Seite mit dem 28.07.2020 statt dem 27.07.2020.
+
+**Reichweite ehrlich beziffert.** Von 630 `[!recht]`-Callouts im Bestand tragen **29** eine deutsche ECLI; alle 29 tragen auch ein Datum und werden geprueft. Weitere **149** nennen ein Datum ohne ECLI — dort traegt der Check nichts bei, solange die ECLI fehlt. Das ist zugleich die lohnendste Stelle fuer einen Nachtrag: Jede ergaenzte ECLI verwandelt eine ungeprueft behauptete Datumsangabe in eine maschinell pruefbare.
+
+**Warum E ein Fehler und nicht Info ist.** Anders als bei Check D gibt es keine Auslegungsfrage: Die beiden Angaben widersprechen sich, und beide stehen in derselben Zeile. Welche davon stimmt, entscheidet der Check nicht — er meldet nur, dass sie nicht zusammenpassen.
+
+**Der Check wurde gegen bekannte Faelle geprueft, bevor sein Nullbefund geglaubt wurde** (5 Datumsformate aus BGH, BAG, BVerfG korrekt erkannt; Negativprobe mit der echten Abweichung schlaegt an). Ein kaputter Check meldet dasselbe wie ein sauberer Bestand — diese Verwechslung hat beim Bau von Check D drei Anlaeufe gekostet.
 
 ## Warum es keine Pruefsumme gibt
 

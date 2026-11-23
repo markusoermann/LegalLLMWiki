@@ -169,11 +169,41 @@ def nennt_norm(rest):
 
 
 
+# Check E: Datum im Callout gegen das in der deutschen ECLI kodierte Datum.
+#
+# Die deutsche ECLI traegt das Entscheidungsdatum im dritten Segment:
+#   ECLI:DE:BGH:2020:270720UVIZR405.18.0   -> 27.07.2020
+#   ECLI:DE:BVerfG:2019:rs20191106.1bvr...  -> 06.11.2019
+# Zwei Formen kommen vor: TTMMJJ (BGH, BAG, BFH) und das Praefix rs/rk/bv
+# mit JJJJMMTT (BVerfG). Stimmt das Datum im selben Callout nicht ueberein,
+# ist eines von beiden falsch - der Befund ist exakt, ohne Quellenabruf.
+#
+# Im Lauf vom 2026-11-19 fand genau dieser Abgleich einen echten Fehler:
+# BGH VI ZR 405/18 stand mit 28.07.2020 statt 27.07.2020 im Bestand, an
+# drei Stellen einer Seite.
+ECLI_DE = re.compile(r"ECLI:DE:[A-Za-z]+:(\d{4}):([A-Za-z]{0,2})(\d{6,8})")
+DATUM    = re.compile(r"v\.\s*(\d{2})\.(\d{2})\.(\d{4})")
+
+
+def ecli_datum(ecli_jahr, praefix, ziffern):
+    """Gibt (JJJJ, MM, TT) zurueck oder None, wenn die Form unbekannt ist."""
+    if praefix and len(ziffern) == 8:          # BVerfG: rs20191106
+        j, m, tg = ziffern[0:4], ziffern[4:6], ziffern[6:8]
+    elif len(ziffern) >= 6:                     # BGH u.a.: 270720...
+        tg, m, j = ziffern[0:2], ziffern[2:4], "20" + ziffern[4:6]
+    else:
+        return None
+    if j != ecli_jahr:                          # Jahr muss zum ECLI-Jahr passen
+        return None                             # sonst Form nicht sicher erkannt
+    return j, m, tg
+
+
+
 def main():
     if not os.path.isdir(WIKI):
         sys.exit("Wiki-Ordner nicht gefunden: %s\nAufruf: python3 rang_check.py [WIKI-ROOT]" % WIKI)
 
-    a, b, c, d = [], [], collections.Counter(), []
+    a, b, c, d, e = [], [], collections.Counter(), [], []
     gesamt = 0
     for rel, text in seiten(WIKI):
         zeilen = text.split("\n")
@@ -203,6 +233,12 @@ def main():
                 continue
             if not nennt_norm(rest_voll):
                 d.append((rel, nr, rest_voll.strip()[:70]))
+            me, md = ECLI_DE.search(rest_voll), DATUM.search(rest_voll)
+            if me and md:
+                soll = ecli_datum(me.group(1), me.group(2), me.group(3))
+                if soll and (soll[0], soll[1], soll[2]) != (md.group(3), md.group(2), md.group(1)):
+                    e.append((rel, nr, "%s.%s.%s" % md.groups(),
+                              "%s.%s.%s" % (soll[2], soll[1], soll[0]), me.group(0)))
             if not ist_kanonisch(rang, kat):
                 c[(rang, kat)] += 1
 
@@ -223,6 +259,10 @@ def main():
         print("   %3dx  Rang %d (%s)   kanonisch: %s"
               % (n, rang, kat, " / ".join(KANON.get(rang, ["-"]))))
 
+    print("\nFEHLER E  Datum widerspricht der ECLI: %d" % len(e))
+    for rel, nr, ist, soll, ecli in e:
+        print("   %s:%d  Callout %s <-> ECLI %s   (%s)" % (rel, nr, ist, soll, ecli))
+
     print("\nINFO D  Callout ohne Normangabe: %d" % len(d))
     for rel, nr, seg in d:
         print("   %s:%d  %s" % (rel, nr, seg))
@@ -234,6 +274,7 @@ def main():
     print("   B Rang widerspricht Leitnorm: %d  (Fehler)" % len(b))
     print("   C Etikettvariante           : %d  (Info)" % sum(c.values()))
     print("   D Callout ohne Normangabe   : %d  (Info)" % len(d))
+    print("   E Datum widerspricht ECLI   : %d  (Fehler)" % len(e))
     print("\n   Check D macht die alte blinde Stelle sichtbar, behebt sie aber")
     print("   nicht: Nennt ein Callout keine Norm, kann A und B ihn weder")
     print("   bestaetigen noch widerlegen. So stand '· EuGH C-131/12 (Google")
